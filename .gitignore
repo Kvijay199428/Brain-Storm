@@ -1,0 +1,28 @@
+# Gradle / Android build output
+build/
+app/build/
+.gradle/
+.kotlin/
+local.properties
+captures/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# IDE
+.idea/
+*.iml
+*.hprof
+
+# Signing material — never commit
+*.jks
+*.keystore
+keystore.properties
+
+# Local-only material
+dist/
+shots/
+app-update/
+tmp/

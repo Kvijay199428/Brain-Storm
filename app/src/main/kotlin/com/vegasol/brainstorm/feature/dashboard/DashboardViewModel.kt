@@ -1,0 +1,212 @@
+package com.vegasol.brainstorm.feature.dashboard
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.vegasol.brainstorm.BuildConfig
+import com.vegasol.brainstorm.DailyUsage
+import com.vegasol.brainstorm.Detectors
+import com.vegasol.brainstorm.Graph
+import com.vegasol.brainstorm.Lockout
+import com.vegasol.brainstorm.MonitoredApp
+import com.vegasol.brainstorm.Perms
+import com.vegasol.brainstorm.Support
+import com.vegasol.brainstorm.Triggers
+import com.vegasol.brainstorm.theme.UsageThresholds
+import com.vegasol.brainstorm.ui.appLabel
+import com.vegasol.brainstorm.ui.fmtHm
+import com.vegasol.brainstorm.ui.statusOf
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.util.Date
+
+/**
+ * Single owner of dashboard state. Room flows are combined with a coarse clock (the day key can
+ * roll over at the configured reset hour) and a second-granularity ticker that only the
+ * countdowns consume.
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+class DashboardViewModel(app: Application) : AndroidViewModel(app) {
+    private val clock = MutableStateFlow(System.currentTimeMillis())
+
+    /** Exposed separately so only the countdown composables recompose every second. */
+    val now: StateFlow<Long> = clock.asStateFlow()
+
+    private val refreshTick = MutableStateFlow(0)
+
+    init {
+        viewModelScope.launch {
+            while (true) {
+                delay(1_000)
+                clock.value = System.currentTimeMillis()
+            }
+        }
+    }
+
+    private val minuteTick = clock.map { it / 60_000L }.distinctUntilChanged()
+    private val dayKeyFlow = minuteTick.map { Graph.engine.dayKey(it * 60_000L) }.distinctUntilChanged()
+
+    private data class Core(
+        val apps: List<MonitoredApp>,
+        val usage: List<DailyUsage>,
+        val locks: List<Lockout>,
+        val dayKey: String
+    )
+
+    // Coarse tick only: the day key rolls over at resetHour and the heartbeat can go stale
+    // between database writes. The 1-second clock is deliberately NOT an input here, so the
+    // dashboard state object is not rebuilt every tick.
+    private val core = combine(
+        Graph.db.apps().observeAll(),
+        dayKeyFlow.flatMapLatest { Graph.db.usage().observeDay(it) },
+        Graph.db.lockouts().observeActive(),
+        dayKeyFlow,
+        minuteTick
+    ) { apps, usage, locks, dayKey, _ -> Core(apps, usage, locks, dayKey) }
+
+    private val history = combine(
+        dayKeyFlow.flatMapLatest { Graph.db.usage().observeSince(Graph.engine.dayKeys(HISTORY_DAYS).last()) },
+        Graph.db.lockouts().observeHistory(),
+        refreshTick
+    ) { usage, lockHistory, _ -> usage to lockHistory }
+
+    val state: StateFlow<DashboardUiState> = combine(core, history) { c, (usageHistory, lockHistory) ->
+        build(c, usageHistory, lockHistory)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
+
+    /** Called on resume so permission changes made outside the app are picked up. */
+    fun refresh() {
+        refreshTick.value += 1
+    }
+
+    private fun build(
+        c: Core,
+        historyUsage: List<DailyUsage>,
+        lockHistory: List<Lockout>
+    ): DashboardUiState {
+        val budgetSec = Graph.prefs.budgetMin * 60L
+        val totalUsed = c.usage.sumOf { it.foregroundSeconds }
+        val perAppTotal = c.apps.sumOf { (it.timeLimitMin ?: 0) * 60L }
+        val budgetPercent = Derive.percent(totalUsed, budgetSec)
+
+        val apps = c.apps.map { a ->
+            val u = c.usage.firstOrNull { it.packageName == a.packageName }
+            val limitSec = (a.timeLimitMin ?: 0) * 60L
+            val used = u?.foregroundSeconds ?: 0L
+            AppUsageUiModel(
+                packageName = a.packageName,
+                label = a.appName,
+                usedSeconds = used,
+                limitSeconds = limitSec,
+                percent = Derive.percent(used, limitSec),
+                contentCount = u?.contentCount ?: 0,
+                contentSupported = Detectors.support(a.packageName) == Support.SUPPORTED,
+                lock = c.locks.firstOrNull { it.packageName == a.packageName },
+                status = statusOf(a, u, c.locks.firstOrNull { it.packageName == a.packageName })
+            )
+        }.sortedByDescending { it.usedSeconds }
+
+        val maxPercent = maxOf(budgetPercent, apps.maxOfOrNull { it.percent } ?: 0f)
+
+        val ctx = getApplication<Application>()
+        val usageOk = Perms.usage(ctx)
+        val overlayOk = Perms.overlay(ctx)
+        val hbFresh = System.currentTimeMillis() - Graph.prefs.heartbeat < HEARTBEAT_STALE_MS
+        val notEnforced = c.locks.any { it.enforcementNote.startsWith(NOT_ENFORCED) }
+
+        val protection = when {
+            !usageOk -> ProtectionStatus.PERMISSION_REQUIRED
+            !hbFresh -> ProtectionStatus.MONITORING_PAUSED
+            notEnforced -> ProtectionStatus.PARTIAL
+            !overlayOk && BuildConfig.ENFORCEMENT_MODE == "CONSUMER" -> ProtectionStatus.PARTIAL
+            else -> ProtectionStatus.ACTIVE
+        }
+
+        val totalsByDay = historyUsage.groupBy { it.usageDate }
+            .mapValues { entry -> entry.value.sumOf { it.foregroundSeconds } }
+        val keys = Graph.engine.dayKeys(HISTORY_DAYS).reversed()          // oldest → newest
+        val streak = Derive.streakDays(keys, totalsByDay, budgetSec)
+        val clean30 = Derive.withinBudgetCount(keys, totalsByDay, budgetSec)
+        val lockoutToday = lockHistory.any { Graph.engine.dayKey(it.activatedAt) == c.dayKey }
+        val score = Derive.wellnessScore(
+            usedSeconds = totalUsed,
+            budgetSeconds = budgetSec,
+            lockedApps = c.locks.size,
+            monitoredApps = apps.size,
+            lockoutToday = lockoutToday
+        )
+
+        val budgetLock = c.locks.firstOrNull { it.triggerType == Triggers.BUDGET }
+        val remaining = Derive.remainingSeconds(totalUsed, budgetSec)
+        val advice = when {
+            budgetLock != null ->
+                "Your daily budget is spent. I'm holding the line until ${timeOf(budgetLock.expiresAt)}."
+            c.locks.isNotEmpty() -> {
+                val l = c.locks.first()
+                "${labelFor(l.packageName, apps)} is resting until ${timeOf(l.expiresAt)}."
+            }
+            maxPercent >= UsageThresholds.FULL ->
+                "You've reached today's limit. That's the whole allowance — let's take the long break."
+            maxPercent >= UsageThresholds.HIGH ->
+                "You're close to your daily budget. Maybe wrap up and do something offline?"
+            maxPercent >= UsageThresholds.MID ->
+                "${fmtHm(totalUsed)} in. A short break now keeps the rest of the day yours."
+            streak >= 2 ->
+                "Great work — $streak days in a row inside your budget. Your future self thanks you."
+            else -> "You have ${fmtHm(remaining)} left of your ${fmtHm(budgetSec)} budget today."
+        }
+
+        return DashboardUiState(
+            isLoading = false,
+            monitoringActive = hbFresh && usageOk,
+            protection = protection,
+            usageAccessGranted = usageOk,
+            overlayGranted = overlayOk,
+            heartbeatFresh = hbFresh,
+            totalUsageSeconds = totalUsed,
+            dailyBudgetSeconds = budgetSec,
+            perAppLimitsTotalSeconds = perAppTotal,
+            usePercent = budgetPercent,
+            remainingSeconds = remaining,
+            totalContentCount = c.usage.sumOf { it.contentCount },
+            contentCountingAvailable = apps.any { it.contentSupported },
+            wellnessScore = score,
+            currentStreakDays = streak,
+            daysWithinBudgetLast30 = clean30,
+            monitoredApps = apps,
+            mascotState = Derive.mascot(
+                hasActiveLockout = c.locks.isNotEmpty(),
+                degraded = !usageOk || !hbFresh,
+                maxPercent = maxPercent,
+                usedSeconds = totalUsed
+            ),
+            advice = advice,
+            activeLockouts = c.locks,
+            budgetLockout = budgetLock != null,
+            enforcementOk = !notEnforced,
+            dayKey = c.dayKey
+        )
+    }
+
+    private fun labelFor(pkg: String, apps: List<AppUsageUiModel>): String =
+        apps.firstOrNull { it.packageName == pkg }?.label ?: appLabel(getApplication(), pkg)
+
+    private fun timeOf(ms: Long): String =
+        DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(ms))
+
+    companion object {
+        private const val HISTORY_DAYS = 30
+        private const val HEARTBEAT_STALE_MS = 90_000L
+        private const val NOT_ENFORCED = "NOT ENFORCED"
+    }
+}

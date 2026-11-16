@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Brain Storm</string>
+    <string name="overlay_locked">🧠  Brain Storm\nThis app is locked</string>
+</resources>

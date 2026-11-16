@@ -1,0 +1,137 @@
+name: Release
+
+# Every push to main becomes an installable build: tag v<versionName>-<channel>.<commitCount>,
+# signed APK for both flavours, version.json + SHA256SUMS for the in-app updater.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history — versionCode is the commit count)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE_BASE64 secret is missing — refusing to publish unsigned APKs."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > brainstorm-upload.jks
+          {
+            echo "storeFile=brainstorm-upload.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+
+      - name: Unit tests
+        run: ./gradlew :app:testConsumerDebugUnitTest --console=plain
+
+      - name: Build both flavours
+        run: ./gradlew :app:assembleConsumerRelease :app:assembleManagedRelease --console=plain
+
+      - name: Collect, rename and checksum assets
+        id: meta
+        run: |
+          set -euo pipefail
+          VERSION=$(grep -E '^versionName=' version.properties | cut -d= -f2)
+          CHANNEL=$(grep -E '^channel=' version.properties | cut -d= -f2)
+          CODE=$(git rev-list --count HEAD)
+          TAG="v${VERSION}-${CHANNEL}.${CODE}"
+          export VERSION CHANNEL CODE TAG
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          mkdir -p dist
+          for f in consumer managed; do
+            src="app/build/outputs/apk/${f}/release/app-${f}-release.apk"
+            dst="dist/Brain-Storm-${VERSION}_${f}_${CHANNEL}.apk"
+            cp "$src" "$dst"
+          done
+
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, sys
+          version = os.environ["VERSION"]; channel = os.environ["CHANNEL"]
+          code = int(os.environ["CODE"]); tag = os.environ["TAG"]
+          apks = {}
+          for flavour in ("consumer", "managed"):
+              p = pathlib.Path(f"dist/Brain-Storm-{version}_{flavour}_{channel}.apk")
+              digest = hashlib.sha256(p.read_bytes()).hexdigest()
+              apks[flavour] = {"file": p.name, "sha256": digest, "size": p.stat().st_size}
+          payload = {
+              "versionCode": code,
+              "versionName": version,
+              "channel": channel,
+              "tag": tag,
+              "publishedAt": os.popen("date -u +%Y-%m-%dT%H:%M:%SZ").read().strip(),
+              "apks": apks,
+          }
+          pathlib.Path("dist/version.json").write_text(json.dumps(payload, indent=2) + "\n")
+          with open("dist/SHA256SUMS", "w") as fh:
+              for flavour in ("consumer", "managed"):
+                  a = apks[flavour]
+                  fh.write(f"{a['sha256']}  {a['file']}\n")
+          print(json.dumps(payload, indent=2))
+          PY
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          CHANNEL: ${{ steps.meta.outputs.channel }}
+          CODE: ${{ steps.meta.outputs.code }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release $TAG already exists; versionCode must increase with every push."
+            exit 1
+          fi
+          PRERELEASE=""
+          if [ "$CHANNEL" = "beta" ]; then PRERELEASE="--prerelease"; fi
+          {
+            echo "Automated build of \`${GITHUB_SHA:0:7}\` (versionCode ${CODE})."
+            echo
+            echo "Install over an older Brain Storm of the same flavour; upgrades keep your frozen policy."
+            echo
+            echo "* \`Brain-Storm-${VERSION}_consumer_${CHANNEL}.apk\` — normal install"
+            echo "* \`Brain-Storm-${VERSION}_managed_${CHANNEL}.apk\` — Device Owner build"
+            echo "* \`version.json\` + \`SHA256SUMS\` — used by the in-app updater"
+          } > notes.md
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "Brain Storm ${VERSION} (${CHANNEL} ${CODE})" \
+            --notes-file notes.md \
+            $PRERELEASE dist/*

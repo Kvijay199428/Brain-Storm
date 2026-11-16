@@ -1,0 +1,7 @@
+# Normalise line endings so the Gradle wrapper and shell/CI files stay LF on Linux runners.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.jks binary
+*.jar binary
