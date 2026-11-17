@@ -12,6 +12,32 @@ Kotlin · Jetpack Compose · Room · WorkManager · three.js mascot (bundled off
 3. When an app hits its own limit, that app locks. When combined usage across all monitored
    apps hits the budget, **every** monitored app locks.
 4. Locks run their full configured duration. There is no early unlock anywhere in the app.
+5. Optionally — off by default — an experimental detector counts new YouTube Shorts. It never
+   triggers a lock; time remains the enforced limit.
+
+## Content detection (opt-in, experimental)
+
+Time limits never depend on it. Counting is a separate feature that only runs after you enable
+Android's accessibility service for Brain Storm:
+
+- `ContentAccessibilityService` reads the labels of the apps that ship a detector. A new item is
+  counted when the visible signature changes, debounced to at most one per 3 seconds.
+- One detector ships: **YouTube Shorts**, marked `EXPERIMENTAL` because it matches YouTube's
+  accessibility labels, not a public API. **No Instagram Reels detector ships.**
+- Enable it in Settings → Content detection → Accessibility settings. Until Android reports the
+  service as enabled, the dashboard says "counting is off" (or "no detector") instead of showing
+  a number.
+- Counts are **informational**: `LimitEvaluator` only enforces a content limit for a `SUPPORTED`
+  detector, and none ships. Time limits keep working exactly as before.
+- Labels are analysed on the device and are not stored; only a per-item content key (a hash) goes
+  into Room, so the same item cannot be counted twice. There is no upload and no account.
+- Android turns accessibility services off when an app is updated or force-stopped. The dashboard
+  reports that state honestly; re-enable counting from Settings after an update.
+- Debug builds add a probe activity plus a `.debug` application ID, so the whole
+  service → detector → Room → dashboard pipeline can be tested without a live Shorts feed. The
+  probe is absent from release APKs.
+- Play policy: accessibility APIs need an explicit declaration and review. The detector stays
+  beta-only until that review is done.
 
 ## Build
 
@@ -100,6 +126,7 @@ code. `budgetCheck()` in `Core.kt` encodes that rule and is unit tested.
 | Reports: 7/30-day charts, streaks, lock history | `feature/reports/ReportsScreen.kt` |
 | Settings (read-only policy + monitoring health) | `feature/settings/SettingsScreen.kt` |
 | Update check, verified download, install hand-off | `update/UpdateClient.kt`, `update/ApkInstaller.kt`, `update/UpdateManager.kt` |
+| Opt-in accessibility service, Shorts detector, debug probe | `detect/**` |
 | Lockout screen | `feature/lockout/LockoutScreen.kt` |
 | Shell, bottom navigation, detail routing | `feature/shell/MainShell.kt` |
 
@@ -123,11 +150,12 @@ adb shell dpm set-device-owner com.vegasol.brainstorm.managed/com.vegasol.brains
 
 ## Honest limits
 
-- **Content counting is not implemented.** No `ContentDetector` ships, so `contentCount` stays 0
-  and every count limit is hidden. The dashboard and reports show `Not available` rather than a
-  fabricated number. Time limits work normally.
+- **Content counting is experimental and opt-in.** One detector ships (YouTube Shorts) and it is
+  `EXPERIMENTAL`: it recognises UI labels that YouTube can change at any time. There is no Reels
+  detector and no content-based lock. With the accessibility service off, the UI says so instead
+  of rendering `0` as if it were a measurement.
 - **Media-playback detection does not exist**, so the app never claims it. Rows say
-  "time only".
+  "time only" unless a detector is available.
 - **Consumer blocking is best-effort.** The user can revoke permissions or uninstall. The
   dashboard separates *monitoring active*, *limit reached* and *enforcement applied*: a failed
   `EnfResult` is stored as `NOT ENFORCED:` and the header shows "Partially protected".
@@ -141,7 +169,7 @@ adb shell dpm set-device-owner com.vegasol.brainstorm.managed/com.vegasol.brains
 
 ## Release checklist (BS-054…062)
 
-Unit tests for `LimitEvaluator`/`Derive` (done) · reboot + process-death tests · OEM battery
+Unit tests for `LimitEvaluator`/`Derive`/detector signals (done) · reboot + process-death tests · OEM battery
 tests (Samsung, Xiaomi, OnePlus) · Play declarations: foreground service `specialUse`,
-`SYSTEM_ALERT_WINDOW`, `PACKAGE_USAGE_STATS` · privacy policy + Data Safety · confirm app ID
-availability · replace launcher icon.
+`SYSTEM_ALERT_WINDOW`, `PACKAGE_USAGE_STATS`, `BIND_ACCESSIBILITY_SERVICE` + accessibility policy
+review · privacy policy + Data Safety · confirm app ID availability · replace launcher icon.

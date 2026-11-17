@@ -223,6 +223,7 @@ private fun AddAppDialog(existing: Set<String>, onDismiss: () -> Unit, onPick: (
 /** Read-only detail view. No stepper, no toggle: policy is frozen. */
 @Composable
 fun AppDetailsScreen(pkg: String, onBack: () -> Unit) {
+    val c = LocalContext.current
     val now by nowTicker()
     val apps by Graph.db.apps().observeAll().collectAsState(emptyList())
     val key = Graph.engine.dayKey(now)
@@ -242,7 +243,8 @@ fun AppDetailsScreen(pkg: String, onBack: () -> Unit) {
     val lock = locks.firstOrNull { it.packageName == pkg }
     val used = u?.foregroundSeconds ?: 0L
     val limitSec = (a.timeLimitMin ?: 0) * 60L
-    val supported = com.vegasol.brainstorm.Detectors.support(pkg) == com.vegasol.brainstorm.Support.SUPPORTED
+    val hasDetector = com.vegasol.brainstorm.ContentCounting.hasDetector(pkg)
+    val counting = com.vegasol.brainstorm.ContentCounting.active(c, pkg)
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Space.screen),
@@ -264,10 +266,12 @@ fun AppDetailsScreen(pkg: String, onBack: () -> Unit) {
         HorizontalDivider(Modifier.padding(vertical = Space.xs))
         StatRow("Remaining today", fmtHm((limitSec - used).coerceAtLeast(0L)))
         StatRow("Daily limit", fmtHm(limitSec))
-        StatRow("Content counting", if (supported) "${u?.contentCount ?: 0}" else "Not available")
-        if (!supported) {
+        StatRow("Content counting", if (counting) "${u?.contentCount ?: 0}" else "Not available")
+        if (!counting) {
             Text(
-                com.vegasol.brainstorm.Detectors.label(pkg),
+                if (hasDetector)
+                    "A detector exists (${com.vegasol.brainstorm.Detectors.label(pkg)}). Turn it on in Settings."
+                else com.vegasol.brainstorm.Detectors.label(pkg),
                 fontSize = 11.sp, color = Care.TextSecondary
             )
         }

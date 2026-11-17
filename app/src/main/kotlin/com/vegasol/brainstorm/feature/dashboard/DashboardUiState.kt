@@ -42,6 +42,7 @@ data class DashboardUiState(
 
     val totalContentCount: Int = 0,
     val contentCountingAvailable: Boolean = false,
+    val contentDetectorExists: Boolean = false,
 
     val wellnessScore: Int = 0,
     val currentStreakDays: Int = 0,

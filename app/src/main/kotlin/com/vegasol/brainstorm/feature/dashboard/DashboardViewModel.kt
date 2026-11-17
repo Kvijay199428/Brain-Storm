@@ -4,13 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.vegasol.brainstorm.BuildConfig
+import com.vegasol.brainstorm.ContentCounting
 import com.vegasol.brainstorm.DailyUsage
-import com.vegasol.brainstorm.Detectors
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.MonitoredApp
 import com.vegasol.brainstorm.Perms
-import com.vegasol.brainstorm.Support
 import com.vegasol.brainstorm.Triggers
 import com.vegasol.brainstorm.theme.UsageThresholds
 import com.vegasol.brainstorm.ui.appLabel
@@ -99,6 +98,9 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         val perAppTotal = c.apps.sumOf { (it.timeLimitMin ?: 0) * 60L }
         val budgetPercent = Derive.percent(totalUsed, budgetSec)
 
+        val ctx = getApplication<Application>()
+        val countingOn = ContentCounting.enabled(ctx)
+
         val apps = c.apps.map { a ->
             val u = c.usage.firstOrNull { it.packageName == a.packageName }
             val limitSec = (a.timeLimitMin ?: 0) * 60L
@@ -110,7 +112,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
                 limitSeconds = limitSec,
                 percent = Derive.percent(used, limitSec),
                 contentCount = u?.contentCount ?: 0,
-                contentSupported = Detectors.support(a.packageName) == Support.SUPPORTED,
+                contentSupported = countingOn && ContentCounting.hasDetector(a.packageName),
                 lock = c.locks.firstOrNull { it.packageName == a.packageName },
                 status = statusOf(a, u, c.locks.firstOrNull { it.packageName == a.packageName })
             )
@@ -118,7 +120,6 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
 
         val maxPercent = maxOf(budgetPercent, apps.maxOfOrNull { it.percent } ?: 0f)
 
-        val ctx = getApplication<Application>()
         val usageOk = Perms.usage(ctx)
         val overlayOk = Perms.overlay(ctx)
         val hbFresh = System.currentTimeMillis() - Graph.prefs.heartbeat < HEARTBEAT_STALE_MS
@@ -180,6 +181,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             remainingSeconds = remaining,
             totalContentCount = c.usage.sumOf { it.contentCount },
             contentCountingAvailable = apps.any { it.contentSupported },
+            contentDetectorExists = c.apps.any { ContentCounting.hasDetector(it.packageName) },
             wellnessScore = score,
             currentStreakDays = streak,
             daysWithinBudgetLast30 = clean30,

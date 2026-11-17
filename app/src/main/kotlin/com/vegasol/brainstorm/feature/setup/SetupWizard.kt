@@ -59,7 +59,7 @@ private const val DEFAULT_BUDGET = 120
 fun SetupWizard(onDone: () -> Unit) {
     val c = LocalContext.current
     val scope = rememberCoroutineScope()
-    rememberResumeTick()
+    val resume = rememberResumeTick()
 
     var step by remember { mutableIntStateOf(0) }
     var apps by remember { mutableStateOf<List<Inst>>(emptyList()) }
@@ -130,7 +130,7 @@ fun SetupWizard(onDone: () -> Unit) {
             when (step) {
                 0 -> StepWelcome()
                 1 -> StepPrivacy()
-                2 -> StepPermissions(c, notif)
+                2 -> StepPermissions(c, notif, resume)
                 3 -> StepApps(apps, selected, onToggle = { pkg, on ->
                     selected = if (on) selected + (pkg to DEFAULT_APP_LIMIT) else selected - pkg
                 }, onEdit = { editing = it })
@@ -217,7 +217,8 @@ private fun StepPrivacy() {
         Text(
             "• Usage is processed only on this device.\n" +
                 "• No account, no server, no ads.\n" +
-                "• Brain Storm never records your screen and never reads other apps' content.\n" +
+                "• Brain Storm never records your screen. It reads other apps' on-screen labels " +
+                "only if you later turn on the optional content detection.\n" +
                 "• You can disable monitoring or uninstall at any time.\n\n" +
                 "Strict mode means no early unlock from inside Brain Storm. It is high-friction, " +
                 "not tamper-proof: Android always lets you revoke permissions or clear app data.",
@@ -227,22 +228,30 @@ private fun StepPrivacy() {
 }
 
 @Composable
-private fun StepPermissions(c: android.content.Context, notif: androidx.activity.result.ActivityResultLauncher<String>) {
+private fun StepPermissions(
+    c: android.content.Context,
+    notif: androidx.activity.result.ActivityResultLauncher<String>,
+    resume: Int
+) {
+    // Re-read the system state whenever the wizard comes back to the foreground.
+    val usageOk = remember(resume) { Perms.usage(c) }
+    val overlayOk = remember(resume) { Perms.overlay(c) }
+    val notifOk = remember(resume) { Perms.notif(c) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text("Permissions", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text(
             "Usage access is required. The other two make the lock reliable.",
             fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
         )
-        PermissionRow("Usage access (required)", "Lets Brain Storm measure how long selected apps are open.", Perms.usage(c)) {
+        PermissionRow("Usage access (required)", "Lets Brain Storm measure how long selected apps are open.", usageOk) {
             c.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
-        PermissionRow("Display over other apps", "Lets the lock screen appear on top of a locked app.", Perms.overlay(c)) {
+        PermissionRow("Display over other apps", "Lets the lock screen appear on top of a locked app.", overlayOk) {
             c.startActivity(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${c.packageName}"))
             )
         }
-        PermissionRow("Notifications", "Shows the ongoing monitoring status.", Perms.notif(c)) {
+        PermissionRow("Notifications", "Shows the ongoing monitoring status.", notifOk) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notif.launch(Manifest.permission.POST_NOTIFICATIONS)
             }

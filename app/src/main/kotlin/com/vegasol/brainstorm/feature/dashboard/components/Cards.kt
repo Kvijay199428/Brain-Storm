@@ -109,8 +109,12 @@ fun ContentMetricsCard(state: DashboardUiState, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
         MetricTile(
             value = if (state.contentCountingAvailable) "${state.totalContentCount}" else "—",
-            label = "Videos watched",
-            sub = if (state.contentCountingAvailable) "detected today" else "not available · no detector",
+            label = "Clips watched",
+            sub = when {
+                state.contentCountingAvailable -> "YouTube Shorts · detected today"
+                state.contentDetectorExists -> "counting is off · Settings"
+                else -> "not available · no detector"
+            },
             accent = Care.Secondary,
             modifier = Modifier.weight(1f)
         )

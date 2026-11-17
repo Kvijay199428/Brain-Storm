@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug-only harness. Never merged into a release build. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".detect.DetectorProbeActivity"
+            android:exported="true"
+            android:label="Detector probe"
+            android:theme="@style/Theme.BrainStorm" />
+    </application>
+</manifest>

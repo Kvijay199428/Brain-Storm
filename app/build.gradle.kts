@@ -75,6 +75,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // A debug install lives beside the release build it is testing against, so enabling
+            // the accessibility service for the probe never replaces the user's real installation.
+            applicationIdSuffix = ".debug"
+        }
         release {
             // No shrinking yet: debug and release stay behaviourally identical until an R8 pass
             // has been verified on a device.

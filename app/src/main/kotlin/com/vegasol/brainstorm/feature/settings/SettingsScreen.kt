@@ -41,7 +41,8 @@ import com.vegasol.brainstorm.ui.rememberResumeTick
 @Composable
 fun SettingsScreen() {
     val c = LocalContext.current
-    rememberResumeTick()
+    val resume = rememberResumeTick()
+    val accessibility = remember(resume, c) { Perms.accessibility(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
     val prefs = Graph.prefs
@@ -118,11 +119,42 @@ fun SettingsScreen() {
 
         UpdatesCard()
 
+        SurfaceCard(Modifier.fillMaxWidth()) {
+            SectionHeader("Content detection · experimental")
+            Spacer(Modifier.height(Space.s))
+            SettingRow(
+                "YouTube Shorts counting",
+                if (accessibility) "on" else "off",
+                good = if (accessibility) true else null
+            )
+            HorizontalDivider(Modifier.padding(vertical = Space.s))
+            Text(
+                "Off by default. Turning it on opens Android's accessibility screen, where you " +
+                    "allow Brain Storm to read the on-screen labels of apps that have a detector " +
+                    "(currently YouTube Shorts). Labels are analysed on this device and are never " +
+                    "stored or uploaded. Counts are informational: locks still trigger on time " +
+                    "only. Android may turn this off after an app update, or ask you to allow " +
+                    "restricted settings for a sideloaded build.",
+                fontSize = 11.sp, color = Care.TextSecondary
+            )
+            OutlinedButton(
+                { c.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+                Modifier.fillMaxWidth().padding(top = Space.m),
+                shape = RoundedCornerShape(Radius.button)
+            ) {
+                Text(
+                    if (accessibility) "Accessibility settings" else "Turn on content detection",
+                    fontSize = 12.sp
+                )
+            }
+        }
+
         SurfaceCard(Modifier.fillMaxWidth(), color = Care.SurfaceVariant.copy(alpha = 0.5f)) {
             Text("Privacy", fontWeight = FontWeight.Bold, fontSize = 13.sp)
             Text(
-                "Usage is read from Android's own event log on this device. Nothing is uploaded, " +
-                    "there is no account, and no screen content is ever captured.",
+                "Usage is read from Android's own event log on this device. If you turn on " +
+                    "content detection, on-screen labels from the detected apps are analysed on " +
+                    "the device. Nothing is uploaded and there is no account.",
                 fontSize = 11.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
             )
         }

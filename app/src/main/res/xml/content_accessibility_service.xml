@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Opt-in content detection. Android only delivers events for the packages listed here; the user
+  must enable the service explicitly in Settings > Accessibility. canRetrieveWindowContent is
+  required to read the on-screen labels, so it is requested only for the apps that have a shipped
+  detector.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/content_service_description"
+    android:notificationTimeout="400"
+    android:packageNames="com.google.android.youtube"
+    android:settingsActivity="com.vegasol.brainstorm.MainActivity" />

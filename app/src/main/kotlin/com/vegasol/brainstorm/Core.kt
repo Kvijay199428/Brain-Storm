@@ -4,6 +4,7 @@ import android.app.AppOpsManager
 import android.app.Application
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,6 +12,9 @@ import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.room.*
+import com.vegasol.brainstorm.detect.ContentAccessibilityService
+import com.vegasol.brainstorm.detect.DebugProbeDetector
+import com.vegasol.brainstorm.detect.YouTubeShortsDetector
 import com.vegasol.brainstorm.update.UpdateManager
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
@@ -69,6 +73,21 @@ object Perms {
     fun overlay(c: Context) = Settings.canDrawOverlays(c)
     fun notif(c: Context) = Build.VERSION.SDK_INT < 33 ||
         ContextCompat.checkSelfPermission(c, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+    /**
+     * True only when the user has enabled *this app's* content-detection service in Android's
+     * accessibility settings. Reading the setting (instead of a local flag) keeps the UI honest:
+     * revoking access from the system screen immediately reports counting as unavailable.
+     */
+    fun accessibility(c: Context): Boolean {
+        val cr = c.contentResolver
+        if (Settings.Secure.getInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, 0) != 1) return false
+        val flat = Settings.Secure.getString(cr, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
+        return flat.split(':').any { entry ->
+            val cn = ComponentName.unflattenFromString(entry) ?: return@any false
+            cn.packageName == c.packageName && cn.className == ContentAccessibilityService::class.java.name
+        }
+    }
 }
 
 // ───────────── Room database (Phase 1) ─────────────
@@ -258,7 +277,13 @@ fun budgetCheck(budgetSeconds: Long, perAppLimitsTotalSeconds: Long): BudgetChec
 
 // ───────────── Content detection framework (Phase 5) ─────────────
 enum class Support { TIME_ONLY, EXPERIMENTAL, SUPPORTED }
-data class ContentObservation(val packageName: String, val timestamp: Long, val contentId: String?)
+data class ContentObservation(
+    val packageName: String,
+    val timestamp: Long,
+    val contentId: String?,
+    /** Normalised resource ids / labels from the accessibility snapshot; never persisted. */
+    val markers: Set<String> = emptySet()
+)
 data class DetectionOutcome(val detected: Boolean, val contentKey: String?, val confidence: Float)
 interface ContentDetector {
     val packages: Set<String>
@@ -266,13 +291,27 @@ interface ContentDetector {
     fun process(o: ContentObservation): DetectionOutcome
 }
 object Detectors {
-    /** Register validated adapters here. None ship yet: counting needs UI-event access that requires Play policy review. */
-    val all: List<ContentDetector> = emptyList()
+    /**
+     * Shipped adapters. Only the YouTube Shorts detector exists today and it is EXPERIMENTAL:
+     * it is validated in debug builds with a probe surface, not against every YouTube release.
+     */
+    val all: List<ContentDetector> = listOfNotNull(
+        YouTubeShortsDetector(),
+        if (BuildConfig.DEBUG) DebugProbeDetector() else null
+    )
+    fun forPackage(pkg: String) = all.filter { pkg in it.packages }
     fun support(pkg: String) = all.firstOrNull { pkg in it.packages }?.support ?: Support.TIME_ONLY
     fun label(pkg: String) = when (support(pkg)) {
         Support.SUPPORTED -> "counting supported"; Support.EXPERIMENTAL -> "counting experimental"
         Support.TIME_ONLY -> "time limit only (counting unavailable)"
     }
+}
+
+/** Content counting is opt-in: a detector alone is not enough, the accessibility service must be on. */
+object ContentCounting {
+    fun enabled(c: Context) = Perms.accessibility(c)
+    fun hasDetector(pkg: String) = Detectors.support(pkg) != Support.TIME_ONLY
+    fun active(c: Context, pkg: String) = enabled(c) && hasDetector(pkg)
 }
 object ContentRepository {
     suspend fun record(o: ContentObservation, out: DetectionOutcome, method: String) {
