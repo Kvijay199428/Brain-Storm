@@ -116,6 +116,8 @@ fun SettingsScreen() {
             ) { Text("Restart monitoring") }
         }
 
+        UpdatesCard()
+
         SurfaceCard(Modifier.fillMaxWidth(), color = Care.SurfaceVariant.copy(alpha = 0.5f)) {
             Text("Privacy", fontWeight = FontWeight.Bold, fontSize = 13.sp)
             Text(
@@ -135,7 +137,7 @@ fun SettingsScreen() {
 }
 
 @Composable
-private fun SettingRow(label: String, value: String, good: Boolean? = null) {
+internal fun SettingRow(label: String, value: String, good: Boolean? = null) {
     Row(
         Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(RoundedCornerShape(8.dp))
             .background(Care.Background.copy(alpha = 0.0f)),

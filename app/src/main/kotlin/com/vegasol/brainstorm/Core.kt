@@ -11,6 +11,7 @@ import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.room.*
+import com.vegasol.brainstorm.update.UpdateManager
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 
@@ -30,6 +31,7 @@ object Graph {
     lateinit var engine: UsageEngine
     lateinit var enforcement: EnforcementController
     lateinit var lockouts: LockoutManager
+    lateinit var updates: UpdateManager
 
     @Synchronized
     fun init(c: Context) {
@@ -40,6 +42,7 @@ object Graph {
         engine = UsageEngine(app, db, prefs)
         enforcement = EnforcementProvider.create(app)
         lockouts = LockoutManager(db, prefs, enforcement)
+        updates = UpdateManager(app)
     }
 }
 

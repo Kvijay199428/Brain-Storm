@@ -26,6 +26,47 @@ Command line:
 ./gradlew :app:testConsumerDebugUnitTest :app:lintConsumerDebug
 ```
 
+Release builds are signed with `brainstorm-upload.jks`; credentials live in the gitignored
+`keystore.properties` (see `keystore.properties.example`). Without them the release variant builds
+unsigned instead of failing.
+
+## Releases and in-app updates
+
+Every push to `main` publishes a release; nothing is released by hand.
+
+| Piece | Where |
+|---|---|
+| Version name + channel | `version.properties` (`versionName=1.0.0`, `channel=beta`) |
+| `versionCode` | the git commit count — strictly increases with every push |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v1.0.0-beta.7` |
+| Assets | `Brain-Storm-<version>_consumer_<channel>.apk`, `..._managed_<channel>.apk`, `version.json`, `SHA256SUMS` |
+| CI | `.github/workflows/release.yml` |
+| Local equivalent | `tools/release.ps1` (`-SkipPublish` to build + checksum only) |
+
+`version.json` is the updater's contract:
+
+```json
+{
+  "versionCode": 7,
+  "versionName": "1.0.0",
+  "channel": "beta",
+  "tag": "v1.0.0-beta.7",
+  "apks": {
+    "consumer": { "file": "Brain-Storm-1.0.0_consumer_beta.apk", "sha256": "…", "size": 19629365 },
+    "managed":  { "file": "Brain-Storm-1.0.0_managed_beta.apk",  "sha256": "…", "size": 19629829 }
+  }
+}
+```
+
+Settings → **Updates** checks the release list at most once every six hours (or on demand), reads
+`version.json`, and only offers a build whose `versionCode` is higher. Before handing anything to
+Android it verifies the file's SHA-256 **and** that the APK is signed by the same certificate as the
+installed app; a mismatch deletes the download and says so.
+
+On the **consumer** edition Android shows its own install dialog — the app never claims a silent
+update. On the **managed** edition a Device Owner commit is attempted first, and if the platform
+refuses it falls back to the same dialog.
+
 ## Policy model
 
 | Rule | Behaviour |
@@ -58,6 +99,7 @@ code. `budgetCheck()` in `Core.kt` encodes that rule and is unit tested.
 | Apps list (read-only + add) and app details (read-only) | `feature/apps/AppsScreen.kt` |
 | Reports: 7/30-day charts, streaks, lock history | `feature/reports/ReportsScreen.kt` |
 | Settings (read-only policy + monitoring health) | `feature/settings/SettingsScreen.kt` |
+| Update check, verified download, install hand-off | `update/UpdateClient.kt`, `update/ApkInstaller.kt`, `update/UpdateManager.kt` |
 | Lockout screen | `feature/lockout/LockoutScreen.kt` |
 | Shell, bottom navigation, detail routing | `feature/shell/MainShell.kt` |
 

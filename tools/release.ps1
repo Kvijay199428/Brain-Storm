@@ -1,4 +1,4 @@
-#requires -Version 7.0
+#requires -Version 5.1
 <#
 .SYNOPSIS
     Build, tag and publish a Brain Storm release — the local twin of .github/workflows/release.yml.
@@ -114,13 +114,13 @@ try {
         apks        = $apks
     }
     $json = $payload | ConvertTo-Json -Depth 5
-    Set-Content -Path (Join-Path $dist 'version.json') -Value $json -Encoding utf8NoBOM
+    [IO.File]::WriteAllText((Join-Path $dist 'version.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
 
     $sums = foreach ($flavour in 'consumer', 'managed') {
         $a = $apks[$flavour]
         "$($a.sha256)  $($a.file)"
     }
-    Set-Content -Path (Join-Path $dist 'SHA256SUMS') -Value $sums -Encoding utf8NoBOM
+    [IO.File]::WriteAllText((Join-Path $dist 'SHA256SUMS'), ($sums -join "`n") + "`n", (New-Object System.Text.UTF8Encoding($false)))
 
     Write-Host "Assets in $dist" -ForegroundColor Green
     Get-ChildItem $dist | Select-Object Name, Length | Format-Table | Out-String | Write-Host
