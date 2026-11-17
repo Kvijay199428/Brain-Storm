@@ -67,6 +67,8 @@ class ApkInstaller(private val c: Context) {
         return null
     }
 
+    fun canInstall(): Boolean = c.packageManager.canRequestPackageInstalls()
+
     fun install(apk: File): InstallStart {
         if (!c.packageManager.canRequestPackageInstalls()) return InstallStart.NeedsInstallPermission
 

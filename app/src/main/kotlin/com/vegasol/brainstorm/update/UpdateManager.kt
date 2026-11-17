@@ -47,6 +47,9 @@ class UpdateManager(c: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val busy = AtomicBoolean(false)
 
+    /** Downloaded, verified APK kept between the permission prompt and the install. */
+    private var pending: File? = null
+
     private val _state = MutableStateFlow<UpdateState>(UpdateState.Unknown)
     val state: StateFlow<UpdateState> = _state
 
@@ -60,7 +63,7 @@ class UpdateManager(c: Context) {
     /** Called on app start: one check per six hours unless the user presses the button. */
     fun maybeCheck() {
         val age = System.currentTimeMillis() - lastChecked
-        if (age < THROTTLE_MS && _state.value !is UpdateState.Failed) return
+        if (age < THROTTLE_MS) return
         check()
     }
 
@@ -98,6 +101,7 @@ class UpdateManager(c: Context) {
                     return@launch
                 }
                 _state.value = UpdateState.Ready(info, apk)
+                pending = apk
                 when (val start = installer.install(apk)) {
                     is InstallStart.Rejected ->
                         _state.value = UpdateState.Failed(System.currentTimeMillis(), start.reason)
@@ -117,6 +121,24 @@ class UpdateManager(c: Context) {
                 busy.set(false)
             }
         }
+    }
+
+    /**
+     * Called when the screen resumes: if the user just granted "install unknown apps", continue
+     * with the APK that was already downloaded and verified instead of downloading it again.
+     */
+    fun resumeAfterPermission() {
+        val s = _state.value as? UpdateState.NeedsPermission ?: return
+        if (!installer.canInstall()) return
+        val apk = pending ?: return
+        if (!apk.exists() || installer.verify(apk) != null) return
+        if (!busy.compareAndSet(false, true)) return
+        when (val start = installer.install(apk)) {
+            is InstallStart.Rejected -> _state.value = UpdateState.Failed(System.currentTimeMillis(), start.reason)
+            InstallStart.NeedsInstallPermission -> _state.value = UpdateState.NeedsPermission(s.info)
+            else -> _state.value = UpdateState.InstallStarted(start, s.info)
+        }
+        busy.set(false)
     }
 
     fun openInstallPermissionSettings() = installer.openInstallPermissionSettings()

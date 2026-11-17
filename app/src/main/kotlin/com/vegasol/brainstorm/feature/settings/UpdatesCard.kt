@@ -22,6 +22,7 @@ import com.vegasol.brainstorm.theme.Space
 import com.vegasol.brainstorm.ui.SectionHeader
 import com.vegasol.brainstorm.ui.SurfaceCard
 import com.vegasol.brainstorm.ui.UsageProgressBar
+import com.vegasol.brainstorm.ui.rememberResumeTick
 import com.vegasol.brainstorm.update.InstallStart
 import com.vegasol.brainstorm.update.UpdateState
 import java.util.concurrent.TimeUnit
@@ -38,6 +39,10 @@ fun UpdatesCard() {
     val installResult = remember(state) { updates.lastInstallResult }
 
     LaunchedEffect(Unit) { updates.maybeCheck() }
+
+    // Returning from the "install unknown apps" screen: continue with the verified download.
+    val resume = rememberResumeTick()
+    LaunchedEffect(resume) { updates.resumeAfterPermission() }
 
     SurfaceCard(Modifier.fillMaxWidth()) {
         SectionHeader("Updates")
