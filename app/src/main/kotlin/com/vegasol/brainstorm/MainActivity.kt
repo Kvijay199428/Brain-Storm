@@ -1,8 +1,10 @@
 package com.vegasol.brainstorm
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,7 +25,7 @@ import com.vegasol.brainstorm.theme.Care
 class MainActivity : ComponentActivity() {
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
-        enableEdgeToEdge()
+        edgeToEdge()
         Graph.init(this)
         setContent {
             BrainStormTheme {
@@ -41,11 +43,21 @@ fun Root() {
     if (!frozen) SetupWizard { frozen = true } else MainShell()
 }
 
+/**
+ * The app is dark-only in this pass, so both system bars always need light icons. The stock
+ * `enableEdgeToEdge()` follows the *system* theme: on a phone in light mode it would draw dark
+ * status-bar icons over our dark background, which is how the monitoring icon became invisible.
+ */
+private fun ComponentActivity.edgeToEdge() = enableEdgeToEdge(
+    statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+    navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+)
+
 /** Lock screen shown over a locked app: mascot, reason, live countdown, exact unlock time. */
 class BlockingActivity : ComponentActivity() {
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
-        enableEdgeToEdge()
+        edgeToEdge()
         Graph.init(this)
         val pkg = intent.getStringExtra("pkg") ?: ""
         setContent {

@@ -1,0 +1,4 @@
+<resources>
+    <!-- Matches the app's deep-violet surface so the adaptive icon has no visible seam. -->
+    <color name="ic_launcher_background">#1D1442</color>
+</resources>

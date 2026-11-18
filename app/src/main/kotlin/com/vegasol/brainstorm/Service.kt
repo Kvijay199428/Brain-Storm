@@ -3,6 +3,7 @@ package com.vegasol.brainstorm
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -44,10 +45,25 @@ class MonitorService : Service() {
     private fun goForeground() {
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CH, "Monitoring", NotificationManager.IMPORTANCE_LOW))
-        val n = Notification.Builder(this, CH)
+        val open = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = Notification.Builder(this, CH)
             .setContentTitle("Brain Storm is protecting your focus")
             .setContentText("Monitoring your selected apps")
-            .setSmallIcon(R.drawable.ic_launcher).setOngoing(true).build()
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(BRAND)                    // tints the small icon's circle to the app's accent
+            .setContentIntent(open)             // tapping the notice opens the dashboard
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .setShowWhen(false)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
+        if (Build.VERSION.SDK_INT >= 31) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+        }
+        val n = builder.build()
         val type = if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
         ServiceCompat.startForeground(this, 1, n, type)
     }
@@ -81,6 +97,10 @@ class MonitorService : Service() {
 
     companion object {
         const val CH = "monitoring"
+
+        /** App accent (`Care.Primary`); kept as a literal so the service needs no Compose types. */
+        private const val BRAND = 0xFF8B7CFF.toInt()
+
         fun start(c: Context) {
             runCatching { ContextCompat.startForegroundService(c, Intent(c, MonitorService::class.java)) }
         }

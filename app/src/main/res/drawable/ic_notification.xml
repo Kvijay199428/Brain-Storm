@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Notification small icon: monochrome, alpha-only. The system tints it, so it must not carry
+  colour or fine detail. Same silhouette as the launcher icon, scaled to fill the 24dp canvas
+  (Android draws small icons inside a tinted circle, so a glyph that only filled a third of the
+  canvas would read as a dot).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- The silhouette spans x 30..78, y 32..74 in the 108dp source. Scale 0.42 gives 20.2 x 17.6
+         dp, and the translate re-centres it on (12, 12). The second subpath is a wedge that even-odd
+         fill turns into the cleft between the hemispheres, so the mark does not read as a cloud. -->
+    <group
+        android:scaleX="0.42"
+        android:scaleY="0.42"
+        android:translateX="-10.68"
+        android:translateY="-10.26">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M54,32
+                A10,10 0 0 1 64,36
+                A10,10 0 0 1 74,44
+                A9,9 0 0 1 78,54
+                A9,9 0 0 1 70,66
+                A9,9 0 0 1 58,74
+                A8,8 0 0 1 50,74
+                A9,9 0 0 1 38,66
+                A9,9 0 0 1 30,54
+                A9,9 0 0 1 34,44
+                A10,10 0 0 1 44,36
+                A10,10 0 0 1 54,32
+                Z
+                M48.6,31
+                L54,42
+                L59.4,31
+                Z" />
+    </group>
+</vector>
