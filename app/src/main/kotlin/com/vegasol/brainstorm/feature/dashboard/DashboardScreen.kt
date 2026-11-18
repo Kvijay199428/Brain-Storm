@@ -2,11 +2,11 @@
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +33,6 @@ import com.vegasol.brainstorm.feature.dashboard.components.WelcomeSection
 import com.vegasol.brainstorm.feature.dashboard.components.WellnessScoreCard
 import com.vegasol.brainstorm.mascot.MascotPool
 import com.vegasol.brainstorm.mascot.rememberMascotPool
-import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Space
 import com.vegasol.brainstorm.ui.rememberResumeTick
 import com.vegasol.brainstorm.update.UpdateState
@@ -104,38 +103,60 @@ fun DashboardScreen(
             onBell = { onOpenTab(2) },
             onSettings = onOpenSettings
         )
-        LazyColumn(
-            Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = Space.screen, vertical = Space.m),
-            verticalArrangement = Arrangement.spacedBy(Space.m)
-        ) {
-            item("welcome") { WelcomeSection(greeting()) }
-            item("hero") { MascotHeroCard(state, pool, onFix) }
-            if (update is UpdateState.Available) {
-                item("update") { UpdateBanner(update, onOpenSettings) }
-            }
-            item("time") { ScreenTimeCard(state, onClick = { onOpenTab(2) }) }
-            item("content") { ContentMetricsCard(state) }
-
-            item("appsHeader") {
-                MonitoredAppsHeader(state.monitoredApps.size, onAddApps)
-            }
-            if (state.monitoredApps.isEmpty()) {
-                item("appsEmpty") { NoAppsCard(onAddApps) }
-            } else {
-                items(state.monitoredApps, key = { it.packageName }) { model ->
-                    MonitoredAppRow(model, now, onClick = { onOpenApp(model.packageName) })
-                }
-            }
-
-            if (state.isLocked) {
-                item("lockout") { LockoutStatusCard(state, now) }
-            }
-
-            item("wellness") { WellnessScoreCard(state) }
-            item("advice") { MascotAdviceCard(state, pool) }
-            item("end") { Spacer(Modifier.height(Space.section)) }
+        // Nothing below the header is drawn until the first database emission. The old placeholder
+        // painted "Finish setup", "no apps" and a row of zeroes for a beat on every cold start, and
+        // setup is finished by the time the dashboard exists at all.
+        if (state.isLoading) {
+            LinearProgressIndicator(Modifier.fillMaxWidth())
+        } else {
+            DashboardBody(state, now, pool, update, onOpenApp, onOpenTab, onOpenSettings, onFix, onAddApps)
         }
+    }
+}
+
+@Composable
+private fun DashboardBody(
+    state: DashboardUiState,
+    now: State<Long>,
+    pool: MascotPool,
+    update: UpdateState,
+    onOpenApp: (String) -> Unit,
+    onOpenTab: (Int) -> Unit,
+    onOpenSettings: () -> Unit,
+    onFix: () -> Unit,
+    onAddApps: () -> Unit
+) {
+    LazyColumn(
+        Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = Space.screen, vertical = Space.m),
+        verticalArrangement = Arrangement.spacedBy(Space.m)
+    ) {
+        item("welcome") { WelcomeSection(greeting()) }
+        item("hero") { MascotHeroCard(state, pool, onFix) }
+        if (update is UpdateState.Available) {
+            item("update") { UpdateBanner(update, onOpenSettings) }
+        }
+        item("time") { ScreenTimeCard(state, onClick = { onOpenTab(2) }) }
+        item("content") { ContentMetricsCard(state) }
+
+        item("appsHeader") {
+            MonitoredAppsHeader(state.monitoredApps.size, onAddApps)
+        }
+        if (state.monitoredApps.isEmpty()) {
+            item("appsEmpty") { NoAppsCard(onAddApps) }
+        } else {
+            items(state.monitoredApps, key = { it.packageName }) { model ->
+                MonitoredAppRow(model, now, onClick = { onOpenApp(model.packageName) })
+            }
+        }
+
+        if (state.isLocked) {
+            item("lockout") { LockoutStatusCard(state, now) }
+        }
+
+        item("wellness") { WellnessScoreCard(state) }
+        item("advice") { MascotAdviceCard(state, pool) }
+        item("end") { Spacer(Modifier.height(Space.section)) }
     }
 }
 
@@ -147,4 +168,3 @@ fun greeting(now: Long = System.currentTimeMillis()): String {
         else -> "Good evening!"
     }
 }
-

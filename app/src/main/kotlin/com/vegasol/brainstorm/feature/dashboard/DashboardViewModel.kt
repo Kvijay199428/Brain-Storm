@@ -79,9 +79,46 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         refreshTick
     ) { usage, lockHistory, _ -> usage to lockHistory }
 
+    /**
+     * First frame only. Room needs a beat to emit, and the old placeholder defaulted to
+     * PERMISSION_REQUIRED, so the hero flashed "Finish setup" on every cold start even when setup
+     * was already finished. Permissions, the heartbeat and the frozen budget are cheap synchronous
+     * reads, so the placeholder tells the truth and only the measured numbers wait for the database.
+     */
+    private val initial: DashboardUiState = run {
+        val ctx = getApplication<Application>()
+        val usageOk = Perms.usage(ctx)
+        val overlayOk = Perms.overlay(ctx)
+        val budgetSec = Graph.prefs.budgetMin * 60L
+        val hbFresh = System.currentTimeMillis() - Graph.prefs.heartbeat < HEARTBEAT_STALE_MS
+        val protection = when {
+            !usageOk -> ProtectionStatus.PERMISSION_REQUIRED
+            !hbFresh -> ProtectionStatus.MONITORING_PAUSED
+            !overlayOk && BuildConfig.ENFORCEMENT_MODE == "CONSUMER" -> ProtectionStatus.PARTIAL
+            else -> ProtectionStatus.ACTIVE
+        }
+        DashboardUiState(
+            isLoading = true,
+            monitoringActive = hbFresh && usageOk,
+            protection = protection,
+            usageAccessGranted = usageOk,
+            overlayGranted = overlayOk,
+            heartbeatFresh = hbFresh,
+            dailyBudgetSeconds = budgetSec,
+            remainingSeconds = budgetSec,
+            mascotState = Derive.mascot(
+                hasActiveLockout = false,
+                degraded = !usageOk || !hbFresh,
+                maxPercent = 0f,
+                usedSeconds = 0L
+            ),
+            dayKey = Graph.engine.dayKey(System.currentTimeMillis())
+        )
+    }
+
     val state: StateFlow<DashboardUiState> = combine(core, history) { c, (usageHistory, lockHistory) ->
         build(c, usageHistory, lockHistory)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)
 
     /** Called on resume so permission changes made outside the app are picked up. */
     fun refresh() {
