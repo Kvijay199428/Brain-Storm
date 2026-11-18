@@ -10,6 +10,7 @@ import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.MonitoredApp
 import com.vegasol.brainstorm.Perms
+import com.vegasol.brainstorm.Startup
 import com.vegasol.brainstorm.Triggers
 import com.vegasol.brainstorm.theme.UsageThresholds
 import com.vegasol.brainstorm.ui.appLabel
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.DateFormat
@@ -118,7 +120,11 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
 
     val state: StateFlow<DashboardUiState> = combine(core, history) { c, (usageHistory, lockHistory) ->
         build(c, usageHistory, lockHistory)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)
+    }
+        // Releases the launch splash. Only a real emission counts: the `initial` placeholder is
+        // itself isLoading=true, so it can never dismiss the splash.
+        .onEach { if (!it.isLoading) Startup.dashboardReady.set(true) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)
 
     /** Called on resume so permission changes made outside the app are picked up. */
     fun refresh() {

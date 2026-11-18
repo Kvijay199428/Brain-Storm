@@ -4,4 +4,15 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <!--
+      Launcher theme only. The splash stays up until the dashboard has its first database emission
+      (see Startup.kt), so a cold start goes brand mark -> real numbers. The regular theme is the
+      post-splash one, and BlockingActivity keeps using it directly so a lock never waits on data.
+    -->
+    <style name="Theme.BrainStorm.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.BrainStorm</item>
+    </style>
 </resources>
