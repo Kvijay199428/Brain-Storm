@@ -12,12 +12,15 @@ import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.vegasol.brainstorm.detect.ContentAccessibilityService
 import com.vegasol.brainstorm.detect.DebugProbeDetector
 import com.vegasol.brainstorm.detect.YouTubeShortsDetector
 import com.vegasol.brainstorm.update.UpdateManager
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
+import java.util.TimeZone
 
 // ───────────── Application + service locator (Phase 0) ─────────────
 class BrainStormApp : Application() {
@@ -148,16 +151,60 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
     @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(e: ContentEvent): Long
 }
 
-@Database(entities = [MonitoredApp::class, DailyUsage::class, Lockout::class, ContentEvent::class], version = 1, exportSchema = true)
+// Per-hour foreground time, rebuilt from Android's event log on every reconcile. Only the clock
+// hour is stored, never an activity title or screen text.
+@Entity(tableName = "hourly_usage", indices = [Index(value = ["packageName", "usageDate", "hour"], unique = true)])
+data class HourlyUsage(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val packageName: String, val usageDate: String, val hour: Int,
+    val foregroundSeconds: Long = 0, val updatedAt: Long = 0
+)
+
+@Dao interface HourlyDao {
+    @Query("SELECT * FROM hourly_usage WHERE usageDate=:d ORDER BY hour") fun observeDay(d: String): Flow<List<HourlyUsage>>
+    @Query("SELECT * FROM hourly_usage WHERE usageDate=:d") suspend fun day(d: String): List<HourlyUsage>
+    @Query("DELETE FROM hourly_usage WHERE usageDate=:d") suspend fun clearDay(d: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertAll(rows: List<HourlyUsage>)
+}
+
+@Database(
+    entities = [MonitoredApp::class, DailyUsage::class, Lockout::class, ContentEvent::class, HourlyUsage::class],
+    version = 2, exportSchema = true
+)
 abstract class BrainStormDb : RoomDatabase() {
     abstract fun apps(): AppDao
     abstract fun usage(): UsageDao
     abstract fun lockouts(): LockoutDao
     abstract fun content(): ContentDao
+    abstract fun hourly(): HourlyDao
     companion object {
+        /**
+         * v1 stores only daily totals. v2 adds the hourly table; no existing row is touched, so an
+         * in-place app update keeps today's usage and the frozen policy intact.
+         */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `hourly_usage` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`packageName` TEXT NOT NULL, `usageDate` TEXT NOT NULL, " +
+                        "`hour` INTEGER NOT NULL, `foregroundSeconds` INTEGER NOT NULL, " +
+                        "`updatedAt` INTEGER NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS " +
+                        "`index_hourly_usage_packageName_usageDate_hour` ON `hourly_usage` " +
+                        "(`packageName`, `usageDate`, `hour`)"
+                )
+            }
+        }
+
         @Volatile private var i: BrainStormDb? = null
         fun get(c: Context): BrainStormDb = i ?: synchronized(this) {
-            i ?: Room.databaseBuilder(c, BrainStormDb::class.java, "brainstorm.db").build().also { i = it }
+            i ?: Room.databaseBuilder(c, BrainStormDb::class.java, "brainstorm.db")
+                .addMigrations(MIGRATION_1_2)
+                .build()
+                .also { i = it }
         }
     }
 }
@@ -189,23 +236,66 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
         if (!Perms.usage(ctx)) return
         val apps = db.apps().enabled()
         if (apps.isEmpty()) return
-        val totals = secondsByPackage(apps.map { it.packageName }.toSet(), dayStart(now), now)
         val date = dayKey(now)
+        val watched = apps.map { it.packageName }.toSet()
+        val spans = intervals(watched, dayStart(now), now)
+        val zone = TimeZone.getDefault()
+
+        // Totals keep the original semantics: one continuous foreground span counts once.
+        val totals = HashMap<String, Long>()
+        // Hourly buckets split a span at clock boundaries, so a session that started at 10:58 is
+        // not booked entirely into 10:00 when the report draws the 11:00 bar.
+        val perHour = HashMap<Pair<String, Int>, Long>()
+        for (s in spans) {
+            val ms = (s.endMs - s.startMs).coerceAtLeast(0L)
+            if (ms <= 0L) continue
+            totals[s.packageName] = (totals[s.packageName] ?: 0L) + ms
+            for (slice in UsageBuckets.slices(s.startMs, s.endMs, zone)) {
+                val k = s.packageName to slice.hour
+                perHour[k] = (perHour[k] ?: 0L) + slice.millis
+            }
+        }
+
         for (a in apps) {
             val cur = db.usage().get(a.packageName, date) ?: DailyUsage(packageName = a.packageName, usageDate = date)
-            db.usage().upsert(cur.copy(foregroundSeconds = totals[a.packageName] ?: 0L, updatedAt = now))
+            db.usage().upsert(cur.copy(foregroundSeconds = (totals[a.packageName] ?: 0L) / 1000L, updatedAt = now))
         }
+        writeHourly(date, perHour, now)
     }
 
-    private fun secondsByPackage(pk: Set<String>, from: Long, to: Long): Map<String, Long> {
+    /**
+     * Rewrites today's hourly rows only when the numbers changed. Reconcile runs every few seconds
+     * while an app is open, so an unconditional delete + insert would churn the disk for nothing.
+     */
+    private suspend fun writeHourly(date: String, perHour: Map<Pair<String, Int>, Long>, now: Long) {
+        val next = perHour
+            .filterValues { it >= 1000L }
+            .map { (k, ms) ->
+                HourlyUsage(
+                    packageName = k.first, usageDate = date, hour = k.second,
+                    foregroundSeconds = ms / 1000L, updatedAt = now
+                )
+            }
+        val current = db.hourly().day(date)
+        val unchanged = current.size == next.size && current.all { c ->
+            next.any { it.packageName == c.packageName && it.hour == c.hour && it.foregroundSeconds == c.foregroundSeconds }
+        }
+        if (unchanged) return
+        db.hourly().clearDay(date)
+        if (next.isNotEmpty()) db.hourly().insertAll(next)
+    }
+
+    private data class Span(val packageName: String, val startMs: Long, val endMs: Long)
+
+    /** Foreground spans from Android's event log, each closed at pause/stop/screen-off or at [to]. */
+    private fun intervals(pk: Set<String>, from: Long, to: Long): List<Span> {
         val ev = usm.queryEvents(from, to)
         val e = UsageEvents.Event()
         val open = HashMap<String, Long>()
-        val tot = HashMap<String, Long>()
+        val out = ArrayList<Span>()
         fun close(k: String, t: Long) {
             val s = open.remove(k) ?: return
-            val p = k.substringBefore('/')
-            tot[p] = (tot[p] ?: 0L) + (t - s).coerceAtLeast(0L) / 1000L
+            out.add(Span(k.substringBefore('/'), s, t))
         }
         while (ev.hasNextEvent()) {
             ev.getNextEvent(e)
@@ -219,7 +309,7 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
             }
         }
         open.keys.toList().forEach { close(it, to) }
-        return tot
+        return out
     }
 
     /** Tracks the current foreground package from events in (from, to]. */

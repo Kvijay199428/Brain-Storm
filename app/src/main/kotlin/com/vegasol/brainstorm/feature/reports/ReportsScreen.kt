@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vegasol.brainstorm.Graph
+import com.vegasol.brainstorm.UsageBuckets
 import com.vegasol.brainstorm.feature.dashboard.Derive
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
@@ -38,11 +39,19 @@ fun ReportsScreen() {
     val todayKey = remember(now / 60_000) { Graph.engine.dayKey(now) }
     val keys30 = remember(todayKey) { Graph.engine.dayKeys(30, now) }
     val rows by remember(keys30) { Graph.db.usage().observeSince(keys30.last()) }.collectAsStateWithLifecycle(emptyList())
+    val hourly by Graph.db.hourly().observeDay(todayKey).collectAsStateWithLifecycle(emptyList())
     val lockHistory by Graph.db.lockouts().observeHistory().collectAsStateWithLifecycle(emptyList())
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
     val names = remember(apps) { apps.associate { it.packageName to it.appName } }
 
     val budgetSec = Graph.prefs.budgetMin * 60L
+    val perHour = remember(hourly) {
+        val sums = LongArray(24)
+        hourly.forEach { if (it.hour in 0..23) sums[it.hour] += it.foregroundSeconds }
+        sums.toList()
+    }
+    val currentHour = remember(now / 60_000) { UsageBuckets.hourOf(now) }
+    val hourlyTotal = remember(perHour) { perHour.sum() }
     val totalsByDay = remember(rows) {
         rows.groupBy { it.usageDate }.mapValues { e -> e.value.sumOf { it.foregroundSeconds } }
     }
@@ -105,6 +114,35 @@ fun ReportsScreen() {
                     "Dashed line = ${fmtHm(budgetSec)} daily budget",
                     fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 6.dp)
                 )
+            }
+        }
+
+        item("hourly") {
+            SurfaceCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Today by hour", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (hourlyTotal > 0) "Monitored apps only · ${fmtHm(hourlyTotal)} today"
+                            else "Monitored apps only",
+                            fontSize = 11.sp, color = Care.TextSecondary
+                        )
+                    }
+                }
+                if (hourlyTotal <= 0) {
+                    Text(
+                        "No usage recorded today yet.",
+                        fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = Space.m)
+                    )
+                } else {
+                    HourlyBarChart(perHour, currentHour, Modifier.padding(top = Space.m))
+                    Text(
+                        "Each bar is foreground time spent inside that clock hour. Data comes from " +
+                            "Android's own event log and is split at hour boundaries, so a session " +
+                            "that started at 10:58 appears under both 10 and 11.",
+                        fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 6.dp)
+                    )
+                }
             }
         }
 
@@ -254,3 +292,43 @@ private fun dayLabel(key: String): String = runCatching {
     val d = sdf.parse(key) ?: return@runCatching key.takeLast(2)
     SimpleDateFormat("EEE", Locale.US).format(d)
 }.getOrDefault(key.takeLast(2))
+
+/**
+ * 24 bars, one per clock hour of the current day. Labelled every six hours so the axis stays
+ * legible at phone width; the current hour is highlighted instead of being inferred by the reader.
+ */
+@Composable
+private fun HourlyBarChart(hours: List<Long>, currentHour: Int, modifier: Modifier = Modifier) {
+    val maxSecs = (hours.maxOrNull() ?: 0L).coerceAtLeast(60L)
+    Row(
+        modifier.fillMaxWidth().height(96.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        hours.forEachIndexed { hour, secs ->
+            val isNow = hour == currentHour
+            val fraction = if (secs <= 0) 0.02f else (secs.toFloat() / maxSecs).coerceIn(0.04f, 1f)
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
+                    Box(
+                        Modifier.fillMaxSize()
+                            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                            .background(Care.SurfaceVariant)
+                    )
+                    Box(
+                        Modifier.fillMaxWidth().fillMaxHeight(fraction)
+                            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                            .background(if (isNow) Care.Primary else Care.Primary.copy(alpha = 0.45f))
+                    )
+                }
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    if (hour % 6 == 0) "%02d".format(hour) else "",
+                    fontSize = 8.sp, maxLines = 1,
+                    color = if (isNow) Care.Primary else Care.TextSecondary,
+                    fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
