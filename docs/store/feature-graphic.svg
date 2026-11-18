@@ -1,0 +1,50 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#241A57"/>
+      <stop offset="0.55" stop-color="#1D1442"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.25" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8B7CFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8B7CFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  <rect width="1024" height="500" fill="url(#glow)"/>
+
+  <!-- Mascot, same vectors as the launcher icon, scaled 3x around its own centre. -->
+  <g transform="translate(238,250) scale(3.6) translate(-54,-53)">
+    <path fill="#FFB8D6" d="M54,32
+        A10,10 0 0 1 64,36
+        A10,10 0 0 1 74,44
+        A9,9 0 0 1 78,54
+        A9,9 0 0 1 70,66
+        A9,9 0 0 1 58,74
+        A8,8 0 0 1 50,74
+        A9,9 0 0 1 38,66
+        A9,9 0 0 1 30,54
+        A9,9 0 0 1 34,44
+        A10,10 0 0 1 44,36
+        A10,10 0 0 1 54,32
+        Z"/>
+    <g fill="none" stroke="#D9739F" stroke-linecap="round">
+      <path stroke-width="2.4" d="M54,35 C52,40 56,44 54,49"/>
+      <path stroke-width="2" d="M42,41 C45,42 46,45 45,48"/>
+      <path stroke-width="2" d="M66,41 C63,42 62,45 63,48"/>
+    </g>
+    <path fill="#2A1A4A" d="M45,58.5m-3.4,0a3.4,3.4 0,1 1,6.8 0a3.4,3.4 0,1 1,-6.8 0"/>
+    <path fill="#2A1A4A" d="M63,58.5m-3.4,0a3.4,3.4 0,1 1,6.8 0a3.4,3.4 0,1 1,-6.8 0"/>
+    <path fill="#B8E3FF" d="M44.2,57.2m-1.1,0a1.1,1.1 0,1 1,2.2 0a1.1,1.1 0,1 1,-2.2 0"/>
+    <path fill="#B8E3FF" d="M62.2,57.2m-1.1,0a1.1,1.1 0,1 1,2.2 0a1.1,1.1 0,1 1,-2.2 0"/>
+    <path fill="none" stroke="#2A1A4A" stroke-width="2.2" stroke-linecap="round" d="M49,66 Q54,70 59,66"/>
+  </g>
+
+  <g font-family="Segoe UI, Roboto, Arial, sans-serif">
+    <text x="412" y="212" fill="#F5F6FF" font-size="70" font-weight="700" letter-spacing="-1">Brain Storm</text>
+    <text x="414" y="274" fill="#C9CEE4" font-size="28">Hard daily limits for the apps</text>
+    <text x="414" y="312" fill="#C9CEE4" font-size="28">that eat your day.</text>
+    <text x="414" y="374" fill="#8B7CFF" font-size="22" font-weight="600">On-device · No account · No ads</text>
+  </g>
+</svg>
