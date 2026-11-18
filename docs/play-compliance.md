@@ -124,7 +124,7 @@ Expected outcome: rated for everyone / 3+, subject to IARC's confirmation.
 | Full description | ≤ 4000 characters | describe the one-time freeze, budget rule, no early unlock, honest limits |
 | App icon | 512 × 512 PNG, 32-bit | `docs/store/play-icon-512.png` (from `docs/store/icon.svg`) |
 | Feature graphic | 1024 × 500 PNG/JPEG | `docs/store/feature-graphic-1024x500.png` (from `docs/store/feature-graphic.svg`) |
-| Phone screenshots | ≥ 2, min 1080 px on the long edge | dashboard, reports, settings, lock screen |
+| Phone screenshots | ≥ 2, min 1080 px on the long edge | `docs/store/screenshots/01-dashboard.png` … `04-settings.png` (1080 × 2160, 2:1) |
 | Privacy policy URL | public, non-PDF | **to do** — host `docs/privacy-policy.md` |
 
 Suggested short description: `Hard daily limits for the apps that eat your day.` (52 characters)
@@ -133,7 +133,8 @@ Suggested short description: `Hard daily limits for the apps that eat your day.`
 
 - [ ] Replace `<PRIVACY_CONTACT_EMAIL>` in the policy with a monitored address.
 - [ ] Host the policy and paste the URL into the Console.
-- [ ] Produce the phone screenshots. (The 512 icon and the feature graphic are done.)
+- [ ] Produce the phone screenshots. (The 512 icon, the feature graphic and four phone
+      screenshots are done.)
 - [ ] Decide on the accessibility declaration (section 4) and, if needed, build the Play variant
       without the service.
 - [ ] Complete Data safety exactly as section 3.
