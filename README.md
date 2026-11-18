@@ -148,6 +148,13 @@ Dev provisioning on a factory-reset test device:
 adb shell dpm set-device-owner com.vegasol.brainstorm.managed/com.vegasol.brainstorm.BrainStormAdminReceiver
 ```
 
+## Play submission
+
+The declarations, Data Safety answers, foreground-service justification and the
+accessibility-declaration text live in [`docs/play-compliance.md`](docs/play-compliance.md). The
+policy text to host publicly is [`docs/privacy-policy.md`](docs/privacy-policy.md) — it must be
+published at a URL, and the contact placeholder must be replaced first.
+
 ## Honest limits
 
 - **Content counting is experimental and opt-in.** One detector ships (YouTube Shorts) and it is
@@ -159,6 +166,11 @@ adb shell dpm set-device-owner com.vegasol.brainstorm.managed/com.vegasol.brains
 - **Consumer blocking is best-effort.** The user can revoke permissions or uninstall. The
   dashboard separates *monitoring active*, *limit reached* and *enforcement applied*: a failed
   `EnfResult` is stored as `NOT ENFORCED:` and the header shows "Partially protected".
+- **Background monitoring is best-effort.** Android may pause background work, and some
+  manufacturers (Xiaomi, Oppo, vivo, Samsung) are stricter than the platform default. Settings
+  shows the battery-optimisation state, the monitor's heartbeat and a link to the system battery
+  screen. The app restarts monitoring after a reboot or an app update, and a stale heartbeat is
+  reported instead of pretending protection is active.
 - **The setup freeze is UI-level.** Without Device Owner, clearing app data or uninstalling
   resets every policy value. It is high-friction, not tamper-proof.
 - **Hourly data starts with this build.** Reports draws today's foreground time per clock hour

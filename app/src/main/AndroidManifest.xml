@@ -64,6 +64,8 @@
         <receiver android:name=".BootReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- An in-app update stops the foreground service; restore it without waiting for a tap. -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
         <receiver android:name=".update.UpdateInstallReceiver" android:exported="false" />

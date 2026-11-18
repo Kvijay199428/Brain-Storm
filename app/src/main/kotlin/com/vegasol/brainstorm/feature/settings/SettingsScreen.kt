@@ -43,6 +43,7 @@ fun SettingsScreen() {
     val c = LocalContext.current
     val resume = rememberResumeTick()
     val accessibility = remember(resume, c) { Perms.accessibility(c) }
+    val batteryOk = remember(resume, c) { Perms.batteryUnrestricted(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
     val prefs = Graph.prefs
@@ -115,6 +116,30 @@ fun SettingsScreen() {
                 Modifier.fillMaxWidth().padding(top = Space.s),
                 shape = RoundedCornerShape(Radius.button)
             ) { Text("Restart monitoring") }
+        }
+
+        SurfaceCard(Modifier.fillMaxWidth()) {
+            SectionHeader("Background reliability")
+            Spacer(Modifier.height(Space.s))
+            SettingRow(
+                "Battery optimisation",
+                if (batteryOk) "unrestricted" else "optimised · may pause",
+                good = batteryOk
+            )
+            HorizontalDivider(Modifier.padding(vertical = Space.s))
+            Text(
+                "Android may pause background apps it considers idle, and some manufacturers " +
+                    "(Xiaomi, Oppo, vivo, Samsung) are stricter than the platform default. If the " +
+                    "heartbeat goes stale, allow Brain Storm to run in the background in the " +
+                    "system battery settings. Monitoring restarts by itself after a reboot or an " +
+                    "app update.",
+                fontSize = 11.sp, color = Care.TextSecondary
+            )
+            OutlinedButton(
+                { c.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) },
+                Modifier.fillMaxWidth().padding(top = Space.m),
+                shape = RoundedCornerShape(Radius.button)
+            ) { Text("Battery settings", fontSize = 12.sp) }
         }
 
         UpdatesCard()

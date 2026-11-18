@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.PowerManager
 import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
@@ -72,6 +73,15 @@ object Perms {
     fun usage(c: Context): Boolean {
         val a = c.getSystemService(AppOpsManager::class.java)
         return a.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), c.packageName) == AppOpsManager.MODE_ALLOWED
+    }
+
+    /**
+     * Whether the system battery optimiser may leave this app alone. It is informational: Android
+     * still lets aggressive OEM builds kill background work, so the UI never promises otherwise.
+     */
+    fun batteryUnrestricted(c: Context): Boolean {
+        val pm = c.getSystemService(PowerManager::class.java) ?: return false
+        return pm.isIgnoringBatteryOptimizations(c.packageName)
     }
     fun overlay(c: Context) = Settings.canDrawOverlays(c)
     fun notif(c: Context) = Build.VERSION.SDK_INT < 33 ||

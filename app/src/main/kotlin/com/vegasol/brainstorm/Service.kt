@@ -31,6 +31,16 @@ class MonitorService : Service() {
 
     override fun onDestroy() { scope.cancel(); super.onDestroy() }
 
+    /**
+     * Protection must outlive a swipe from the recents list. Best effort by design: Android 12+
+     * may refuse a background foreground-service start, so [start] swallows the failure and the
+     * user is never told a lock is active when the service died.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        start(this)
+        super.onTaskRemoved(rootIntent)
+    }
+
     private fun goForeground() {
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CH, "Monitoring", NotificationManager.IMPORTANCE_LOW))
@@ -100,7 +110,9 @@ object Reconcile {
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(c: Context, i: Intent) {
-        if (i.action != Intent.ACTION_BOOT_COMPLETED) return
+        // Reboot and in-app update both take monitoring down. Both must bring it back, or the app
+        // would silently stop protecting until the next launch.
+        if (i.action != Intent.ACTION_BOOT_COMPLETED && i.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
         Graph.init(c)
         val r = goAsync()
         CoroutineScope(Dispatchers.Default).launch {
