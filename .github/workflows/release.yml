@@ -118,6 +118,13 @@ jobs:
           fi
           PRERELEASE=""
           if [ "$CHANNEL" = "beta" ]; then PRERELEASE="--prerelease"; fi
+          # Create the tag ourselves so it is annotated: `gh release create` alone
+          # leaves a lightweight ref with no tagger, date or message. --verify-tag
+          # below then refuses to publish unless this tag really exists.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Brain Storm ${VERSION} (${CHANNEL} ${CODE})" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
           {
             echo "Automated build of \`${GITHUB_SHA:0:7}\` (versionCode ${CODE})."
             echo
@@ -128,7 +135,7 @@ jobs:
             echo "* \`version.json\` + \`SHA256SUMS\` — used by the in-app updater"
           } > notes.md
           gh release create "$TAG" \
-            --target "$GITHUB_SHA" \
+            --verify-tag \
             --title "Brain Storm ${VERSION} (${CHANNEL} ${CODE})" \
             --notes-file notes.md \
             $PRERELEASE dist/*
