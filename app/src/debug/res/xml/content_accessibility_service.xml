@@ -9,5 +9,5 @@
     android:canRetrieveWindowContent="true"
     android:description="@string/content_service_description"
     android:notificationTimeout="400"
-    android:packageNames="com.google.android.youtube,com.vegasol.brainstorm.consumer.debug,com.vegasol.brainstorm.managed.debug"
+    android:packageNames="com.google.android.youtube,com.vegasol.brainstorm.debug"
     android:settingsActivity="com.vegasol.brainstorm.MainActivity" />

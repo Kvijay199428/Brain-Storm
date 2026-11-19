@@ -48,21 +48,10 @@ android {
         targetSdk = 35
         versionCode = appVersionCode
         versionName = appVersionName
-    }
-    flavorDimensions += "enforcement"
-    productFlavors {
-        create("consumer") {
-            dimension = "enforcement"
-            applicationIdSuffix = ".consumer"
-            buildConfigField("String", "ENFORCEMENT_MODE", "\"CONSUMER\"")
-            buildConfigField("String", "CHANNEL", "\"$appChannel\"")
-        }
-        create("managed") {
-            dimension = "enforcement"
-            applicationIdSuffix = ".managed"
-            buildConfigField("String", "ENFORCEMENT_MODE", "\"MANAGED\"")
-            buildConfigField("String", "CHANNEL", "\"$appChannel\"")
-        }
+        // One APK for every install, one package name. Whether enforcement suspends packages or
+        // draws an overlay is decided at runtime by EnforcementProvider.isDeviceOwner(), not by which
+        // artefact the user happened to download.
+        buildConfigField("String", "CHANNEL", "\"$appChannel\"")
     }
     signingConfigs {
         if (hasSigningKey) {

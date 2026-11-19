@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vegasol.brainstorm.BuildConfig
+import com.vegasol.brainstorm.EnforcementProvider
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitorService
 import com.vegasol.brainstorm.Perms
@@ -98,7 +98,7 @@ fun SettingsScreen() {
                 if (heartbeatFresh) "current" else "stale",
                 good = heartbeatFresh
             )
-            SettingRow("Enforcement edition", BuildConfig.ENFORCEMENT_MODE)
+            SettingRow("Enforcement edition", EnforcementProvider.edition(c))
             SettingRow("Limit evaluation", "OR · first limit reached")
             SettingRow("Early unlock", "disabled")
             HorizontalDivider(Modifier.padding(vertical = Space.s))

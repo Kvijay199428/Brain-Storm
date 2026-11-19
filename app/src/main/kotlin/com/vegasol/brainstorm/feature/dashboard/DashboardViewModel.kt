@@ -3,9 +3,9 @@ package com.vegasol.brainstorm.feature.dashboard
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.vegasol.brainstorm.BuildConfig
 import com.vegasol.brainstorm.ContentCounting
 import com.vegasol.brainstorm.DailyUsage
+import com.vegasol.brainstorm.EnforcementProvider
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.MonitoredApp
@@ -96,7 +96,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         val protection = when {
             !usageOk -> ProtectionStatus.PERMISSION_REQUIRED
             !hbFresh -> ProtectionStatus.MONITORING_PAUSED
-            !overlayOk && BuildConfig.ENFORCEMENT_MODE == "CONSUMER" -> ProtectionStatus.PARTIAL
+            !overlayOk && !EnforcementProvider.isDeviceOwner(ctx) -> ProtectionStatus.PARTIAL
             else -> ProtectionStatus.ACTIVE
         }
         DashboardUiState(
@@ -172,7 +172,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             !usageOk -> ProtectionStatus.PERMISSION_REQUIRED
             !hbFresh -> ProtectionStatus.MONITORING_PAUSED
             notEnforced -> ProtectionStatus.PARTIAL
-            !overlayOk && BuildConfig.ENFORCEMENT_MODE == "CONSUMER" -> ProtectionStatus.PARTIAL
+            !overlayOk && !EnforcementProvider.isDeviceOwner(ctx) -> ProtectionStatus.PARTIAL
             else -> ProtectionStatus.ACTIVE
         }
 

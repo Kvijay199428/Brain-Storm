@@ -70,6 +70,19 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".update.UpdateInstallReceiver" android:exported="false" />
+        <!--
+          Device Owner enforcement lives in every build; the receiver is inert until the package is
+          provisioned as owner. Without provisioning, enforcement falls back to the overlay shim.
+        -->
+        <receiver
+            android:name=".BrainStormAdminReceiver"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data android:name="android.app.device_admin" android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
         <!-- Serves the downloaded APK to Android's installer without exposing the cache dir. -->
         <provider
             android:name="androidx.core.content.FileProvider"

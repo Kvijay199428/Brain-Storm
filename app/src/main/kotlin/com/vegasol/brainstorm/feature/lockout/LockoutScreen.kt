@@ -115,7 +115,7 @@ fun LockoutScreen(pkg: String, onHome: () -> Unit) {
                     Text(
                         "⚠ Android did not accept the enforcement request (" +
                             active.enforcementNote.removePrefix("NOT ENFORCED: ") +
-                            "). On a consumer build this lock is best-effort.",
+                            "). Without Device Owner provisioning this lock is best-effort.",
                         fontSize = 10.sp, color = Care.Warning, modifier = Modifier.padding(top = 4.dp)
                     )
                 }

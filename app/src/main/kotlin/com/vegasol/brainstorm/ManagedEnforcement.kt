@@ -8,13 +8,12 @@ import android.content.Intent
 
 class BrainStormAdminReceiver : DeviceAdminReceiver()
 
-object EnforcementProvider {
-    fun create(c: Context): EnforcementController = ManagedEnforcement(c)
-}
-
-/** Device Owner edition: suspends the package at OS level. Falls back to consumer blocking if not provisioned. */
+/**
+ * Device Owner enforcement. Every install carries this class; it only suspends packages when the
+ * app really is the Device Owner, and otherwise delegates to the overlay shim.
+ */
 class ManagedEnforcement(private val c: Context) : EnforcementController {
-    override val mode = "MANAGED"
+    override val mode get() = if (owner()) "MANAGED" else "CONSUMER"
     private val fallback = ConsumerEnforcement(c)
     private val dpm = c.getSystemService(DevicePolicyManager::class.java)
     private val admin = ComponentName(c, BrainStormAdminReceiver::class.java)
