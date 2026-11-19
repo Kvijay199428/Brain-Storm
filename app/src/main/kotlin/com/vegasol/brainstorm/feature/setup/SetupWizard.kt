@@ -32,10 +32,15 @@ import com.vegasol.brainstorm.MonitorService
 import com.vegasol.brainstorm.MonitoredApp
 import com.vegasol.brainstorm.Perms
 import com.vegasol.brainstorm.budgetCheck
+import com.vegasol.brainstorm.mascot.MascotPool
+import com.vegasol.brainstorm.mascot.MascotSlot
+import com.vegasol.brainstorm.mascot.MascotState
+import com.vegasol.brainstorm.mascot.rememberMascotPool
 import com.vegasol.brainstorm.save
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
+import com.vegasol.brainstorm.ui.BrainStormAppIcon
 import com.vegasol.brainstorm.ui.DurationPicker
 import com.vegasol.brainstorm.ui.Inst
 import com.vegasol.brainstorm.ui.SUGGESTED
@@ -60,6 +65,8 @@ fun SetupWizard(onDone: () -> Unit) {
     val c = LocalContext.current
     val scope = rememberCoroutineScope()
     val resume = rememberResumeTick()
+    val pool = rememberMascotPool()
+    DisposableEffect(Unit) { onDispose { pool.dispose() } }
 
     var step by remember { mutableIntStateOf(0) }
     var apps by remember { mutableStateOf<List<Inst>>(emptyList()) }
@@ -111,8 +118,13 @@ fun SetupWizard(onDone: () -> Unit) {
     Column(Modifier.fillMaxSize().background(Care.Background).systemBarsPadding()) {
         // Header + progress
         Column(Modifier.padding(horizontal = Space.screen, vertical = Space.m)) {
-            Text("Brain Storm", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Care.Primary)
-            Text("One-time setup", fontSize = 11.sp, color = Care.TextSecondary)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BrainStormAppIcon(size = 38.dp)
+                Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                    Text("Brain Storm", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Care.TextPrimary)
+                    Text("One-time setup", fontSize = 11.sp, color = Care.TextSecondary)
+                }
+            }
             Row(Modifier.padding(top = Space.s), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 repeat(LAST_STEP + 1) { i ->
                     Box(
@@ -128,7 +140,7 @@ fun SetupWizard(onDone: () -> Unit) {
 
         Box(Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.screen)) {
             when (step) {
-                0 -> StepWelcome()
+                0 -> StepWelcome(pool)
                 1 -> StepPrivacy()
                 2 -> StepPermissions(c, notif, resume)
                 3 -> StepApps(apps, selected, onToggle = { pkg, on ->
@@ -193,13 +205,21 @@ fun SetupWizard(onDone: () -> Unit) {
 }
 
 @Composable
-private fun StepWelcome() {
+private fun StepWelcome(pool: MascotPool) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("🧠", fontSize = 76.sp)
+        MascotSlot(
+            pool = pool,
+            slot = "setup",
+            mood = MascotState.WELCOME,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        )
+        Spacer(Modifier.height(Space.m))
         Text("Welcome to Brain Storm", fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Text(
             "Set a daily budget, give each app its own limit, and Brainy locks them the moment " +
