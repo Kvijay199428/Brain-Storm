@@ -14,6 +14,17 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.instagram.android" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.zhiliaoapp.musically" />
+        <package android:name="com.snapchat.android" />
+        <package android:name="com.netflix.mediaclient" />
+        <package android:name="com.amazon.avod.thirdpartyclient" />
+        <package android:name="in.startv.hotstar" />
+        <package android:name="com.mxtech.videoplayer.ad" />
+        <package android:name="org.videolan.vlc" />
+        <package android:name="com.reddit.frontpage" />
     </queries>
     <application
         android:name=".BrainStormApp"

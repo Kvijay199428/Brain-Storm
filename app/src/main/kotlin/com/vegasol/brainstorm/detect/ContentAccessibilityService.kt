@@ -1,12 +1,14 @@
 package com.vegasol.brainstorm.detect
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.vegasol.brainstorm.ContentObservation
 import com.vegasol.brainstorm.ContentRepository
+import com.vegasol.brainstorm.DetectionOutcome
 import com.vegasol.brainstorm.Detectors
 import com.vegasol.brainstorm.Graph
 import kotlinx.coroutines.CoroutineScope
@@ -16,10 +18,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Opt-in reader for surfaces that have a detector. The service is registered with a package
- * filter in `res/xml/content_accessibility_service.xml`, so Android only delivers events from the
- * apps listed there. Nothing is persisted except a content key per counted item: the labels used
- * to recognise the surface and fingerprint the item are discarded after the decision.
+ * Opt-in reader for surfaces that have a detector. The service filters events dynamically
+ * to packages with registered and enabled detectors. Nothing is persisted except a content key
+ * per counted item: the labels used to recognise the surface and fingerprint the item are
+ * discarded in-memory immediately after the decision.
  *
  * The service only becomes active when the user turns it on in Android's accessibility settings.
  * Without it, the app reports content counting as unavailable instead of guessing.
@@ -33,16 +35,36 @@ class ContentAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         Graph.init(applicationContext)
-        Log.i(TAG, "content detection service connected")
+        updatePackageFilter()
+        Log.i(TAG, "content detection service connected with multi-platform support")
+    }
+
+    /**
+     * Dynamically configures the accessibility package filter so Android only delivers
+     * events from packages with registered detectors.
+     */
+    fun updatePackageFilter(specificPackages: Set<String>? = null) {
+        try {
+            val targets = specificPackages ?: Detectors.all.flatMap { it.packages }.toSet()
+            val info = serviceInfo ?: AccessibilityServiceInfo()
+            info.packageNames = targets.toTypedArray()
+            serviceInfo = info
+            Log.d(TAG, "updated accessibility package filter: $targets")
+        } catch (e: Exception) {
+            Log.w(TAG, "could not update package filter", e)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val e = event ?: return
         val pkg = e.packageName?.toString() ?: return
-        val detector = Detectors.forPackage(pkg).firstOrNull() ?: return
 
-        // Window-content events fire in bursts while a video plays. One tree read per 300 ms is
-        // plenty to notice a new item without burning CPU on every frame.
+        // Check if there is an active detector for this package
+        val platformDetector = Detectors.platformDetectorFor(pkg)
+        val legacyDetector = if (platformDetector == null) Detectors.forPackage(pkg).firstOrNull() else null
+        if (platformDetector == null && legacyDetector == null) return
+
+        // Throttle tree reads: window-content events fire rapidly during video playback.
         val scanNow = SystemClock.elapsedRealtime()
         if (scanNow - lastScanAt < MIN_SCAN_MS) return
         lastScanAt = scanNow
@@ -54,34 +76,83 @@ class ContentAccessibilityService : AccessibilityService() {
         val texts = ArrayList<String>()
         val descriptions = ArrayList<String>()
         read(root, ids, texts, descriptions)
-        val signals = ShortsSignals.analyse(ids, texts, descriptions)
-        if (!signals.inShorts) {
-            lastFingerprint = null
+
+        // 1. Process via universal VideoPlatformDetector
+        if (platformDetector != null) {
+            val snapshot = AccessibilitySnapshot(
+                packageName = pkg,
+                timestamp = System.currentTimeMillis(),
+                viewIds = ids,
+                textLabels = texts,
+                contentDescriptions = descriptions
+            )
+
+            val observation = platformDetector.analyze(snapshot)
+            if (observation == null) {
+                lastFingerprint = null
+                return
+            }
+
+            // Deduplication: same fingerprint = same video item
+            val fingerprint = observation.contentKey
+            if (fingerprint == lastFingerprint) return
+
+            val now = System.currentTimeMillis()
+            if (now - lastCountAt < MIN_GAP_MS) return
+            lastFingerprint = fingerprint
+            lastCountAt = now
+
+            val contentObs = ContentObservation(
+                packageName = pkg,
+                timestamp = now,
+                contentId = observation.contentKey,
+                markers = snapshot.allMarkers
+            )
+            val outcome = DetectionOutcome(
+                detected = true,
+                contentKey = observation.contentKey,
+                confidence = observation.confidence
+            )
+
+            Log.i(TAG, "counted a new $pkg ${observation.contentType.label} item")
+            scope.launch {
+                runCatching {
+                    ContentRepository.record(contentObs, outcome, "accessibility:${platformDetector.javaClass.simpleName}")
+                }.onFailure { Log.w(TAG, "could not store content observation", it) }
+            }
             return
         }
 
-        // A new short is a new on-screen fingerprint; the same fingerprint is the same item even
-        // while the progress bar keeps emitting events.
-        val fingerprint = signals.fingerprint ?: NO_TEXT
-        if (fingerprint == lastFingerprint) return
+        // 2. Fallback for legacy ContentDetector (e.g. DebugProbeDetector)
+        if (legacyDetector != null) {
+            val signals = ShortsSignals.analyse(ids, texts, descriptions)
+            if (!signals.inShorts) {
+                lastFingerprint = null
+                return
+            }
 
-        val now = System.currentTimeMillis()
-        if (now - lastCountAt < MIN_GAP_MS) return
-        lastFingerprint = fingerprint
-        lastCountAt = now
+            val fingerprint = signals.fingerprint ?: NO_TEXT
+            if (fingerprint == lastFingerprint) return
 
-        val observation = ContentObservation(
-            packageName = pkg,
-            timestamp = now,
-            contentId = "shorts:${ShortsSignals.hash(fingerprint)}:$now",
-            markers = signals.markers
-        )
-        val outcome = detector.process(observation)
-        if (!outcome.detected) return
-        Log.i(TAG, "counted a new $pkg item")
-        scope.launch {
-            runCatching { ContentRepository.record(observation, outcome, "accessibility:${detector.javaClass.simpleName}") }
-                .onFailure { Log.w(TAG, "could not store content observation", it) }
+            val now = System.currentTimeMillis()
+            if (now - lastCountAt < MIN_GAP_MS) return
+            lastFingerprint = fingerprint
+            lastCountAt = now
+
+            val observation = ContentObservation(
+                packageName = pkg,
+                timestamp = now,
+                contentId = "shorts:${ShortsSignals.hash(fingerprint)}:$now",
+                markers = signals.markers
+            )
+            val outcome = legacyDetector.process(observation)
+            if (!outcome.detected) return
+            Log.i(TAG, "counted a new $pkg item via legacy detector")
+            scope.launch {
+                runCatching {
+                    ContentRepository.record(observation, outcome, "accessibility:${legacyDetector.javaClass.simpleName}")
+                }.onFailure { Log.w(TAG, "could not store content observation", it) }
+            }
         }
     }
 
@@ -92,7 +163,7 @@ class ContentAccessibilityService : AccessibilityService() {
         super.onDestroy()
     }
 
-    /** Breadth-first walk of the active window; only labels and resource ids are collected. */
+    /** Breadth-first walk of the active window; only labels and resource ids are collected in memory. */
     private fun read(
         root: AccessibilityNodeInfo,
         ids: MutableList<String>,

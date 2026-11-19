@@ -17,6 +17,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.vegasol.brainstorm.detect.ContentAccessibilityService
 import com.vegasol.brainstorm.detect.DebugProbeDetector
+import com.vegasol.brainstorm.detect.InstagramReelsDetector
+import com.vegasol.brainstorm.detect.VideoPlatformDetector
 import com.vegasol.brainstorm.detect.YouTubeShortsDetector
 import com.vegasol.brainstorm.update.UpdateManager
 import kotlinx.coroutines.flow.Flow
@@ -406,14 +408,16 @@ interface ContentDetector {
 }
 object Detectors {
     /**
-     * Shipped adapters. Only the YouTube Shorts detector exists today and it is EXPERIMENTAL:
-     * it is validated in debug builds with a probe surface, not against every YouTube release.
+     * Shipped adapters. YouTube Shorts and Instagram Reels detectors are registered as EXPERIMENTAL.
      */
     val all: List<ContentDetector> = listOfNotNull(
         YouTubeShortsDetector(),
+        InstagramReelsDetector(),
         if (BuildConfig.DEBUG) DebugProbeDetector() else null
     )
     fun forPackage(pkg: String) = all.filter { pkg in it.packages }
+    fun platformDetectorFor(pkg: String): VideoPlatformDetector? =
+        all.filterIsInstance<VideoPlatformDetector>().firstOrNull { pkg in it.packages }
     fun support(pkg: String) = all.firstOrNull { pkg in it.packages }?.support ?: Support.TIME_ONLY
     fun label(pkg: String) = when (support(pkg)) {
         Support.SUPPORTED -> "counting supported"; Support.EXPERIMENTAL -> "counting experimental"

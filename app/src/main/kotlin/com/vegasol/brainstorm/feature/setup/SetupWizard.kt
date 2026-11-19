@@ -40,6 +40,7 @@ import com.vegasol.brainstorm.save
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
+import com.vegasol.brainstorm.ui.AppIcon
 import com.vegasol.brainstorm.ui.BrainStormAppIcon
 import com.vegasol.brainstorm.ui.DurationPicker
 import com.vegasol.brainstorm.ui.Inst
@@ -322,10 +323,31 @@ private fun StepApps(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(mins != null, { onToggle(a.pkg, it) })
+                    AppIcon(pkg = a.pkg, size = 36.dp)
+                    Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(a.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(a.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            if (a.hasDetector) {
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    "detector",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Care.Primary,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(Radius.pill))
+                                        .background(Care.tint(Care.Primary, 0.16f))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
                         Text(
-                            a.pkg + if (a.pkg in SUGGESTED) "  ·  suggested" else "",
+                            buildString {
+                                append(a.pkg)
+                                a.category?.let { append("  ·  ${it.shortLabel}") }
+                                if (a.pkg in SUGGESTED && a.category == null) append("  ·  suggested")
+                            },
                             fontSize = 10.sp, color = Care.TextSecondary
                         )
                     }
