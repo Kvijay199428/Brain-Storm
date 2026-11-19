@@ -11,7 +11,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
 
-/** One installable release, already narrowed down to this app's flavour. */
+/** One installable release, already narrowed down to this app's channel. */
 data class UpdateInfo(
     val versionCode: Int,
     val versionName: String,
@@ -20,11 +20,23 @@ data class UpdateInfo(
     val downloadUrl: String,
     val sha256: String,
     val sizeBytes: Long,
-    val notes: String
+    val notes: String,
+    /** Package name recorded in `version.json`; null for a manifest written before schema 2. */
+    val targetPackage: String?,
+    /** Release page, used when the download cannot replace this install. */
+    val pageUrl: String
 )
 
 sealed interface UpdateCheck {
     data class Available(val info: UpdateInfo) : UpdateCheck
+
+    /**
+     * A newer release exists but it is published under a different package name, so Android will
+     * refuse to install it over this one. Offering the download would only end in a mismatch error,
+     * so the UI sends the user to the release page instead.
+     */
+    data class NeedsReinstall(val info: UpdateInfo) : UpdateCheck
+
     data object UpToDate : UpdateCheck
     /** No answer is not the same as "you are current" — the UI must never claim otherwise. */
     data class Failed(val reason: String) : UpdateCheck
@@ -43,9 +55,6 @@ class UpdateClient(private val c: Context) {
         const val REPO = "Kvijay199428/Brain-Storm"
         private const val API = "https://api.github.com/repos/$REPO/releases?per_page=20"
     }
-
-    private val flavour: String
-        get() = BuildConfig.ENFORCEMENT_MODE.lowercase()
 
     private val channel: String
         get() = BuildConfig.CHANNEL.lowercase()
@@ -75,16 +84,19 @@ class UpdateClient(private val c: Context) {
             } ?: return UpdateCheck.UpToDate
 
         val info = parseRelease(candidate) ?: return UpdateCheck.UpToDate
-        return if (info.versionCode > BuildConfig.VERSION_CODE) {
-            UpdateCheck.Available(info)
+        if (info.versionCode <= BuildConfig.VERSION_CODE) return UpdateCheck.UpToDate
+        // A release whose package differs cannot replace this installation, whatever its version.
+        val target = info.targetPackage
+        return if (target != null && target != c.packageName) {
+            UpdateCheck.NeedsReinstall(info)
         } else {
-            UpdateCheck.UpToDate
+            UpdateCheck.Available(info)
         }
     }
 
     /**
-     * A release is only usable if it carries a `version.json` whose asset list names this flavour's
-     * APK and a hash. Anything less is ignored rather than guessed at.
+     * A release is only usable if it carries a schema-2 `version.json` with one `apk` entry and a
+     * hash. Anything less is ignored rather than guessed at.
      */
     private fun parseRelease(release: JSONObject): UpdateInfo? {
         val assets = release.optJSONArray("assets") ?: return null
@@ -96,7 +108,7 @@ class UpdateClient(private val c: Context) {
         if (manifest.code != 200) return null
         val json = JSONObject(manifest.body)
 
-        val apk = json.optJSONObject("apks")?.optJSONObject(flavour) ?: return null
+        val apk = json.optJSONObject("apk") ?: return null
         val file = apk.optString("file").takeIf { it.isNotBlank() } ?: return null
         val sha = apk.optString("sha256").lowercase().takeIf { it.length == 64 } ?: return null
 
@@ -112,7 +124,9 @@ class UpdateClient(private val c: Context) {
             downloadUrl = apkAsset.optString("browser_download_url"),
             sha256 = sha,
             sizeBytes = apkAsset.optLong("size"),
-            notes = release.optString("body", "")
+            notes = release.optString("body", ""),
+            targetPackage = json.optString("package").takeIf { it.isNotBlank() },
+            pageUrl = release.optString("html_url")
         )
     }
 

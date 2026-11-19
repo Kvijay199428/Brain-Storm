@@ -17,6 +17,12 @@ sealed interface UpdateState {
     data object Checking : UpdateState
     data class UpToDate(val at: Long) : UpdateState
     data class Available(val info: UpdateInfo) : UpdateState
+
+    /**
+     * The published build uses a different package name. Downloading cannot work, so the only
+     * honest action is to send the user to the release page for a one-time reinstall.
+     */
+    data class NeedsReinstall(val info: UpdateInfo) : UpdateState
     data class Downloading(val info: UpdateInfo, val percent: Int) : UpdateState
     data class Ready(val info: UpdateInfo, val apk: File) : UpdateState
     data class Failed(val at: Long, val message: String) : UpdateState
@@ -77,6 +83,7 @@ class UpdateManager(c: Context) {
                 prefs.edit().putLong(KEY_LAST_CHECK, now).apply()
                 _state.value = when (result) {
                     is UpdateCheck.Available -> UpdateState.Available(result.info)
+                    is UpdateCheck.NeedsReinstall -> UpdateState.NeedsReinstall(result.info)
                     UpdateCheck.UpToDate -> UpdateState.UpToDate(now)
                     is UpdateCheck.Failed -> UpdateState.Failed(now, result.reason)
                 }
@@ -142,4 +149,15 @@ class UpdateManager(c: Context) {
     }
 
     fun openInstallPermissionSettings() = installer.openInstallPermissionSettings()
+
+    /** Opens the GitHub release page in a browser; used when an in-place install is impossible. */
+    fun openReleasePage(info: UpdateInfo) {
+        val url = info.pageUrl.takeIf { it.startsWith("https://") } ?: return
+        runCatching {
+            ctx.startActivity(
+                android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure { Log.w(TAG, "could not open $url", it) }
+    }
 }

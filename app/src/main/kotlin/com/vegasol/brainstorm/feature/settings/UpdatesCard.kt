@@ -58,6 +58,12 @@ fun UpdatesCard() {
             is UpdateState.Failed -> Status(s.message, Care.Danger)
             is UpdateState.Available ->
                 Status("Version ${s.info.versionName} (build ${s.info.versionCode}) is available.", Care.Primary)
+            is UpdateState.NeedsReinstall -> Status(
+                "Version ${s.info.versionName} is published as ${s.info.targetPackage}, which is a " +
+                    "different package and cannot replace this install. Uninstall this build and " +
+                    "install that APK from the release page once; updates install normally after that.",
+                Care.Warning
+            )
             is UpdateState.NeedsPermission ->
                 Status("Downloaded and verified. Allow Brain Storm to install apps, then install again.", Care.Warning)
             is UpdateState.Downloading -> {
@@ -97,6 +103,10 @@ fun UpdatesCard() {
                     { updates.openInstallPermissionSettings() },
                     shape = RoundedCornerShape(Radius.button)
                 ) { Text("Allow installs", fontSize = 12.sp) }
+                is UpdateState.NeedsReinstall -> Button(
+                    { updates.openReleasePage(s.info) },
+                    shape = RoundedCornerShape(Radius.button)
+                ) { Text("Open release page", fontSize = 12.sp) }
                 is UpdateState.Failed -> Button(
                     { updates.check() },
                     shape = RoundedCornerShape(Radius.button)
@@ -108,8 +118,8 @@ fun UpdatesCard() {
         Text(
             "Updates are read from GitHub Releases and checked twice before anything installs: the " +
                 "SHA-256 from version.json must match the file, and its signing certificate must be " +
-                "the one that signed this installation. Android always shows its install dialog on " +
-                "this edition — a silent update is only possible for a Device Owner build.",
+                "the one that signed this installation. Android always shows its install dialog " +
+                "unless this build is provisioned as Device Owner.",
             fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = Space.s)
         )
         if (installResult != null) {
