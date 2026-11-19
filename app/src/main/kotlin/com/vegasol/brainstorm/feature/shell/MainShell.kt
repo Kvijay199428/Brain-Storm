@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +36,7 @@ import com.vegasol.brainstorm.feature.dashboard.DashboardRoute
 import com.vegasol.brainstorm.feature.reports.ReportsScreen
 import com.vegasol.brainstorm.feature.settings.SettingsScreen
 import com.vegasol.brainstorm.theme.Care
+import com.vegasol.brainstorm.ui.BrainStormAppIcon
 
 private data class Destination(val label: String, val icon: ImageVector)
 
@@ -87,9 +89,14 @@ private fun DashboardBottomNavigation(selected: Int, hasLockout: Boolean, onSele
                 selected = selected == index,
                 onClick = { onSelect(index) },
                 icon = {
-                    if (index == 0 && hasLockout) {
-                        BadgedBox(badge = { Badge(containerColor = Care.Danger) }) {
-                            Icon(item.icon, contentDescription = item.label)
+                    if (index == 0) {
+                        val iconModifier = Modifier.alpha(if (selected == 0) 1f else 0.65f)
+                        if (hasLockout) {
+                            BadgedBox(badge = { Badge(containerColor = Care.Danger) }) {
+                                BrainStormAppIcon(size = 24.dp, modifier = iconModifier)
+                            }
+                        } else {
+                            BrainStormAppIcon(size = 24.dp, modifier = iconModifier)
                         }
                     } else {
                         Icon(item.icon, contentDescription = item.label)

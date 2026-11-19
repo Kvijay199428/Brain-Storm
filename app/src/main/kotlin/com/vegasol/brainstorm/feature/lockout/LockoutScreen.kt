@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.Triggers
+import com.vegasol.brainstorm.mascot.MascotCommand
 import com.vegasol.brainstorm.mascot.MascotSlot
 import com.vegasol.brainstorm.mascot.MascotState
 import com.vegasol.brainstorm.mascot.rememberMascotPool
@@ -70,9 +71,14 @@ fun LockoutScreen(pkg: String, onHome: () -> Unit) {
         Modifier.fillMaxSize().background(Care.Background).systemBarsPadding().padding(Space.screen),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val mascotState = if (unlocked) MascotState.UNLOCK else MascotState.LOCKED
         MascotSlot(
             pool = pool, slot = "lockout",
-            mood = if (unlocked) MascotState.UNLOCK else MascotState.LOCKED,
+            mood = mascotState,
+            command = MascotCommand(
+                state = mascotState,
+                countdownSeconds = left
+            ),
             modifier = Modifier.fillMaxWidth().weight(1f)
         )
 

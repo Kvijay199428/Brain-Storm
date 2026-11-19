@@ -11,10 +11,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -144,6 +149,8 @@ fun SettingsScreen() {
 
         UpdatesCard()
 
+        BrainyMascotCard()
+
         SurfaceCard(Modifier.fillMaxWidth()) {
             SectionHeader("Content detection · experimental")
             Spacer(Modifier.height(Space.s))
@@ -209,5 +216,120 @@ internal fun SettingRow(label: String, value: String, good: Boolean? = null) {
                 null -> Care.TextPrimary
             }
         )
+    }
+}
+
+@Composable
+fun BrainyMascotCard() {
+    val prefs = Graph.prefs
+    var quality by remember { mutableStateOf(prefs.mascotQuality) }
+    var expressiveness by remember { mutableFloatStateOf(prefs.mascotExpressiveness) }
+    var playfulness by remember { mutableFloatStateOf(prefs.mascotPlayfulness) }
+    var calmness by remember { mutableFloatStateOf(prefs.mascotCalmness) }
+    var reduceMotion by remember { mutableStateOf(prefs.mascotReduceMotion) }
+    var touchReactions by remember { mutableStateOf(prefs.mascotTouchEnabled) }
+
+    SurfaceCard(Modifier.fillMaxWidth()) {
+        SectionHeader("Brainy Mascot")
+        Spacer(Modifier.height(Space.s))
+
+        Text("Render quality", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Row(
+            Modifier.fillMaxWidth().padding(vertical = Space.s),
+            horizontalArrangement = Arrangement.spacedBy(Space.s)
+        ) {
+            listOf("low" to "Low", "normal" to "Normal", "high" to "High").forEach { (key, label) ->
+                val selected = quality.equals(key, ignoreCase = true)
+                if (selected) {
+                    Button(
+                        onClick = { quality = key; prefs.mascotQuality = key },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(Radius.button)
+                    ) { Text(label, fontSize = 12.sp) }
+                } else {
+                    OutlinedButton(
+                        onClick = { quality = key; prefs.mascotQuality = key },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(Radius.button)
+                    ) { Text(label, fontSize = 12.sp) }
+                }
+            }
+        }
+
+        HorizontalDivider(Modifier.padding(vertical = Space.s))
+        Text("Personality", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text("Fine-tune Brainy's responsiveness and demeanor.", fontSize = 11.sp, color = Care.TextSecondary)
+
+        Spacer(Modifier.height(Space.s))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Expressiveness", Modifier.weight(1f), fontSize = 12.sp)
+            Text("${(expressiveness * 100).toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = expressiveness,
+            onValueChange = { expressiveness = it; prefs.mascotExpressiveness = it },
+            valueRange = 0f..1f
+        )
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Playfulness", Modifier.weight(1f), fontSize = 12.sp)
+            Text("${(playfulness * 100).toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = playfulness,
+            onValueChange = { playfulness = it; prefs.mascotPlayfulness = it },
+            valueRange = 0f..1f
+        )
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Calmness", Modifier.weight(1f), fontSize = 12.sp)
+            Text("${(calmness * 100).toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = calmness,
+            onValueChange = { calmness = it; prefs.mascotCalmness = it },
+            valueRange = 0f..1f
+        )
+
+        OutlinedButton(
+            onClick = {
+                prefs.resetMascotPersonality()
+                expressiveness = prefs.mascotExpressiveness
+                playfulness = prefs.mascotPlayfulness
+                calmness = prefs.mascotCalmness
+            },
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            shape = RoundedCornerShape(Radius.button)
+        ) { Text("Reset personality", fontSize = 12.sp) }
+
+        HorizontalDivider(Modifier.padding(vertical = Space.s))
+
+        Row(
+            Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Reduce motion", fontSize = 13.sp)
+                Text("Subdued poses and slower, minimal movement", fontSize = 11.sp, color = Care.TextSecondary)
+            }
+            Switch(
+                checked = reduceMotion,
+                onCheckedChange = { reduceMotion = it; prefs.mascotReduceMotion = it }
+            )
+        }
+
+        Row(
+            Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Touch reactions", fontSize = 13.sp)
+                Text("Tap or boop Brainy on the home screen", fontSize = 11.sp, color = Care.TextSecondary)
+            }
+            Switch(
+                checked = touchReactions,
+                onCheckedChange = { touchReactions = it; prefs.mascotTouchEnabled = it }
+            )
+        }
     }
 }

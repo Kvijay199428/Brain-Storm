@@ -67,6 +67,20 @@ class Prefs(c: Context) {
 
     /** Set once the one-time wizard finishes: no policy field is editable afterwards. */
     var setupLocked: Boolean get() = p.getBoolean("setupL", false); set(v) = p.edit().putBoolean("setupL", v).apply()
+
+    // ── Brainy Mascot preferences (UI & presentation only) ──
+    var mascotQuality: String get() = p.getString("mQual", "normal") ?: "normal"; set(v) = p.edit().putString("mQual", v).apply()
+    var mascotExpressiveness: Float get() = p.getFloat("mEx", 0.8f); set(v) = p.edit().putFloat("mEx", v.coerceIn(0f, 1f)).apply()
+    var mascotPlayfulness: Float get() = p.getFloat("mPl", 0.65f); set(v) = p.edit().putFloat("mPl", v.coerceIn(0f, 1f)).apply()
+    var mascotCalmness: Float get() = p.getFloat("mCa", 0.85f); set(v) = p.edit().putFloat("mCa", v.coerceIn(0f, 1f)).apply()
+    var mascotReduceMotion: Boolean get() = p.getBoolean("mRm", false); set(v) = p.edit().putBoolean("mRm", v).apply()
+    var mascotTouchEnabled: Boolean get() = p.getBoolean("mTouch", true); set(v) = p.edit().putBoolean("mTouch", v).apply()
+
+    fun resetMascotPersonality() {
+        mascotExpressiveness = 0.8f
+        mascotPlayfulness = 0.65f
+        mascotCalmness = 0.85f
+    }
 }
 
 object Perms {

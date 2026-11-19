@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -201,24 +202,42 @@ fun EmptyState(text: String, modifier: Modifier = Modifier) {
 
 // ───────────── App icon (no Coil dependency) ─────────────
 @Composable
-fun AppIcon(pkg: String, size: Dp = 38.dp) {
+fun AppIcon(pkg: String, size: Dp = 38.dp, modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
-    val bmp = remember(pkg) {
-        runCatching { ctx.packageManager.getApplicationIcon(pkg).toBitmap(96, 96) }.getOrNull()
+    val density = LocalDensity.current
+    val px = remember(size, density) { with(density) { (size * 2).roundToPx() }.coerceAtLeast(96) }
+    val bmp = remember(pkg, px) {
+        runCatching { ctx.packageManager.getApplicationIcon(pkg).toBitmap(px, px) }.getOrNull()
+            ?: runCatching {
+                if (pkg == ctx.packageName) {
+                    androidx.core.content.ContextCompat.getDrawable(ctx, com.vegasol.brainstorm.R.mipmap.ic_launcher)?.toBitmap(px, px)
+                } else null
+            }.getOrNull()
             ?: runCatching { ctx.packageManager.getApplicationIcon(pkg).toBitmap() }.getOrNull()
     }
+    val cornerRadius = remember(size) { (size * 0.22f).coerceAtLeast(4.dp) }
     if (bmp != null) {
         androidx.compose.foundation.Image(
-            bitmap = bmp.asImageBitmap(), contentDescription = null,
+            bitmap = bmp.asImageBitmap(),
+            contentDescription = null,
             contentScale = ContentScale.Fit,
-            modifier = Modifier.size(size).clip(RoundedCornerShape(10.dp))
+            modifier = modifier.size(size).clip(RoundedCornerShape(cornerRadius))
         )
     } else {
         Box(
-            Modifier.size(size).clip(RoundedCornerShape(10.dp)).background(Care.SurfaceVariant),
+            modifier.size(size).clip(RoundedCornerShape(cornerRadius)).background(Care.SurfaceVariant),
             contentAlignment = Alignment.Center
         ) { Text(pkg.take(1).uppercase(), fontWeight = FontWeight.Bold, color = Care.TextSecondary) }
     }
+}
+
+/**
+ * Renders the official Brain Storm application launcher icon, crisp and matched
+ * across the dashboard header and the bottom navigation bar.
+ */
+@Composable
+fun BrainStormAppIcon(size: Dp = 38.dp, modifier: Modifier = Modifier) {
+    AppIcon(pkg = LocalContext.current.packageName, size = size, modifier = modifier)
 }
 
 fun appLabel(c: Context, pkg: String): String =

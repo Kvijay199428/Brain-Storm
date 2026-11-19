@@ -26,6 +26,7 @@ import com.vegasol.brainstorm.mascot.MascotSlot
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
+import com.vegasol.brainstorm.ui.BrainStormAppIcon
 import com.vegasol.brainstorm.ui.Pill
 import com.vegasol.brainstorm.ui.SurfaceCard
 
@@ -61,10 +62,7 @@ fun DashboardHeader(
         modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = Space.screen),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(Care.tint(Care.Primary, 0.18f)),
-            contentAlignment = Alignment.Center
-        ) { Text("🧠", fontSize = 20.sp) }
+        BrainStormAppIcon(size = 38.dp)
         Column(Modifier.weight(1f).padding(start = 10.dp)) {
             Text("Brain Storm", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Care.TextPrimary)
             Text("Digital wellness", fontSize = 11.sp, color = Care.TextSecondary)
