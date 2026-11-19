@@ -42,14 +42,26 @@ Android's accessibility service for Brain Storm:
 ## Build
 
 1. Android Studio (Ladybug or newer) → open the `BrainStorm` folder → let Gradle sync (JDK 17+).
-2. Variant: `consumerDebug` (Play Store edition) or `managedDebug` (Device Owner edition).
+2. Variant: `debug`; there is only one package (`com.vegasol.brainstorm`), so no edition to pick.
 3. Run on a real device (Android 10+). Grant: Usage access, Display over other apps, Notifications.
 
 Command line:
 
 ```
-./gradlew :app:assembleConsumerDebug :app:assembleManagedDebug
-./gradlew :app:testConsumerDebugUnitTest :app:lintConsumerDebug
+./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest :app:lintDebug
+```
+
+#### Editions are decided at runtime, not at build time
+
+The Device Owner code path ships in every APK. `EnforcementProvider.isDeviceOwner()` asks Android;
+when the answer is yes, lockouts suspend the package, and when it is no, they fall back to the
+overlay. Settings → **Enforcement edition** reports which one is live.
+
+To provision a device as owner:
+
+```
+adb shell dpm set-device-owner com.vegasol.brainstorm/com.vegasol.brainstorm.BrainStormAdminReceiver
 ```
 
 Release builds are signed with `brainstorm-upload.jks`; credentials live in the gitignored
@@ -62,10 +74,11 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=1.0.0`, `channel=beta`) |
+| Version name + channel | `version.properties` (`versionName=2.0.0`, `channel=beta`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v1.0.0-beta.7` |
-| Assets | `Brain-Storm-<version>_consumer_<channel>.apk`, `..._managed_<channel>.apk`, `version.json`, `SHA256SUMS` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v2.0.0-beta.17` |
+| Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
+| Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
 | Local equivalent | `tools/release.ps1` (`-SkipPublish` to build + checksum only) |
 
@@ -73,25 +86,36 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 ```json
 {
-  "versionCode": 7,
-  "versionName": "1.0.0",
+  "schema": 2,
+  "versionCode": 17,
+  "versionName": "2.0.0",
   "channel": "beta",
-  "tag": "v1.0.0-beta.7",
+  "tag": "v2.0.0-beta.17",
+  "package": "com.vegasol.brainstorm",
+  "apk": { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 },
   "apks": {
-    "consumer": { "file": "Brain-Storm-1.0.0_consumer_beta.apk", "sha256": "…", "size": 19629365 },
-    "managed":  { "file": "Brain-Storm-1.0.0_managed_beta.apk",  "sha256": "…", "size": 19629829 }
+    "consumer": { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 },
+    "managed":  { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 }
   }
 }
 ```
+
+`apks.consumer` / `apks.managed` exist only so **1.0.0** installs, which look up
+`apks.<edition>`, can see the 2.0.0 build and report the package change instead of claiming to be
+up to date. Both point at the same APK and both disappear in the release after 2.0.0.
 
 Settings → **Updates** checks the release list at most once every six hours (or on demand), reads
 `version.json`, and only offers a build whose `versionCode` is higher. Before handing anything to
 Android it verifies the file's SHA-256 **and** that the APK is signed by the same certificate as the
 installed app; a mismatch deletes the download and says so.
 
-On the **consumer** edition Android shows its own install dialog — the app never claims a silent
-update. On the **managed** edition a Device Owner commit is attempted first, and if the platform
-refuses it falls back to the same dialog.
+If `package` in `version.json` differs from the installed package, the app does not download at
+all: Android cannot replace one package with another, so the card explains the one-time reinstall
+and offers a link to the release page.
+
+Android shows its own install dialog for every update. A silent install is only attempted when the
+app really is the Device Owner, and the app says "installed silently" only after Android reports
+success.
 
 ## Policy model
 
@@ -140,13 +164,16 @@ the countdown composables.
 App-defined and shown as such: `60 × (1 − used/budget) + 25 × (apps under limit) + 15` for a
 lockout-free day, clamped to 0–100. Explained in an in-app sheet.
 
-## Managed edition (Device Owner)
+## Device Owner provisioning
 
-Dev provisioning on a factory-reset test device:
+Optional; without it the app enforces through the overlay. On a factory-reset test device:
 
 ```
-adb shell dpm set-device-owner com.vegasol.brainstorm.managed/com.vegasol.brainstorm.BrainStormAdminReceiver
+adb shell dpm set-device-owner com.vegasol.brainstorm/com.vegasol.brainstorm.BrainStormAdminReceiver
 ```
+
+Changing the package (as 2.0.0 does) means re-provisioning: remove the old owner first with
+`dpm remove-active-admin` on the old package name, which usually requires a factory reset.
 
 ## Play submission
 

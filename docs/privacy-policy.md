@@ -1,7 +1,6 @@
 # Brain Storm privacy policy
 
-**App:** Brain Storm — package `com.vegasol.brainstorm.consumer` (Consumer edition) and
-`com.vegasol.brainstorm.managed` (Managed edition)
+**App:** Brain Storm — package `com.vegasol.brainstorm`
 **Effective date:** 18 November 2026
 **Contact:** `<PRIVACY_CONTACT_EMAIL>` — replace before publishing
 
@@ -49,7 +48,7 @@ permission usage: `update/UpdateClient.kt` is the only network code.
 | Display over other apps (`SYSTEM_ALERT_WINDOW`) | Drawing the lock screen on top of a locked app. | Strongly recommended |
 | Notifications (`POST_NOTIFICATIONS`) | The ongoing "monitoring" notice and update results. | Optional |
 | Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Keeping the monitor alive so limits are enforced on time. | Required while monitoring |
-| Install unknown apps (`REQUEST_INSTALL_PACKAGES`) | Handing a verified update APK to Android's own installer. Android shows its dialog; the app never installs silently on the Consumer edition. | Optional |
+| Install unknown apps (`REQUEST_INSTALL_PACKAGES`) | Handing a verified update APK to Android's own installer. Android shows its dialog; a silent install is only attempted when the app is provisioned as Device Owner. | Optional |
 | Internet / network state | The update check described above. | Required only for updates |
 | Accessibility service (`BIND_ACCESSIBILITY_SERVICE`) | The optional content counter described in section 4. | Optional, off by default |
 

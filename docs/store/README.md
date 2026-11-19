@@ -40,6 +40,6 @@ magick cap.png -alpha off -depth 8 PNG24:screenshots/01-dashboard.png
 24-bit PNG is deliberate: Play rejects alpha for screenshots. After capturing, restore the
 emulator with `adb shell wm size reset`.
 
-The captures come from the **consumer release build** with the real frozen policy (3 apps,
+The captures come from the **release build** with the real frozen policy (3 apps,
 1 h budget, 24 h lock) and real usage from that day, so the numbers in the listing are the numbers
 the app shows.

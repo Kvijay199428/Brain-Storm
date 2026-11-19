@@ -6,7 +6,7 @@ not aspiration. If a value changes in code, change it here too.
 | Field | Value |
 |---|---|
 | App name | Brain Storm |
-| Package | `com.vegasol.brainstorm.consumer` |
+| Package | `com.vegasol.brainstorm` |
 | Category | Productivity |
 | Ads | No |
 | In-app purchases | No |
@@ -18,9 +18,10 @@ not aspiration. If a value changes in code, change it here too.
 
 ## 1. What to submit
 
-Play receives the **consumer** flavour (`com.vegasol.brainstorm.consumer`). The managed
-(Device Owner) flavour is for enterprise provisioning and is not uploaded; it uses a different
-package and is built from the same source.
+Play receives the same APK that is published on GitHub (`com.vegasol.brainstorm`). There is no
+longer a separate Play build: the Device Owner code path is compiled in but stays inert unless the
+installing device is provisioned as owner, which a Play install never is. The device-admin
+declaration this adds is the item to revisit with Play policy before submission (section 4).
 
 ## 2. Permission declarations
 
@@ -51,8 +52,9 @@ Text for the Play Console "foreground service" declaration:
 
 > Used only to install an update of Brain Storm itself, which the user requests in Settings →
 > Updates. Before handing the APK to Android's package installer the app verifies the published
-> SHA-256 and that the APK is signed by the same certificate as the installed app. On the Consumer
-> edition Android always shows its own install dialog; the app never installs silently.
+> SHA-256 and that the APK is signed by the same certificate as the installed app. Android shows
+> its own install dialog; a silent install is only attempted when the device is provisioned as
+> Device Owner, which a Play install never is.
 
 ### 2.3 `SYSTEM_ALERT_WINDOW` (Display over other apps)
 
@@ -64,6 +66,15 @@ permission the app reports "Partially protected" instead of claiming enforcement
 Core functionality: foreground time comes from Android's usage event log, not from an
 accessibility service or screen capture. Revoking it makes the dashboard report that monitoring is
 paused.
+
+### 2.5 Device admin (`BIND_DEVICE_ADMIN`)
+
+The unified APK declares a `DeviceAdminReceiver` because the Device Owner enforcement path now ships
+in the same package as the normal one. It only acts when the app has been provisioned as Device
+Owner through `dpm set-device-owner`; a Play install can never reach that state, so the receiver
+stays inert and enforcement uses the overlay. Play's device-admin policy is stricter than the old
+consumer build needed to be — decide before submitting whether to drop the receiver from the Play
+artefact and cut a Play-only build, exactly as section 4 discusses for accessibility.
 
 ## 3. Data safety answers
 
@@ -137,9 +148,11 @@ Suggested short description: `Hard daily limits for the apps that eat your day.`
       screenshots are done.)
 - [ ] Decide on the accessibility declaration (section 4) and, if needed, build the Play variant
       without the service.
+- [ ] Decide on the device-admin receiver (section 2.5): keep it inert in the unified APK or cut a
+      Play-only build without it.
 - [ ] Complete Data safety exactly as section 3.
 - [ ] Complete the content rating questionnaire.
 - [ ] Verify the FGS declaration text matches the manifest subtype string.
 - [ ] Test the release build on at least one physical device: usage access, overlay, notifications,
       lock on time, lock survives reboot, monitoring restarts after an update.
-- [ ] Confirm `com.vegasol.brainstorm.consumer` is still available at submission time.
+- [ ] Confirm `com.vegasol.brainstorm` is still available at submission time.
