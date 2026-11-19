@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brainy animation director</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3ecff;--ink:#2a1a4a;--muted:#6b5a8e;--chip:#fff;--chipb:#cdb8f5;--on:#5b2fc4;--onink:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1230;--ink:#f1e9ff;--muted:#b3a1d8;--chip:#2a1d48;--chipb:#4b3787;--on:#a98bff;--onink:#1b1230}}
+:root[data-theme="dark"]{--bg:#1b1230;--ink:#f1e9ff;--muted:#b3a1d8;--chip:#2a1d48;--chipb:#4b3787;--on:#a98bff;--onink:#1b1230}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:14px 14px 40px}
+h1{font-size:1.4rem;margin:0}
+.sub{margin:2px 0 4px;color:var(--muted);text-align:center;max-width:44ch;font-size:.88rem}
+#stage{width:min(92vw,400px);aspect-ratio:1/1.1}
+canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#msg{min-height:2.4em;font-size:1.05rem;text-align:center;margin:0 0 10px;font-weight:700}
+.sec{width:100%;max-width:480px;margin:6px 0}
+.lab{font-size:.8rem;color:var(--muted);margin:0 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;font-size:.88rem;font-weight:600;padding:7px 12px;border-radius:999px;border:2px solid var(--chipb);background:var(--chip);color:var(--ink);cursor:pointer}
+button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--on);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--on);color:var(--onink);border-color:var(--on)}
+details{border:2px solid var(--chipb);border-radius:14px;padding:8px 12px;background:var(--chip)}
+summary{font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+label{font-size:.78rem;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+select{font:inherit;font-size:.9rem;padding:6px;border-radius:8px;border:1px solid var(--chipb);background:var(--bg);color:var(--ink)}
+pre{margin:8px 0 0;font-size:.72rem;overflow-x:auto;max-height:260px}
+</style>
+</head>
+<body>
+<h1>Brainy animation director</h1>
+<p class="sub">Brain Storm states drive a layered 3D mascot. Pick a state, change the intensity, or mix the layers yourself.</p>
+<div id="stage"><canvas id="c" aria-label="Interactive 3D Brainy mascot"></canvas></div>
+<div id="msg" aria-live="polite"></div>
+<div class="sec"><p class="lab">App state</p><div class="chips" id="states"></div></div>
+<div class="sec"><p class="lab">Intensity</p><div class="chips" id="lv"></div></div>
+<div class="sec"><p class="lab">Render quality</p><div class="chips" id="qual"></div></div>
+<div class="sec"><details><summary>Mix layers yourself</summary><div class="grid" id="mix"></div></details></div>
+<div class="sec"><details><summary>Personality</summary><div class="grid" id="pers"></div></details></div>
+<div class="sec"><details><summary>Animation definition (JSON)</summary><pre id="json"></pre></details></div>
+<div class="sec"><label style="flex-direction:row;align-items:center;gap:8px;font-size:.9rem;color:var(--ink)"><input type="checkbox" id="rm"> Reduce motion</label></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var T=THREE,$=function(i){return document.getElementById(i)},cv=$("c"),wrap=$("stage"),R;
+var rm=matchMedia("(prefers-reduced-motion:reduce)").matches;$("rm").checked=rm;
+try{R=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){$("msg").textContent="3D needs WebGL, which is turned off in this browser.";return}
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+var sc=new T.Scene(),cam=new T.PerspectiveCamera(30,1,.1,50);cam.position.set(0,-.15,10.5);cam.lookAt(0,-.15,0);
+sc.add(new T.HemisphereLight(0xffffff,0x7a5cc0,.95));
+var dl=new T.DirectionalLight(0xffffff,.85);dl.position.set(3,5,6);sc.add(dl);
+var rim=new T.PointLight(0xb98cff,.7);rim.position.set(-4,2,-3);sc.add(rim);
+function M(c,r){return new T.MeshStandardMaterial({color:c,roughness:r==null?.5:r})}
+var cl=function(v,a,b){return Math.max(a,Math.min(b,v))};
+/* ---------- model ---------- */
+var OFF=.93,root=new T.Group();sc.add(root);
+var hips=new T.Group();hips.position.y=-OFF;root.add(hips);var torso=new T.Group();hips.add(torso);
+var brain=new T.Group();torso.add(brain);
+var bodyMat=M(0x8b4fe0,.55),core=new T.Mesh(new T.SphereGeometry(1,48,32),bodyMat);brain.add(core);
+var seed=7;function rnd(){seed=seed*16807%2147483647;return seed/2147483647}
+var foldMat=M(0xb07af5,.45),nf=0,tries=0,curves=[];
+while(nf<36&&tries<1200){tries++;
+ var th=Math.acos(2*rnd()-1),ph=rnd()*6.283,dir=rnd()*6.283,pts=[],ok=true;
+ for(var i=0;i<9;i++){th+=Math.cos(dir)*.22;ph+=Math.sin(dir)*.22/Math.max(.35,Math.sin(th));dir+=(rnd()-.5)*3.4;
+  var v=new T.Vector3(Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph));
+  if(v.z>.6&&Math.abs(v.x)<.8&&v.y>-.64&&v.y<.64)ok=false;pts.push(v.multiplyScalar(.99))}
+ if(!ok)continue;
+ var cu=new T.CatmullRomCurve3(pts);curves.push(cu);brain.add(new T.Mesh(new T.TubeGeometry(cu,32,.085,8),foldMat));
+ [0,1].forEach(function(e){var cap=new T.Mesh(new T.SphereGeometry(.085,8,6),foldMat);cap.position.copy(cu.getPoint(e));brain.add(cap)});nf++}
+var plateMat=M(0xb98cf5,.6),plate=new T.Mesh(new T.SphereGeometry(1,32,24),plateMat);plate.scale.set(.8,.58,.22);plate.position.z=.86;plate.rotation.z=-.1;brain.add(plate);
+var blush=[];[-1,1].forEach(function(s){var b=new T.Mesh(new T.SphereGeometry(1,16,12),new T.MeshBasicMaterial({color:0xe08cd8,transparent:true,opacity:.6}));b.scale.set(.13,.075,.03);b.position.set(s*.56,-.14,1.03);brain.add(b);blush.push(b)});
+var dark=M(0x2a1a4a,.4),white=M(0xffffff,.3),face=new T.Group();brain.add(face);
+var eyesG=new T.Group();face.add(eyesG);var eyes=[];
+[[-.36,.1],[.36,.06]].forEach(function(p,i){var g=new T.Group();g.position.set(p[0],p[1],1.07);eyesG.add(g);var sd=i?1:-1;
+ var wt=new T.Mesh(new T.SphereGeometry(.13,16,12),white);wt.scale.z=.4;g.add(wt);
+ var pu=new T.Mesh(new T.SphereGeometry(.06,12,8),dark);pu.position.z=.05;pu.scale.z=.5;g.add(pu);
+ var arc=new T.Group();g.add(arc);var m=new T.Mesh(new T.TorusGeometry(.17,.045,8,24,Math.PI),dark);m.position.y=-.05;arc.add(m);
+ [.1,.5,.9].forEach(function(f){var t2=sd>0?f*.9:Math.PI-f*.9,l=new T.Mesh(new T.CylinderGeometry(.02,.02,.11,6),dark);l.position.set(Math.cos(t2)*.23,-.05+Math.sin(t2)*.23,0);l.rotation.z=t2-Math.PI/2;arc.add(l)});
+ var ln=new T.Mesh(new T.TorusGeometry(.14,.032,8,20,Math.PI),dark);ln.rotation.z=Math.PI;ln.position.y=.04;g.add(ln);
+ eyes.push({g:g,wt:wt,pu:pu,arc:arc,ln:ln})});
+var brows=[];
+[-1,1].forEach(function(s){var g=new T.Group();g.position.set(s*.36,.37,1.03);eyesG.add(g);var b=new T.Mesh(new T.CylinderGeometry(.026,.026,.26,8),dark);b.rotation.z=Math.PI/2;g.add(b);brows.push(g)});
+var mg=new T.Group();mg.position.z=1.07;face.add(mg);
+var sm=new T.Mesh(new T.TorusGeometry(.1,.025,8,16,Math.PI),dark);sm.rotation.z=Math.PI;sm.position.y=-.14;
+var fr=new T.Mesh(new T.TorusGeometry(.1,.025,8,16,Math.PI),dark);fr.position.y=-.32;
+var op=new T.Mesh(new T.SphereGeometry(.09,16,12),dark);op.position.y=-.24;mg.add(sm,fr,op);
+var lock=new T.Group(),lb=new T.Mesh(new T.BoxGeometry(.34,.27,.12),M(0xffb02e,.4)),ls=new T.Mesh(new T.TorusGeometry(.1,.03,8,16,Math.PI),M(0x3a2370));
+ls.position.y=.14;lock.add(lb,ls);lock.position.set(0,-.68,.84);brain.add(lock);
+var armMat=M(0x3a2370,.5);
+function seg(l,r,s){var m=new T.Mesh(new T.CylinderGeometry(r,r,l,8),armMat);m.rotation.z=Math.PI/2;m.position.x=s*l/2;return m}
+var arms=[];
+[-1,1].forEach(function(s){var sh=new T.Group();sh.position.set(s*.92,.1+OFF,.3);torso.add(sh);
+ var up=new T.Group();sh.add(up);up.add(seg(.58,.06,s));
+ var hit=new T.Mesh(new T.CylinderGeometry(.22,.22,1.1,6),new T.MeshBasicMaterial({visible:false}));hit.rotation.z=Math.PI/2;hit.position.x=s*.55;up.add(hit);
+ var el=new T.Group();el.position.x=s*.58;up.add(el);el.add(new T.Mesh(new T.SphereGeometry(.07,10,8),armMat));
+ var fo=new T.Group();el.add(fo);fo.add(seg(.52,.055,s));
+ var hd=new T.Group();hd.position.x=s*.52;fo.add(hd);var pm=new T.Mesh(new T.SphereGeometry(.085,12,10),armMat);pm.scale.set(1.1,1,.7);hd.add(pm);
+ var fing=[];for(var i=0;i<4;i++){var f=new T.Group();f.position.set(s*.07,(i-1.5)*.036,0);f.add(seg(.1,.02,s));hd.add(f);fing.push(f)}
+ var tb=new T.Group();tb.position.set(s*.03,.07,0);tb.add(seg(.09,.022,s));hd.add(tb);fing.unshift(tb);
+ arms.push({s:s,pre:s<0?"L":"R",sh:sh,up:up,el:el,fing:fing,hit:hit,usr:null,hold:0,vel:0})});
+var legs=[],shoes=[];
+function shoe(sg,s){var wh=M(0xffffff,.55),tl=M(0x30c5d2,.5);
+ var a=new T.Mesh(new T.SphereGeometry(1,20,14),tl);a.scale.set(.2,.14,.34);a.position.set(0,.06,.06);sg.add(a);shoes.push(a);
+ var so=new T.Mesh(new T.BoxGeometry(.4,.05,.68),wh);so.position.set(0,-.07,.06);sg.add(so);
+ var cf=new T.Mesh(new T.CylinderGeometry(.17,.19,.24,16),tl);cf.position.set(0,.24,-.05);sg.add(cf);
+ var cr=new T.Mesh(new T.TorusGeometry(.17,.022,8,16),wh);cr.rotation.x=Math.PI/2;cr.position.set(0,.36,-.05);sg.add(cr);
+ var tc=new T.Mesh(new T.SphereGeometry(1,16,12),wh);tc.scale.set(.18,.11,.13);tc.position.set(0,.04,.3);sg.add(tc);
+ [[.19,.08],[.14,.15],[.1,.22]].forEach(function(q){var lc=new T.Mesh(new T.BoxGeometry(.2,.022,.035),wh);lc.position.set(0,q[0],q[1]);lc.rotation.x=-.5;sg.add(lc)});
+ [[.065,wh],[.035,tl]].forEach(function(o,j){var d=new T.Mesh(new T.CircleGeometry(o[0],14),o[1]);d.position.set(s*(.192+j*.002),.24,-.05);d.rotation.y=s*Math.PI/2;sg.add(d)})}
+[-1,1].forEach(function(s){var lg=new T.Group();lg.position.set(s*.3,0,0);hips.add(lg);
+ var th=new T.Mesh(new T.CylinderGeometry(.06,.06,.485,10),armMat);th.position.y=-.2425;lg.add(th);
+ var kn=new T.Group();kn.position.y=-.485;lg.add(kn);kn.add(new T.Mesh(new T.SphereGeometry(.065,10,8),armMat));
+ var sn=new T.Mesh(new T.CylinderGeometry(.06,.06,.485,10),armMat);sn.position.y=-.2425;kn.add(sn);
+ var ft=new T.Group();ft.position.set(0,-.485,.08);kn.add(ft);shoe(ft,s);legs.push({s:s,pre:s<0?"L":"R",lg:lg,kn:kn,ft:ft})});
+var sh=new T.Mesh(new T.CircleGeometry(.9,32),new T.MeshBasicMaterial({color:0x4a2a9a,transparent:true,opacity:.28}));sh.rotation.x=-Math.PI/2;sh.position.y=-2.05;sc.add(sh);
+var sparks=new T.Group(),sp=[];root.add(sparks);
+/* soft mood aura behind the mascot */
+var ac2=document.createElement("canvas");ac2.width=ac2.height=128;var ax=ac2.getContext("2d"),gr=ax.createRadialGradient(64,64,0,64,64,64);
+gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(.5,"rgba(255,255,255,.45)");gr.addColorStop(1,"rgba(255,255,255,0)");ax.fillStyle=gr;ax.fillRect(0,0,128,128);
+var aura=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(ac2),color:0x8b4fe0,transparent:true,opacity:0,depthWrite:false}));aura.scale.set(5.6,5.6,1);aura.position.set(0,.1,-1.6);root.add(aura);
+for(var i=0;i<6;i++){var o=new T.Mesh(new T.OctahedronGeometry(.1),new T.MeshBasicMaterial({color:0xffd23f}));sparks.add(o);sp.push(o)}
+/* neural signalling: pulses travelling along the folds plus short electric arcs */
+var nGrp=new T.Group(),pulses=[],arcs=[];brain.add(nGrp);
+var pm=new T.MeshBasicMaterial({color:0xdff6ff}),gm=new T.MeshBasicMaterial({color:0x5cc8ff,transparent:true,opacity:.35,depthWrite:false});
+for(var i=0;i<16;i++){var pg=new T.Group(),tr=[new T.Mesh(new T.SphereGeometry(.045,8,6),pm),new T.Mesh(new T.SphereGeometry(.03,8,6),pm)];
+ pg.add(new T.Mesh(new T.SphereGeometry(.065,10,8),pm),new T.Mesh(new T.SphereGeometry(.15,10,8),gm),tr[0],tr[1]);nGrp.add(pg);
+ pulses.push({g:pg,tr:tr,c:curves[i%curves.length],p:Math.random(),sp:.5+Math.random()*.6})}
+for(var i=0;i<5;i++){var ge=new T.BufferGeometry();ge.setAttribute("position",new T.BufferAttribute(new Float32Array(30),3));
+ var ln=new T.Line(ge,new T.LineBasicMaterial({color:0xaee9ff,transparent:true,opacity:0}));ln.frustumCulled=false;nGrp.add(ln);arcs.push({l:ln,t:0})}
+/* ---------- animation library (composable components) ---------- */
+var KS=[.5,.8,1.05,1.3],HOP=[3,4.2,5.2,6.4];
+var DEF={eo:1,ea:0,bl:0,br:0,bi:0,ms:.05,mo:0,mw:1,as:0,wk:0,hp:0,hy:0,hr:0,tl:0,ts:0,tbr:1,tsh:0,tch:0,tby:0,ss:0,sp:.04,stL:0,stR:0,toeL:0,toeR:0,fy:0,kn:0,gx:0,gy:0,tt:0,bkL:0,bkR:0,Lsw:0,Rsw:0};
+["L","R"].forEach(function(p){DEF[p+"az"]=.1;DEF[p+"el"]=-1.3;DEF[p+"e"]=.15;DEF[p+"tw"]=0;for(var i=0;i<5;i++)DEF[p+"c"+i]=[.45,.35,.4,.45,.5][i]});
+var FK="eo ea bl br bi ms mo as wk".split(" "),FACE={},FT={
+happy:[1,1,.2,.2,0,.7,0,0,0],veryHappy:[1,1,.4,.4,0,1,.45,0,0],excited:[1.35,0,.9,.9,0,.95,.7,0,0],delighted:[1.1,1,.3,.3,0,.85,.1,0,0],playful:[1,0,.6,0,0,.65,0,.8,0],laughing:[.5,1,.3,.3,0,1,.9,0,0],closedSmile:[0,0,0,0,0,.6,0,0,0],proud:[.95,0,.3,.3,0,.45,0,0,0],satisfied:[.4,1,.1,.1,0,.45,0,0,0],grateful:[.7,1,.1,.1,.3,.55,0,0,0],
+neutral:[1,0,0,0,0,.05,0,0,0],relaxed:[.75,0,0,0,0,.3,0,0,0],calm:[.2,0,0,0,0,.3,0,0,0],focused:[.85,0,-.2,-.2,-.5,0,0,0,0],attentive:[1.1,0,.2,.2,0,.12,0,0,0],curious:[1.1,0,.65,.05,0,.1,0,.3,0],thoughtful:[1,0,.3,.1,.2,0,0,.2,0],sleepy:[.3,0,-.1,-.1,0,.05,0,0,0],
+concerned:[1,0,-.1,-.1,.7,-.15,0,0,0],worried:[1.15,0,.2,.2,1,-.3,0,0,0],disappointed:[.7,0,-.1,-.1,.5,-.4,0,0,0],sad:[.8,0,-.2,-.2,1,-.7,0,0,0],frustrated:[.9,0,-.4,-.4,-.9,-.2,0,0,0],confused:[1,0,.7,-.2,0,-.05,0,.4,0],surprised:[1.5,0,1,1,0,0,1,0,0],shocked:[1.6,0,1,1,.3,0,1,0,0],embarrassed:[.7,0,0,0,.4,.4,0,.4,0],shy:[.8,0,-.05,-.05,.4,.4,0,0,0],
+determined:[.85,0,-.3,-.3,-.7,0,0,0,0],confident:[1,0,.15,.15,0,.4,0,0,0],serious:[.85,0,-.15,-.15,-.3,0,0,0,0],disciplined:[.9,0,-.1,-.1,-.2,.2,0,0,0],motivational:[1.15,0,.35,.35,0,.7,0,0,0],reassuring:[.8,1,.1,.1,.2,.5,0,0,0],wink:[1,0,.4,0,0,.6,0,.6,1],squint:[.4,0,-.2,-.2,-.3,.1,0,0,0],cheeky:[1,0,.3,0,0,.7,.2,.9,0],
+softSmile:[.7,0,.05,.05,0,.3,0,0,0],bigEyes:[1.45,0,.8,.8,0,.1,0,0,0],sideEye:[.8,0,.5,-.2,0,0,0,.3,0],nervousSmile:[1,0,.1,.1,.6,.3,0,.3,0],sleepyYawn:[.15,0,-.1,-.1,0,0,.8,0,0],tearySad:[.9,0,-.2,-.2,1,-.6,0,0,0],relieved:[.2,1,.1,.1,.2,.6,0,0,0],proudSmirk:[.9,0,.3,0,0,.5,0,.9,0],listening:[1.1,0,.2,.2,.1,.05,0,0,0],determinedSmile:[.85,0,-.2,-.2,-.4,.4,0,0,0],giggle:[.3,1,.3,.3,0,.8,.35,0,0],disbelief:[.7,0,.8,-.3,0,-.05,0,.5,0]};
+for(var n in FT){FACE[n]={};FK.forEach(function(k,i){FACE[n][k]=FT[n][i]})}
+var EY={normal:{},wide:{eo:1.5},half:{eo:.5},narrow:{eo:.4},closed:{eo:0,ea:0},slowBlink:{b:"slow"},rapidBlink:{b:"rapid"}};
+var BR={relaxed:{},raised:{bl:.8,br:.8},lowered:{bl:-.6,br:-.6,bi:-.3},oneRaised:{bl:.8},leftRaised:{bl:.8},rightRaised:{br:.8},innerUp:{bi:1},innerDown:{bi:-1},furrowed:{bl:-.4,br:-.4,bi:-.9},asym:{bl:.7,br:-.2,bi:.2},quickRaise:{o:[["bl",.7,3,1],["br",.7,3,1]]}};
+var MO={neutral:{ms:.05},smallSmile:{ms:.35},wideSmile:{ms:.9,mw:1.2},closedSmile:{ms:.5},openSmile:{ms:.8,mo:.45},laughing:{ms:1,mo:.9,o:[["mo",.15,8,99]]},slightOpen:{ms:0,mo:.25},oShape:{ms:0,mo:.9,mw:.6},sad:{ms:-.6},frown:{ms:-.4},pout:{ms:-.2,mw:.6,mo:.1},determined:{ms:0,mw:1.1},talking:{ms:.2,mo:.35,o:[["mo",.3,7,99]]},whisper:{ms:0,mo:.2,mw:.6,o:[["mo",.1,5,99]]},cheeky:{ms:.7,as:.9,mo:.2},asym:{ms:.5,as:.9}};
+var GZ={user:"u",ui:"i",center:[0,0],left:[-.9,0],right:[.9,0],up:[0,.8],down:[0,-.8],upLeft:[-.7,.6],upRight:[.7,.6],downLeft:[-.7,-.6],downRight:[.7,-.6],countdown:[0,-.9],chart:[.9,-.2],warning:[.8,.6],away:[.8,-.4],sideEye:[.95,-.05]};
+var HD={neutral:{},turnL:{hy:-.35},turnR:{hy:.35},lookUp:{hp:-.25},lookDown:{hp:.22},tiltL:{hr:.22},tiltR:{hr:-.22},curiousTilt:{hr:.2,hp:-.05},proud:{hp:-.2},drop:{hp:.3},shy:{hp:.2,hr:.08},overShoulder:{hy:.5,hp:.05},
+nod:{o:[["hp",.16,3.2,2]]},repeatNod:{o:[["hp",.15,3.2,4]]},gentleNod:{o:[["hp",.1,2.5,1]]},nodDown:{hp:.1,o:[["hp",.1,2,1]]},shake:{o:[["hy",.22,4.5,3]]},slowShake:{o:[["hy",.18,2,2]]},excited:{o:[["hr",.12,6,5]]}};
+var TO={neutral:{},relaxed:{tsh:-.3,tbr:.8},upright:{tl:-.05,tsh:.15,tch:.05},leanFwd:{tl:.14},leanBack:{tl:-.14},leanL:{ts:.1},leanR:{ts:-.1},hunched:{tl:.12,tsh:.6,tch:-.05},shouldersUp:{tsh:1},shouldersDown:{tsh:-.8},chestOut:{tch:.07},chestIn:{tch:-.06},breathe:{tbr:1.3},deepBreath:{tbr:2.4},sad:{tsh:-.8,tl:.08},curious:{tl:.12},recoil:{tl:-.24,tsh:.5},sway:{o:[["ts",.07,.5,99]]},bounce:{o:[["tby",.07,3.2,99]]}};
+var AR={rest:{az:.1,el:-1.3,e:.15,tw:0},relaxed:{az:.15,el:-1.25,e:.3},drop:{az:.05,el:-1.45,e:0},open:{az:.05,el:-.4,e:.1},out:{az:0,el:0,e:0},raised:{az:0,el:1.2,e:.25},cheer:{az:.05,el:.7,e:.6},wave:{az:.15,el:.95,e:.9,o:[["e",.45,7,99]]},come:{az:.6,el:.3,e:.6,o:[["e",.5,4,99]]},welcome:{az:.35,el:-.15,e:.35},pointFwd:{az:.9,el:.1,e:0},pointUp:{az:0,el:1.45,e:0},pointDown:{az:.1,el:-1.4,e:0},present:{az:.6,el:-.35,e:.8},victory:{az:.1,el:1.1,e:.5},celebrate:{az:.1,el:1.15,e:.4,o:[["e",.3,5,99]]},shrug:{az:.2,el:-.9,e:1.1},hips:{az:-.1,el:-.85,e:-1.4},thinking:{az:.55,el:-.6,e:-2.3},together:{az:.75,el:-.8,e:-1.1},crossed:{az:.95,el:-.5,e:-2.1},stop:{az:.7,el:.6,e:.1},reach:{az:.8,el:.1,e:.2}};
+var HN={open:[0,0,0,0,0],fist:[1,1,1,1,1],relaxed:[.45,.35,.4,.45,.5],point:[1,0,1,1,1],thumbsUp:[0,1,1,1,1],peace:[1,0,0,1,1],ok:[.8,.8,0,0,0],stop:[.1,0,0,0,0],count:[1,0,0,1,1]};
+var LG={stand:{sp:.04},relaxed:{sp:.07},wide:{sp:.22},close:{sp:-.03},shyIn:{sp:-.04,fy:.35},shiftL:{ss:-1,sp:.1,stR:-.12},shiftR:{ss:1,sp:.1,stL:-.12},bent:{sp:.12,kn:.3,bkL:.5,bkR:.5,stL:.25,stR:.25},step:{stL:.3},walkSlow:{o:[["stL",.35,1.6,99],["stR",-.35,1.6,99]]},walkFast:{o:[["stL",.5,3.2,99],["stR",-.5,3.2,99]]},dance:{o:[["sp",.1,3,99],["tby",.05,3,99]]}};
+var FT2={still:{},tapR:{o:[["toeR",.4,5,8]]},tapL:{o:[["toeL",.4,5,8]]},tapAlt:{o:[["toeL",.4,3,99],["toeR",-.4,3,99]]},heelLift:{toeR:-.45},toePoint:{toeL:-.3,toeR:-.3},bounce:{o:[["toeL",.2,4,99],["toeR",.2,4,99]]}};
+/* ---------- body movement: gaits, dances, poses ---------- */
+var PI=Math.PI,MV={},GT={walkSlow:{f:.7,a:.3,k:.5,sw:.35,e:.3,bob:.025,ln:0},walk:{f:1.1,a:.45,k:.8,sw:.5,e:.35,bob:.04,ln:.02},walkFast:{f:1.7,a:.55,k:1,sw:.65,e:.5,bob:.05,ln:.06},jog:{f:1.9,a:.6,k:1.3,sw:.8,e:.8,bob:.06,ln:.1},run:{f:2.4,a:.85,k:1.7,sw:1,e:1,bob:.09,ln:.17}};
+for(var g in GT)(function(g,c){
+ LG[g]={o:[["stL",c.a,c.f,99],["stR",c.a,c.f,99,PI],["bkL",c.k,c.f,99,PI/2,"r"],["bkR",c.k,c.f,99,PI*1.5,"r"]]};
+ TO[g]={tl:c.ln,o:[["tby",c.bob,c.f,99,PI/2,"a"],["tt",c.sw*.25,c.f,99,PI],["ts",c.bob,c.f,99]]};
+ AR[g+"A"]={az:.1,el:-1.3,e:c.e,tw:0,o:[["sw",c.sw,c.f,99]]};
+ AR[g+"B"]={az:.1,el:-1.3,e:c.e,tw:0,o:[["sw",c.sw,c.f,99,PI]]};
+ HD[g]={o:[["hp",.025,c.f*2,99],["hr",.03,c.f,99]]};
+ MV[g]={legs:g,torso:g,armL:g+"B",armR:g+"A",head:g,feet:"still"}})(g,GT[g]);
+LG.march={o:[["stL",.85,1.4,99,0,"r"],["stR",.85,1.4,99,PI,"r"],["bkL",1,1.4,99,0,"r"],["bkR",1,1.4,99,PI,"r"]]};
+TO.march={tl:-.03,tsh:.2,o:[["ts",.05,.7,99],["tby",.03,1.4,99,PI/2,"a"]]};
+AR.marchA={az:.1,el:-1.3,e:1.3,tw:0,o:[["sw",.6,1.4,99]]};AR.marchB={az:.1,el:-1.3,e:1.3,tw:0,o:[["sw",.6,1.4,99,PI]]};
+MV.march={legs:"march",torso:"march",armL:"marchB",armR:"marchA",head:"neutral",feet:"still"};
+LG.sidestep={o:[["ss",1.6,.8,99],["bkL",.5,.8,99,PI/2,"r"],["bkR",.5,.8,99,PI*1.5,"r"]]};
+MV.sidestep={legs:"sidestep",torso:"sway",armL:"relaxed",armR:"relaxed",head:"neutral",feet:"still"};
+LG.danceBounce={o:[["bkL",.6,2,99,0,"a"],["bkR",.6,2,99,0,"a"],["stL",.3,2,99,0,"a"],["stR",.3,2,99,0,"a"]]};
+LG.danceStep={sp:.08,o:[["ss",1.4,1,99],["bkL",.5,1,99,PI/2,"r"],["bkR",.5,1,99,PI*1.5,"r"],["stL",.15,2,99,0,"a"],["stR",.15,2,99,0,"a"]]};
+LG.danceShuffle={o:[["ss",.6,1.5,99],["stL",.25,3,99],["stR",.25,3,99,PI],["bkL",.5,3,99,PI/2,"r"],["bkR",.5,3,99,PI*1.5,"r"]]};
+LG.danceTwist={sp:.1,o:[["sp",.08,1.2,99,0,"a"],["bkL",.35,2.4,99,0,"a"],["bkR",.35,2.4,99,0,"a"]]};
+LG.disco={o:[["ss",.9,.8,99],["stR",.35,.8,99,0,"r"],["bkR",.9,.8,99,PI/2,"r"],["bkL",.4,1.6,99,0,"a"]]};
+FT2.danceFeet={o:[["toeL",.35,3,99],["toeR",.35,3,99,PI]]};
+TO.danceBounce={o:[["tby",.05,2,99,0,"a"],["ts",.07,1,99],["tt",.2,1,99]]};TO.danceTwist={o:[["tt",.55,1.2,99],["ts",.08,1.2,99]]};
+TO.danceSway={o:[["ts",.14,.9,99],["tt",.25,.9,99,1.57]]};TO.disco={tsh:.2,o:[["ts",.1,.8,99],["tt",.3,.8,99]]};
+AR.pumpA={az:.15,el:.9,e:.9,o:[["el",.45,2,99],["e",.5,2,99]]};AR.pumpB={az:.15,el:.9,e:.9,o:[["el",.45,2,99,PI],["e",.5,2,99,PI]]};
+AR.discoA={az:.25,el:.7,e:.1,o:[["el",.75,.8,99]]};AR.discoB={az:.25,el:.7,e:.1,o:[["el",.75,.8,99,PI]]};
+AR.swayA={az:.2,el:-.5,e:.3,o:[["el",.5,1,99]]};AR.swayB={az:.2,el:-.5,e:.3,o:[["el",.5,1,99,PI]]};
+HD.danceBob={o:[["hp",.08,2,99,0,"a"],["hr",.14,1,99]]};HD.danceSway={o:[["hr",.18,.9,99]]};HD.lookAround={o:[["hy",.35,.5,2]]};
+MV.danceBounce={legs:"danceBounce",torso:"danceBounce",armL:"pumpB",armR:"pumpA",head:"danceBob",feet:"danceFeet"};
+MV.danceStep={legs:"danceStep",torso:"danceSway",armL:"swayB",armR:"swayA",head:"danceSway",feet:"still"};
+MV.danceShuffle={legs:"danceShuffle",torso:"danceSway",armL:"swayA",armR:"swayB",head:"danceBob",feet:"danceFeet"};
+MV.danceTwist={legs:"danceTwist",torso:"danceTwist",armL:"pumpA",armR:"pumpB",head:"danceSway",feet:"still"};
+MV.disco={legs:"disco",torso:"disco",armL:"discoB",armR:"discoA",head:"danceSway",feet:"still"};
+MV.celebrationDance={legs:"danceBounce",torso:"danceBounce",armL:"wave",armR:"celebrate",head:"excited",feet:"danceFeet"};
+LG.squat={sp:.2,stL:1,stR:1,bkL:1.7,bkR:1.7};TO.squat={tl:.25,tsh:-.2};MV.squat={legs:"squat",torso:"squat",armL:"reach",armR:"reach",head:"neutral",feet:"still"};
+LG.kneel={sp:.06,stR:1.2,bkR:1.4,stL:-.15,bkL:1.7};TO.kneel={tl:.1};MV.kneel={legs:"kneel",torso:"kneel",armL:"relaxed",armR:"hips",head:"lookDown",feet:"still"};
+LG.oneLeg={ss:-1.2,stR:.2,bkR:1.5};MV.oneLeg={legs:"oneLeg",torso:"relaxed",armL:"out",armR:"out",head:"neutral",feet:"still"};
+MV.stretch={legs:"wide",torso:"chestOut",armL:"raised",armR:"raised",head:"lookUp",feet:"still"};
+/* contact gestures: joint angles solved so the hand reaches the target spot (nk = not scaled by intensity) */
+AR.hips={az:-.4,el:-.3,e:-1.9,tw:0,nk:1};AR.handOnCheek={az:1.3,el:-.9,e:1.4,tw:1.57,nk:1};AR.coverEyes={az:1.7,el:0,e:.9,tw:1.57,nk:1};
+AR.handshake={az:1.3,el:-1.05,e:1.2,tw:1.57,nk:1,o:[["e",.25,4,6]]};AR.salute={az:1.5,el:.75,e:1.1,tw:1.05,nk:1};AR.stop={az:1.2,el:.6,e:1.3,tw:1.57,nk:1};
+AR.presentPalm={az:1,el:0,e:1.4,tw:2.09,nk:1};AR.behindBack={az:-1.8,el:-.15,e:.6,tw:2.88,nk:1};AR.folded={az:2.3,el:-.45,e:.1,tw:2.36,nk:1};
+AR.together={az:2.3,el:-.3,e:0,tw:3.14,nk:1};AR.thinking={az:2.4,el:-.6,e:0,tw:3.14,nk:1};AR.coverMouth={az:2.4,el:-.3,e:-.1,tw:2.62,nk:1};AR.handOnChest={az:2.4,el:-.75,e:.1,tw:.52,nk:1};
+AR.clap={az:2.4,el:-.3,e:-.35,tw:2.09,nk:1,o:[["e",.25,4,99]]};AR.fistPump={az:0,el:.75,e:2.25,tw:.52,nk:1,o:[["e",.35,2.5,99]]};AR.thumbsFwd={az:1,el:-.15,e:1.3,tw:1.83,nk:1};
+HN.thumbsDown=[2.2,1,1,1,1];HN.three=[1,0,0,0,1];HN.four=[1,0,0,0,0];HN.five=[0,0,0,0,0];HN.grasp=[.7,.7,.7,.7,.7];
+GZ.roll="roll";GZ.scan="scan";GZ.follow="follow";GZ.alternate="alt";GZ.glance="glance";
+/* seated meditation pose (joint angles solved so the body rests on the floor with hands on the knees) */
+LG.meditate={nk:1,sp:.55,stL:1.45,stR:1.45,bkL:3,bkR:3,kn:1.2};AR.meditate={az:1,el:-1.35,e:-.9,tw:0,nk:1};
+MV.meditate={legs:"meditate",torso:"deepBreath",armL:"meditate",armR:"meditate",head:"lookDown",feet:"still"};
+AR.facePalm={az:2.3,el:.15,e:-.1,tw:2.62,nk:1};AR.snap={az:1.1,el:.9,e:1.5,tw:.52,nk:1,o:[["e",.12,6,4]]};AR.clapSlow={az:2.4,el:-.3,e:-.35,tw:2.09,nk:1,o:[["e",.25,1.2,99]]};
+var FXN=["hop","smallHop","doubleJump","bounce","celebrate","recoil","stretch","land","kick","spin"];
+var LIB={move:MV,face:FACE,eyes:EY,gaze:GZ,brows:BR,mouth:MO,head:HD,torso:TO,armL:AR,armR:AR,handL:HN,handR:HN,legs:LG,feet:FT2};
+var LAY=Object.keys(LIB);
+/* spring stiffness per parameter group */
+var KD={};for(var q in DEF){KD[q]=/^(eo|ea|bl|br|bi|ms|mo|mw|as|wk)$/.test(q)?[140,22]:/^g/.test(q)?[220,28]:/^h[pyr]$/.test(q)?[70,10]:/^t/.test(q)?[60,9]:/^[LR](az|el|e|tw|sw)$/.test(q)?[80,9]:/^[LR]c/.test(q)?[140,18]:[70,10]}
+function resolve(L,lvl){var k=KS[lvl-1]*(.7+.5*PS.ex),w={},os=[],bs="normal",q;for(q in DEF)w[q]=DEF[q];
+ function ap(src,pre){if(!src)return;var kq=src.nk?1:k;for(var q in src){if(q==="o"){src.o.forEach(function(x){os.push([(pre||"")+x[0],x[1]*k,x[2],x[3],x[4],x[5]])})}else if(q==="b")bs=src.b;else if(q!=="nk"){var key=(pre||"")+q;w[key]=DEF[key]+(src[q]-DEF[key])*kq}}}
+ ap(FACE[L.face]);ap(EY[L.eyes]);ap(BR[L.brows]);ap(MO[L.mouth]);ap(HD[L.head]);ap(TO[L.torso]);ap(AR[L.armL],"L");ap(AR[L.armR],"R");ap(LG[L.legs]);ap(FT2[L.feet]);
+ [["L",L.handL],["R",L.handR]].forEach(function(h){var a=HN[h[1]];if(a)a.forEach(function(v,i){w[h[0]+"c"+i]=v})});
+ return{w:w,os:os,bs:bs}}
+/* ---------- Brain Storm states ---------- */
+var ST={
+launch:{l:"Launch",emo:"happy, welcoming",lvl:2,hold:3.6,pri:5,pal:{ac:0xffe08a,ao:.35,rc:0xffe9a8,ri:1.1,dl:.03},msg:"Welcome back!",pose:{face:"happy",gaze:"user",brows:"raised",head:"gentleNod",torso:"leanFwd",armL:"rest",armR:"wave",handL:"relaxed",handR:"open",legs:"stand",feet:"still"}},
+dashboard:{l:"Dashboard",emo:"calm, friendly",home:1,loop:1,idle:"calm",lvl:1,pri:1,msg:"All good. I’m here if you need me.",pose:{face:"relaxed",mouth:"smallSmile",gaze:"user",brows:"relaxed",head:"neutral",torso:"breathe",armL:"relaxed",armR:"relaxed",handL:"relaxed",handR:"relaxed",legs:"relaxed",feet:"still",eyes:"normal"}},
+goal:{l:"Goal met",emo:"proud, encouraging",lvl:3,hold:3.8,pri:5,pal:{ac:0xffd166,ao:.4,gi:.14,gc:0xffe08a},vis:["sparks"],msg:"Daily goal reached. Nicely done!",pose:{face:"proud",gaze:"user",brows:"raised",head:"nod",torso:"upright",armR:"raised",armL:"rest",handR:"thumbsUp",legs:"stand",fx:"smallHop"}},
+warning:{l:"Near limit",emo:"concerned, supportive",lvl:2,hold:4.5,pri:5,pal:{ac:0xffb347,ao:.35,rc:0xffc870,dl:-.02},msg:"You’re getting close to your limit. A small break soon?",pose:{face:"concerned",gaze:"warning",head:"tiltL",torso:"leanFwd",armR:"present",armL:"rest",handR:"open",legs:"stand",feet:"still"}},
+limit:{l:"Limit reached",emo:"serious, reassuring",lvl:2,hold:5,pri:5,vis:["lock","neural"],beat:1.5,pal:{dh:-.04,dl:-.05,ac:0x6a4cff,ao:.32,rc:0x8a74ff,ri:1.1},msg:"Limit reached for this app. Let’s pause here.",pose:{face:"disciplined",gaze:"user",brows:"lowered",head:"nodDown",torso:"upright",armL:"relaxed",armR:"relaxed",handL:"relaxed",handR:"relaxed",legs:"stand",feet:"still"}},
+lock:{l:"Lock countdown",emo:"calm, patient",home:1,loop:1,idle:"lock",lvl:1,pri:5,vis:["lock","neural"],beat:.9,pal:{dh:-.06,ac:0x5ea8ff,ao:.3,rc:0x8fc4ff,ri:.9},dim:1,msg:"Time for a mindful break.",pose:{face:"calm",mouth:"smallSmile",gaze:"countdown",eyes:"slowBlink",brows:"relaxed",head:"lookDown",torso:"deepBreath",move:"meditate",handL:"ok",handR:"ok"}},
+unlock:{l:"Unlock",emo:"excited, welcoming",lvl:3,hold:3.6,pri:5,pal:{dl:.06,gi:.1,gc:0xbfffe8,ac:0x7fffd4,ao:.4,rc:0xc9ffe8,ri:1.2,spc:0x7fffd4},vis:["sparks"],msg:"You’re back! Fresh start.",pose:{face:"veryHappy",gaze:"user",head:"lookUp",torso:"bounce",armL:"welcome",armR:"welcome",handL:"open",handR:"open",legs:"stand",fx:"smallHop"}},
+reports:{l:"Reports",emo:"analytical, thoughtful",home:1,loop:1,idle:"calm",lvl:1,pri:2,pal:{ac:0x6fe0d6,ao:.22,rc:0x9ff0e6},msg:"Here’s how your week looks.",pose:{face:"attentive",mouth:"smallSmile",gaze:"chart",brows:"raised",head:"gentleNod",torso:"leanFwd",armR:"present",armL:"rest",handR:"open",handL:"relaxed",legs:"relaxed",feet:"still"}},
+tap:{l:"Tap",emo:"attentive",lvl:1,hold:1.3,pri:4,msg:"Got it.",pose:{face:"relaxed",mouth:"smallSmile",gaze:"ui",head:"gentleNod"}},
+error:{l:"Error",emo:"concerned, helpful",lvl:2,hold:3.6,pri:5,pal:{ac:0xffa36b,ao:.3,rc:0xffbf94,bo:.35},msg:"Something didn’t work. Let’s try again together.",pose:{face:"concerned",gaze:"user",head:"tiltR",torso:"leanFwd",armR:"present",armL:"rest",handR:"open",legs:"stand"}},
+walk:{l:"Walk",emo:"relaxed, upbeat",lvl:2,hold:6,pri:5,msg:"Out for a little walk.",pose:{face:"happy",gaze:"user",move:"walk",handL:"relaxed",handR:"relaxed"}},
+run:{l:"Run",emo:"energetic, determined",lvl:3,hold:6,pri:5,pal:{ac:0xff8a5c,ao:.3,rc:0xffb48a,ri:1},msg:"Full speed!",pose:{face:"determined",gaze:"right",mouth:"slightOpen",move:"run",handL:"fist",handR:"fist"}},
+dance:{l:"Dance",emo:"joyful, celebratory",lvl:3,hold:8,pri:5,pal:{ao:.35,ri:1.2,gi:.12,gc:0xffb3e6,rainbow:1},vis:["sparks"],msg:"Let’s dance!",pose:{face:"veryHappy",gaze:"user",move:"celebrationDance",handL:"open",handR:"open"}},
+clap:{l:"Clap",emo:"delighted, proud",lvl:3,hold:4.5,pri:5,msg:"Well done!",pose:{face:"delighted",gaze:"user",brows:"raised",head:"gentleNod",torso:"upright",armL:"clap",armR:"clap",handL:"open",handR:"open",legs:"stand",fx:"smallHop"}},
+handshake:{l:"Handshake",emo:"friendly, respectful",lvl:2,hold:4.5,pri:5,msg:"Nice to meet you.",pose:{face:"happy",gaze:"user",head:"gentleNod",torso:"leanFwd",armR:"handshake",armL:"relaxed",handR:"open",handL:"relaxed",legs:"stand"}},
+stretch:{l:"Stretch",emo:"relaxed, refreshed",lvl:2,hold:4,pri:5,msg:"A quick stretch before we continue.",pose:{face:"closedSmile",gaze:"center",move:"stretch",handL:"open",handR:"open",fx:"stretch"}},
+milestone:{l:"Milestone",emo:"excited, proud",lvl:4,hold:4.8,pri:5,pal:{dh:.03,dl:.06,gi:.2,gc:0xffe08a,ao:.45,ri:1.3,rainbow:1},vis:["sparks"],msg:"Big milestone. Proud of you!",pose:{face:"excited",gaze:"user",eyes:"wide",brows:"raised",head:"lookUp",torso:"upright",armL:"victory",armR:"victory",handL:"peace",handR:"peace",legs:"stand",fx:"celebrate"}}};
+function mk(k){var a={};for(var q in ST[k])a[q]=ST[k][q];a.name=k;return a}
+function pk(a){return a[Math.floor(Math.random()*a.length)]}
+var IDL={calm:[function(){return{gaze:pk(["left","right","up","user"])}},function(){return{head:pk(["tiltL","tiltR"])}},function(){return{mouth:"smallSmile",face:"satisfied"}},function(){return{torso:"sway"}},function(){return{torso:"shouldersUp"}},function(){return{gaze:"up",head:"lookUp"}},function(){return{legs:pk(["shiftL","shiftR"])}},function(){return{gaze:"user"}}],
+ lock:[function(){return{gaze:"countdown"}},function(){return{gaze:"down",head:"lookDown"}},function(){return{torso:"deepBreath"}},function(){return{head:"tiltR"}}]};
+/* ---------- colour moods: body tint, blush, glow, aura, rim light ---------- */
+var PD={dh:0,ds:0,dl:0,gi:0,gc:0xffffff,bc:0xe08cd8,bo:.6,bs:1,ac:0x8b4fe0,ao:0,rc:0xb98cff,ri:.7,spc:0xffd23f};
+var MOOD={joy:{dh:.05,ds:.08,dl:.04,bo:.85,gi:.1,gc:0xffb3e6,ac:0xffb3e6,ao:.28,rc:0xffc2e8,ri:1},
+excited:{dh:.07,ds:.12,dl:.06,bo:.9,bs:1.2,gi:.16,gc:0xffd9a0,ac:0xffd166,ao:.4,rc:0xffe08a,ri:1.3},
+playful:{dh:.08,ds:.1,dl:.04,bo:.9,gi:.1,gc:0xff9de2,ac:0xff9de2,ao:.3,rc:0xffb0ea,ri:1},
+proud:{ds:.05,dl:.03,bo:.7,gi:.1,gc:0xffe08a,ac:0xffd166,ao:.3,rc:0xffe08a,ri:1.1},
+resolve:{dh:-.03,ds:.1,dl:-.03,bo:.4,ac:0xff8a5c,ao:.22,rc:0xffb48a,ri:.9},
+calm:{dh:-.05,ds:-.05,dl:.03,bo:.45,ac:0x8fd3ff,ao:.22,rc:0xa9d8ff,ri:.8},
+warm:{dh:.02,bo:.7,gi:.06,gc:0xffc9a0,ac:0xffc9a0,ao:.22,rc:0xffd6b0},
+sleepy:{ds:-.2,dl:-.08,bo:.3,ac:0x7a8cff,ao:.18,rc:0x8fa0ff,ri:.4},
+focus:{dh:-.04,ds:.05,bo:.4,ac:0x6ea8ff,ao:.22,rc:0x9cc4ff},
+curious:{dh:-.02,bo:.55,ac:0x9ff0d6,ao:.22,rc:0xbafbe6},
+confused:{ds:-.04,bo:.5,ac:0xc7a2ff,ao:.2,rc:0xd8bcff},
+concern:{ds:-.04,dl:-.02,bo:.3,ac:0xffc15e,ao:.3,rc:0xffcf8a},
+sad:{dh:-.07,ds:-.3,dl:-.1,bo:.1,ac:0x6b86c9,ao:.3,rc:0x7f94d4,ri:.5},
+anger:{dh:.03,ds:.06,dl:-.02,bc:0xff8a80,bo:.7,ac:0xff9a8a,ao:.2,rc:0xffb0a0},
+shock:{ds:-.1,dl:.12,bo:.1,ac:0xcff3ff,ao:.4,rc:0xdff6ff,ri:1.4},
+shy:{dh:.05,bc:0xff6fa8,bo:1,bs:1.45,ac:0xff9ec7,ao:.26,rc:0xffb3d4},
+serious:{dh:-.05,ds:.05,dl:-.06,bo:.3,ac:0x6c5ce7,ao:.22,rc:0x8f7fff},neutral:{}},FM={};
+[["joy","happy veryHappy delighted laughing closedSmile satisfied grateful"],["excited","excited motivational"],["playful","playful cheeky wink giggle"],["proud","proud confident proudSmirk"],["resolve","determined determinedSmile"],["calm","calm relaxed"],["warm","reassuring softSmile relieved"],["sleepy","sleepy sleepyYawn"],["focus","focused attentive thoughtful listening"],["curious","curious bigEyes"],["confused","confused sideEye disbelief"],["concern","concerned worried nervousSmile"],["sad","sad disappointed tearySad"],["anger","frustrated"],["shock","surprised shocked"],["shy","embarrassed shy"],["serious","serious disciplined"]].forEach(function(r){r[1].split(" ").forEach(function(f){FM[f]=r[0]})});
+function palette(L,lvl){var k=KS[lvl-1]*(.7+.5*PS.ex),p={},q;for(q in PD)p[q]=PD[q];
+ function ap(s){if(!s)return;for(var q in s)p[q]=s[q]}
+ ap(MOOD[FM[L.face]||"neutral"]);ap(home.pal);ap(act.pal);
+ ["dh","ds","dl","ao","gi"].forEach(function(q){p[q]*=k});return p}
+/* ---------- controller ---------- */
+var PS={ex:.8,pl:.65,ca:.85},t=0,home=mk("dashboard"),act=home,ov=null,res=null,dirty=true,lvUser=0,nextIdle=4,uiPt={x:0,y:0};
+var hy=0,hv=0,hq=0,hl=0,sq=0,sqv=0,ri=0,riv=0,spinT=0,cur={},vel={};for(var q in DEF){cur[q]=DEF[q];vel[q]=0}
+function lv(){return lvUser||act.lvl||home.lvl||2}
+function layers(){var L={},h=home.pose,a=act.pose,o=ov?ov.pose:{};LAY.forEach(function(q){L[q]=o[q]||a[q]||h[q]});var B=MV[L.move];if(B)for(var q in B)L[q]=o[q]||a[q]||B[q];L.fx=a.fx;return L}
+function fx(n){if(rm||!n)return;var h=HOP[lv()-1]*(1.25-.5*PS.ca);
+ if(n==="hop")hv=h;else if(n==="smallHop")hv=h*.55;else if(n==="doubleJump"){hv=h;hq=1}else if(n==="bounce"){hl=t+3;hv=h*.3}else if(n==="celebrate"){hv=h;hq=2;hl=t+3}else if(n==="recoil"){riv=-5;sqv-=2}else if(n==="stretch")sqv=-5;else if(n==="land")sqv-=4;else if(n==="kick")vel.stR=14;else if(n==="spin")spinT=1}
+function play(a){if(a.pri<act.pri&&act!==home&&t-act.t0<act.hold)return false;if(act===home&&a.pri<home.pri)return false;
+ a.t0=t;act=a;if(a.home)home=a;ov=null;dirty=true;fx(a.pose.fx);ui(a);return true}
+var $msg=$("msg"),$json=$("json");
+function ui(a){$msg.textContent=a.msg||"";[].forEach.call($("states").children,function(b){b.setAttribute("aria-pressed",b.dataset.k===a.name)});
+ var L=layers();$json.textContent=JSON.stringify({state:a.name,emotion:a.emo||"custom",intensity:lv(),animation:{face:L.face,eyes:L.eyes,eyebrows:L.brows,mouth:L.mouth,gaze:L.gaze,head:L.head,torso:L.torso,left_arm:L.armL,right_arm:L.armR,hands:{left:L.handL,right:L.handR},legs:L.legs,feet:L.feet,movement:L.move||null,full_body:a.pose.fx||null},personality:{expressiveness:PS.ex,playfulness:PS.pl,calmness:PS.ca},transition:{duration:.4,smooth:true},playback:{loop:!!a.loop,return_to_idle:!a.home}},null,1)}
+Object.keys(ST).forEach(function(k){var b=document.createElement("button");b.textContent=ST[k].l;b.dataset.k=k;b.onclick=function(){play(mk(k))};$("states").appendChild(b)});
+["Auto",1,2,3,4].forEach(function(v,i){var b=document.createElement("button");b.textContent=v;b.setAttribute("aria-pressed",i===0);b.onclick=function(){lvUser=i;[].forEach.call($("lv").children,function(c,j){c.setAttribute("aria-pressed",j===i)});dirty=true;ui(act)};$("lv").appendChild(b)});
+var MX={move:"Movement",face:"Face",eyes:"Eyes",gaze:"Gaze",brows:"Eyebrows",mouth:"Mouth",head:"Head",torso:"Torso",armL:"Left arm",armR:"Right arm",handL:"Left hand",handR:"Right hand",legs:"Legs",feet:"Feet",fx:"Full body"};
+function mixChange(){var p={};Object.keys(MX).forEach(function(k){var v=$("mx_"+k).value;if(v)p[k]=v});var a={name:"custom",emo:"custom",pose:p,lvl:lv(),hold:5,pri:5,msg:"Custom mix"};play(a)}
+Object.keys(MX).forEach(function(k){var l=document.createElement("label");l.textContent=MX[k];var s=document.createElement("select");s.id="mx_"+k;
+ var o=document.createElement("option");o.value="";o.textContent="(from state)";s.appendChild(o);(k==="fx"?FXN:Object.keys(LIB[k])).forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;s.appendChild(o)});s.onchange=mixChange;l.appendChild(s);$("mix").appendChild(l)});
+$("rm").onchange=function(){rm=this.checked};
+[["ex","Expressiveness"],["pl","Playfulness"],["ca","Calmness"]].forEach(function(d){var l=document.createElement("label");l.textContent=d[1];var r=document.createElement("input");r.type="range";r.min=0;r.max=1;r.step=.05;r.value=PS[d[0]];r.oninput=function(){PS[d[0]]=+r.value;dirty=true;ui(act)};l.appendChild(r);$("pers").appendChild(l)});
+["low","normal","high"].forEach(function(k){var b=document.createElement("button");b.textContent=k;b.setAttribute("aria-pressed",k==="high");b.onclick=function(){QN=Q[k];R.setPixelRatio(Math.min(devicePixelRatio,QN.pr));rs();[].forEach.call($("qual").children,function(c){c.setAttribute("aria-pressed",c===b)})};$("qual").appendChild(b)});
+/* ---------- input ---------- */
+var rc=new T.Raycaster(),pv=new T.Vector2(),look={x:0,y:0,tx:0,ty:0},drag=null,yaw=0,yawv=0,yawT=0,pokes=0;
+function ray(e){var r=cv.getBoundingClientRect();pv.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));rc.setFromCamera(pv,cam)}
+function pick(e,o){ray(e);return rc.intersectObjects(o,true)[0]}
+var lastTap=0;
+function bodyTap(pt){var now=t,dbl=now-lastTap<.35;lastTap=now;sqv=5;
+ if(dbl){play({name:"excited",emo:"excited",pose:{face:"excited",mouth:"openSmile",head:"excited",armL:"cheer",armR:"cheer",fx:"hop"},lvl:3,hold:1.8,pri:4,msg:"Woohoo!"});return}
+ if(pt.y>.55)play({name:"boop",emo:"delighted",pose:{face:"delighted",gaze:"user",head:"nod"},lvl:2,hold:1.3,pri:4,msg:"Boop!"});
+ else if(pt.x<-.45&&Math.abs(pt.y)<.5)play({name:"turn",emo:"playful",pose:{face:"playful",head:"turnL",gaze:"left"},lvl:2,hold:1.5,pri:4,msg:"Looking this way."});
+ else if(pt.x>.45&&Math.abs(pt.y)<.5)play({name:"turn",emo:"playful",pose:{face:"playful",head:"turnR",gaze:"right"},lvl:2,hold:1.5,pri:4,msg:"Looking that way."});
+ else if(pt.y<-.35)play({name:"giggle",emo:"giggly",pose:{face:"giggle",mouth:"laughing",head:"excited",torso:"bounce"},lvl:2,hold:1.6,pri:4,msg:"Hehe, that tickles!"});
+ else{pokes++;if(pokes%5===0)play({name:"poke",emo:"surprised",pose:{face:"shocked",mouth:"oShape",armL:"raised",armR:"raised",torso:"recoil",fx:"recoil"},lvl:3,hold:1.6,pri:4,msg:"Ouch! Too many pokes!"});
+  else play({name:"poke",emo:"playful",pose:{face:"playful",mouth:"openSmile",gaze:"user",head:"excited"},lvl:2,hold:1.1,pri:4,msg:pk(["Okay, okay!","Hey, easy!","Hi there!"])})}}
+cv.addEventListener("pointerdown",function(e){cv.setPointerCapture(e.pointerId);
+ var hb,ha=pick(e,arms.map(function(a){return a.hit}));
+ if(ha)drag={k:"arm",a:arms.filter(function(a){return a.hit===ha.object})[0]};else if(pick(e,shoes))drag={k:"shoe"};else if((hb=pick(e,[core,plate])))drag={k:"body",pt:brain.worldToLocal(hb.point.clone())};else drag={k:"rot"};
+ drag.x0=drag.lx=e.clientX;drag.y0=e.clientY;drag.moved=0;yawT=yaw;uiPt.x=look.tx;uiPt.y=look.ty;cv.style.cursor="grabbing";
+ if(drag.k==="body"||drag.k==="rot"){var dg=drag;dg.timer=setTimeout(function(){if(drag===dg&&dg.moved<8){dg.long=true;play({name:"thinking",emo:"thoughtful",pose:{face:"thoughtful",gaze:"up",head:"curiousTilt",torso:"curious",armR:"thinking",handR:"relaxed"},lvl:2,hold:3,pri:4,msg:"Hmm, let me think..."})}},650)}});
+addEventListener("pointermove",function(e){var r=cv.getBoundingClientRect();
+ look.tx=cl((e.clientX-(r.left+r.width/2))/(r.width*.6),-1,1);look.ty=cl(-(e.clientY-(r.top+r.height*.4))/(r.height*.5),-1,1);
+ if(!drag)return;drag.moved=Math.max(drag.moved,Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0));
+ if(drag.k==="arm"&&drag.moved>6){ray(e);var p=rc.ray.at(-rc.ray.origin.z/rc.ray.direction.z,new T.Vector3()),a=drag.a;
+  a.usr={el:cl(Math.atan2(p.y-(root.position.y+.1),Math.abs(p.x-a.sh.position.x)),-1.5,1.5)};a.hold=2.5}
+ else if((drag.k==="body"||drag.k==="rot")&&drag.moved>8)yawT+=(e.clientX-drag.lx)*.012;drag.lx=e.clientX});
+function up(){if(drag)clearTimeout(drag.timer);if(drag&&drag.moved<8&&!drag.long){
+  if(drag.k==="body")bodyTap(drag.pt);
+  else if(drag.k==="shoe")play({name:"shoe",emo:"playful",pose:{face:"delighted",feet:"tapAlt",fx:"smallHop"},lvl:2,hold:1.4,pri:4,msg:"Boing!"});
+  else if(drag.k==="arm")drag.a.vel=9}
+ drag=null;cv.style.cursor="grab"}
+cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+function rs(){var w=wrap.clientWidth,h=wrap.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener("resize",rs);rs();
+/* ---------- frame loop ---------- */
+function zs(s){var c=document.createElement("canvas");c.width=c.height=64;var x=c.getContext("2d");x.font="800 48px sans-serif";x.fillStyle="#a98bff";x.textAlign="center";x.fillText(s,32,50);return c}
+var Q={low:{pr:1,pl:4,ar:0},normal:{pr:1.5,pl:10,ar:3},high:{pr:2,pl:16,ar:5}},QN=Q.high,nb=2,bl=0,dim=0,na=0,last=performance.now();
+var pc={dh:0,ds:0,dl:0,gi:0,bo:.6,bs:1,ao:0,ri:.7},pcol={},tc2=new T.Color(),nblue=new T.Color(0x3fb8ff),NK=["dh","ds","dl","gi","bo","bs","ao","ri"],CK=["gc","bc","ac","rc","spc"];
+CK.forEach(function(q){pcol[q]=new T.Color(PD[q])});
+function arcGen(a){var v=new T.Vector3(),pos=a.l.geometry.attributes.position.array,ok,tries=0;
+ do{ok=true;var th=Math.acos(2*Math.random()-1),ph=Math.random()*6.283,d1=(Math.random()-.5)*1.1,d2=(Math.random()-.5)*1.1;
+  for(var i=0;i<10;i++){var f=i/9,j=i&&i<9?(Math.random()-.5)*.18:0,tt=th+d1*f+j,pp=ph+d2*f+(i&&i<9?(Math.random()-.5)*.18:0);
+   v.set(Math.sin(tt)*Math.cos(pp),Math.cos(tt),Math.sin(tt)*Math.sin(pp));
+   if(v.z>.5&&Math.abs(v.x)<.85&&Math.abs(v.y)<.7)ok=false;
+   v.multiplyScalar(1.12);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z}
+ }while(!ok&&++tries<8);
+ a.l.geometry.attributes.position.needsUpdate=true}
+function setEye(e,o,ea,gx,gy){var hp=ea>.5;e.wt.visible=e.pu.visible=!hp&&o>.14;e.arc.visible=hp;e.ln.visible=!hp&&o<=.14;e.wt.scale.y=Math.max(.05,o);e.pu.position.set(gx*.045,gy*.04*Math.min(1,o),.05)}
+function tick(now){if(document.hidden){last=now;requestAnimationFrame(tick);return}var dt=Math.min(.033,(now-last)/1000);last=now;t+=dt;
+ if(!act.home&&t-act.t0>act.hold){act=home;act.t0=t;dirty=true;ui(act)}
+ if(ov&&t>ov.until){ov=null;dirty=true}
+ if(act===home&&!ov&&!drag&&!rm){nextIdle-=dt;if(nextIdle<0){var l=IDL[home.idle];if(l){ov={pose:pk(l)(),until:t+1.4+Math.random()*1.4};dirty=true}nextIdle=(3+Math.random()*3)*(1.6-PS.pl)}}
+ if(dirty||!res){res=resolve(layers(),lv());res.pal=palette(layers(),lv());dirty=false}
+ var tg={},q;for(q in res.w)tg[q]=res.w[q];var tau=t-act.t0;
+ res.os.forEach(function(o){if(!rm&&tau<o[3]/o[2]){var sv=Math.sin(6.283*o[2]*tau+(o[4]||0));if(o[5]==="r")sv=Math.max(0,sv);else if(o[5]==="a")sv=Math.abs(sv);tg[o[0]]+=o[1]*sv}});
+ var gz=GZ[layers().gaze]||GZ.center;if(gz==="u"){tg.gx=look.x;tg.gy=look.y}else if(gz==="i"){tg.gx=uiPt.x;tg.gy=uiPt.y}else if(gz==="roll"){var ra=tau*5.5;tg.gx=tau<1.15?Math.sin(ra)*.85:0;tg.gy=tau<1.15?-Math.cos(ra)*.85:0}else if(gz==="scan"){tg.gx=Math.sin(tau*2.2)*.9;tg.gy=0}else if(gz==="follow"){tg.gx=.85*Math.sin(t*1.3);tg.gy=.45*Math.sin(t*.9+1)}else if(gz==="alt"){tg.gx=Math.sin(tau*5)>0?.8:-.8;tg.gy=0}else if(gz==="glance"){tg.gx=tau<1?look.x:.8;tg.gy=tau<1?look.y:-.3}else{tg.gx=gz[0];tg.gy=gz[1]}
+ look.x+=(look.tx-look.x)*Math.min(1,dt*8);look.y+=(look.ty-look.y)*Math.min(1,dt*8);
+ tg.hy+=tg.gx*.12;tg.hp-=tg.gy*.06;
+ arms.forEach(function(a){if(a.usr){a.hold-=dt;if(a.hold<0)a.usr=null;else{tg[a.pre+"el"]=a.usr.el;tg[a.pre+"az"]=0;tg[a.pre+"e"]=.15}}});
+ for(q in tg){var kd=KD[q],c=cur[q];vel[q]+=((tg[q]-c)*kd[0]-vel[q]*kd[1])*dt;cur[q]=c+vel[q]*dt}
+ /* blink */
+ nb-=dt;if(nb<0&&!rm){bl=res.bs==="slow"?.4:res.bs==="rapid"?.1:.13;nb=res.bs==="slow"?3+Math.random()*3:res.bs==="rapid"?.9+Math.random()*.8:(Math.random()<.15?.28:2.2+Math.random()*3.5)}bl-=dt;var bf=bl>0?.06:1;
+ /* face */
+ eyesG.position.set(cur.gx*.06,cur.gy*.04,0);
+ setEye(eyes[0],cur.eo*bf*(1-cl(cur.wk,0,1)),cur.ea,cur.gx,cur.gy);setEye(eyes[1],cur.eo*bf,cur.ea,cur.gx,cur.gy);
+ brows.forEach(function(g,i){g.position.y=.37+(i?cur.br:cur.bl)*.09;g.rotation.z=-(i?1:-1)*cur.bi*.4});
+ var ms=cur.ms,mo=cur.mo,mw=cur.mw;mg.position.x=cur.as*.05;mg.rotation.z=cur.as*.2;
+ sm.visible=ms>=-.1&&mo<.3;fr.visible=ms<-.1&&mo<.3;sm.scale.set(mw*(.8+.4*Math.abs(ms)),Math.max(.12,ms*1.4),1);fr.scale.set(mw*(.8+.4*Math.abs(ms)),Math.max(.12,-ms*1.4),1);
+ op.visible=mo>.05;op.scale.set(.8*mw,Math.max(.1,mo*1.3),.4);
+ /* physics: hop, squash */
+ sqv+=(-sq*160-sqv*9)*dt;sq+=sqv*dt;riv+=(-ri*80-riv*8)*dt;ri+=riv*dt;
+ var h=HOP[lv()-1]*(1.25-.5*PS.ca);hv-=22*dt;hy+=hv*dt;if(hy<0){if(hv<-2)sqv-=3;hy=0;hv=hq>0?(hq--,h*.8):(hl>t?h*.4:0)}
+ /* head, torso */
+ var vis=act.vis||home.vis||[];na+=(((vis.indexOf("neural")>=0)?1:0)-na)*Math.min(1,dt*3);
+ var bph=t*(act.beat||home.beat||1),bt=rm?0:Math.pow(Math.max(0,Math.sin(bph*6.283)),10)+.6*Math.pow(Math.max(0,Math.sin((bph-.2)*6.283)),10);
+ var sy=1-sq*.5+.012*cur.tbr*Math.sin(t*2.1)+na*.05*bt,sx=(1+sq*.3)*(1+cur.tch)+na*.045*bt;
+ brain.scale.set(sx,sy,sx);brain.position.y=sy-1+OFF;brain.rotation.set(cur.hp,cur.hy,cur.hr);
+ torso.rotation.set(cur.tl+ri,cur.tt,cur.ts);
+ yawv+=(((drag&&(drag.k==="body"||drag.k==="rot")&&drag.moved>8)?yawT:0)-yaw)*40*dt-yawv*6*dt;yaw+=yawv*dt;if(spinT>0)spinT=Math.max(0,spinT-dt);var se=1-spinT;root.rotation.y=yaw+look.x*.3+(spinT>0?se*se*(3-2*se)*6.283:0);
+ root.position.y=hy;
+ /* arms, hands */
+ var dv=new T.Vector3(),bv=new T.Vector3(),AX=new T.Vector3(1,0,0);
+ arms.forEach(function(a){var s=a.s,p=a.pre,az=cur[p+"az"],el=cur[p+"el"];
+  a.vel+=((0-a.vel)*0-a.vel*8)*dt;
+  dv.set(s*Math.cos(el)*Math.cos(az),Math.sin(el)+a.vel*.02,Math.cos(el)*Math.sin(az)).normalize();dv.applyAxisAngle(AX,-cur[p+"sw"]);bv.set(s,0,0);
+  a.up.quaternion.setFromUnitVectors(bv,dv);a.el.rotation.set(cur[p+"tw"],0,s*cur[p+"e"]);a.sh.position.y=.1+OFF+cur.tsh*.07;
+  a.fing.forEach(function(f,i){var c=cl(cur[p+"c"+i],0,i?1:2.4);f.rotation.z=i===0?s*(1.3-1.7*c):-s*c*1.7})});
+ /* legs, feet */
+ var mnF=0,vA=new T.Vector3(),vB=new T.Vector3();legs.forEach(function(l){var s=l.s,p=l.pre,a1=cur["st"+p],bk=cur["bk"+p];
+  l.lg.rotation.set(-a1,0,s*cur.sp);l.kn.rotation.x=bk;l.ft.rotation.set(-cur["toe"+p]+(a1-bk)*.85,-s*cur.fy,0)});
+ hips.position.set(0,-OFF,0);legs.forEach(function(l){var fy=l.ft.getWorldPosition(vA).y-hips.getWorldPosition(vB).y;if(fy<mnF)mnF=fy});
+ hips.position.set(cur.ss*.08,-OFF-(mnF+.97)-cur.kn*.07+cur.tby,0);
+ /* visuals */
+ var vis=act.vis||home.vis||[];lock.visible=vis.indexOf("lock")>=0;sparks.visible=vis.indexOf("sparks")>=0&&!rm;
+ if(sparks.visible)sp.forEach(function(o,i){var a=t*1.5+i*1.047;o.position.set(Math.cos(a)*1.7,.2+Math.sin(a*1.3)*1.2,.4);o.rotation.set(t*2,t*3,0)});
+ var P=res.pal,kk=1-Math.exp(-dt*5);NK.forEach(function(q){pc[q]+=(P[q]-pc[q])*kk});CK.forEach(function(q){pcol[q].lerp(tc2.setHex(P[q]),kk)});
+ if(P.rainbow){pcol.ac.setHSL((t*.2)%1,.85,.65);pcol.spc.setHSL((t*.2+.5)%1,.9,.6)}
+ nGrp.visible=na>.02;foldMat.emissive.copy(pcol.gc).lerp(nblue,na);foldMat.emissiveIntensity=pc.gi*1.3*(1-na)+na*(.12+.55*bt+(rm?0:.12*Math.random()));
+ if(nGrp.visible){pulses.forEach(function(u,pi){u.g.visible=pi<QN.pl;
+  if(!rm){u.p+=dt*u.sp*(1+bt*1.5);if(u.p>1){u.p=0;u.c=curves[Math.floor(Math.random()*curves.length)];u.sp=.5+Math.random()*.6}}
+  u.g.position.copy(u.c.getPoint(Math.min(1,u.p))).multiplyScalar(1.09);
+  u.tr[0].position.copy(u.c.getPoint(Math.max(0,u.p-.04))).multiplyScalar(1.09).sub(u.g.position);
+  u.tr[1].position.copy(u.c.getPoint(Math.max(0,u.p-.08))).multiplyScalar(1.09).sub(u.g.position);
+  u.g.scale.setScalar(na*(.7+.5*bt))});
+  arcs.forEach(function(a,ai){if(ai>=QN.ar){a.l.visible=false;return}a.l.visible=true;a.t-=dt;if(a.t<0&&!rm){arcGen(a);a.t=.08+Math.random()*.35}a.l.material.opacity=rm?0:na*Math.min(1,Math.max(0,a.t)*14)*.9})}
+ dim+=(((act.dim||(!act.home&&home.dim))?1:0)-dim)*dt*4;bodyMat.color.setHSL((.74+pc.dh+1)%1,cl(.72+pc.ds-.4*dim,0,1),cl(.59+pc.dl-.14*dim,0,1));
+ foldMat.color.setHSL((.737+pc.dh+1)%1,cl(.86+pc.ds-.3*dim,0,1),cl(.72+pc.dl-.1*dim,0,1));
+ plateMat.color.setHSL((.733+pc.dh+1)%1,cl(.84+pc.ds-.2*dim,0,1),cl(.755+pc.dl-.06*dim,0,1));
+ bodyMat.emissive.copy(pcol.gc);bodyMat.emissiveIntensity=pc.gi*(.8+.2*Math.sin(t*2.4));
+ blush.forEach(function(b){b.material.color.copy(pcol.bc);b.material.opacity=cl(pc.bo,0,1);b.scale.set(.13*pc.bs,.075*pc.bs,.03)});
+ aura.material.color.copy(pcol.ac);aura.material.opacity=cl(pc.ao*(.85+.15*Math.sin(t*2)+(rm?0:.25*bt*na)),0,.7);
+ rim.color.copy(pcol.rc);rim.intensity=pc.ri;sh.material.color.copy(pcol.ac).multiplyScalar(.55);
+ sp.forEach(function(o){o.material.color.copy(pcol.spc)});
+ var s2=1-hy*.15;sh.scale.set(s2*1.25,s2*.7,1);sh.material.opacity=.28-hy*.05;
+ R.render(sc,cam);requestAnimationFrame(tick)}
+play(mk("launch"));requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
