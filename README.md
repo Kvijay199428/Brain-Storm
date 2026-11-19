@@ -15,6 +15,20 @@ Kotlin · Jetpack Compose · Room · WorkManager · three.js mascot (bundled off
 5. Optionally — off by default — an experimental detector counts new YouTube Shorts. It never
    triggers a lock; time remains the enforced limit.
 
+## App discovery in setup
+
+Setup lists installed apps, not a curated list. The apps Android classifies as social or video
+(`ApplicationInfo.CATEGORY_SOCIAL` / `CATEGORY_VIDEO`) are shown first and pre-selected; every
+other installed app is listed under **Other installed apps** for manual selection. A search field
+filters the full list by name or package, so an app Android did not classify is still one query
+away. The list is re-read when the step is opened and when an app is installed or removed.
+
+The category is declared by the app itself (or set by its installer), so coverage is not
+universal: Netflix, Instagram and JioHotstar, for example, declare no category in the builds
+tested and appear under Other. Android has no API that says "this app can display video", so
+nothing is guessed — an app without a category is simply not pre-selected. Discovery uses the
+existing `<queries>` block for launcher activities; `QUERY_ALL_PACKAGES` is not requested.
+
 ## Content detection (opt-in, experimental)
 
 Time limits never depend on it. Counting is a separate feature that only runs after you enable

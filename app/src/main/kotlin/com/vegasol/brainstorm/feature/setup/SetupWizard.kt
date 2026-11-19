@@ -1,7 +1,9 @@
 package com.vegasol.brainstorm.feature.setup
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -12,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,13 +43,14 @@ import com.vegasol.brainstorm.save
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
+import com.vegasol.brainstorm.ui.AppCategory
 import com.vegasol.brainstorm.ui.BrainStormAppIcon
 import com.vegasol.brainstorm.ui.DurationPicker
 import com.vegasol.brainstorm.ui.Inst
-import com.vegasol.brainstorm.ui.SUGGESTED
 import com.vegasol.brainstorm.ui.Stepper
 import com.vegasol.brainstorm.ui.fmtMinutes
 import com.vegasol.brainstorm.ui.installed
+import com.vegasol.brainstorm.ui.matchApps
 import com.vegasol.brainstorm.ui.rememberResumeTick
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,6 +75,7 @@ fun SetupWizard(onDone: () -> Unit) {
     var step by remember { mutableIntStateOf(0) }
     var apps by remember { mutableStateOf<List<Inst>>(emptyList()) }
     var selected by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+    var seeded by remember { mutableStateOf(false) }
     var budget by remember { mutableIntStateOf(DEFAULT_BUDGET) }
     var lockHours by remember { mutableIntStateOf(24) }
     var resetHour by remember { mutableIntStateOf(0) }
@@ -82,7 +87,37 @@ fun SetupWizard(onDone: () -> Unit) {
     LaunchedEffect(Unit) {
         val list = withContext(Dispatchers.IO) { installed(c) }
         apps = list
-        selected = list.filter { it.pkg in SUGGESTED }.associate { it.pkg to DEFAULT_APP_LIMIT }
+        // Only apps that told Android they are social or video are pre-selected. Everything else
+        // stays an explicit choice; a guess here would silently put a limit on the wrong app.
+        selected = list.filter { it.detected }.associate { it.pkg to DEFAULT_APP_LIMIT }
+        seeded = true
+    }
+
+    // Coming back to the app step re-reads the launcher list, in case something was installed
+    // while the wizard was in the foreground. Existing ticks are never overwritten.
+    LaunchedEffect(step) {
+        if (step == 3 && seeded) {
+            apps = withContext(Dispatchers.IO) { installed(c) }
+        }
+    }
+
+    // Package installs/removals are system broadcasts; no QUERY_ALL_PACKAGES is involved.
+    DisposableEffect(c) {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addDataScheme("package")
+        }
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: android.content.Context?, intent: Intent?) {
+                scope.launch {
+                    apps = withContext(Dispatchers.IO) { installed(c) }
+                }
+            }
+        }
+        c.registerReceiver(receiver, filter)
+        onDispose { runCatching { c.unregisterReceiver(receiver) } }
     }
 
     val sumMinutes = selected.values.sum()
@@ -308,29 +343,73 @@ private fun StepApps(
     Column(Modifier.fillMaxSize()) {
         Text("Apps to limit", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text(
-            "Pick the apps and set each one's daily limit. You can add more later — never remove.",
+            "Social and video apps are pre-selected from the category Android reports. That can " +
+                "include messaging apps and video editors, so untick anything you don't want " +
+                "limited. Apps that declare no category are under Other.",
             fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(vertical = 4.dp)
         )
-        LazyColumn(Modifier.weight(1f)) {
-            items(apps, key = { it.pkg }) { a ->
-                val mins = selected[a.pkg]
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable { onToggle(a.pkg, mins == null) }
-                        .padding(vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(mins != null, { onToggle(a.pkg, it) })
-                    Column(Modifier.weight(1f)) {
-                        Text(a.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+        if (apps.isNotEmpty() && apps.none { it.detected }) {
+            Text(
+                "Android reported no social or video category for any installed app. Choose the " +
+                    "apps you want below.",
+                fontSize = 11.sp, color = Care.Warning, modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        var query by remember { mutableStateOf("") }
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text("Search all installed apps") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(bottom = Space.s)
+        )
+        val shown = matchApps(apps, query)
+        if (shown.isEmpty() && apps.isNotEmpty()) {
+            Text("No match.", fontSize = 12.sp, color = Care.TextSecondary)
+        }
+        val listState = rememberLazyListState()
+        // Changing the filter re-anchors the list on a surviving item key; jump back to the top so
+        // clearing the query always shows the Social group again instead of dropping into Other.
+        LaunchedEffect(query) { listState.scrollToItem(0) }
+        LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
+            val groups = listOf(
+                AppCategory.SOCIAL to "Social apps",
+                AppCategory.VIDEO to "Video apps",
+                AppCategory.OTHER to "Other installed apps"
+            )
+            groups.forEach { (category, title) ->
+                val rows = shown.filter { it.category == category }
+                if (rows.isNotEmpty()) {
+                    item(key = "header-${category.name}") {
                         Text(
-                            a.pkg + if (a.pkg in SUGGESTED) "  ·  suggested" else "",
-                            fontSize = 10.sp, color = Care.TextSecondary
+                            "$title (${rows.size})",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Care.TextSecondary,
+                            modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
                         )
                     }
-                    if (mins != null) {
-                        TextButton({ onEdit(a.pkg) }) { Text(fmtMinutes(mins), fontSize = 12.sp) }
+                    items(rows, key = { it.pkg }) { a ->
+                        val mins = selected[a.pkg]
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { onToggle(a.pkg, mins == null) }
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(mins != null, { onToggle(a.pkg, it) })
+                            Column(Modifier.weight(1f)) {
+                                Text(a.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                Text(
+                                    a.pkg + if (a.detected) "  ·  detected ${a.category.label}" else "",
+                                    fontSize = 10.sp, color = Care.TextSecondary
+                                )
+                            }
+                            if (mins != null) {
+                                TextButton({ onEdit(a.pkg) }) { Text(fmtMinutes(mins), fontSize = 12.sp) }
+                            }
+                        }
                     }
                 }
             }

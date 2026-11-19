@@ -8,6 +8,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-20
+
+### Added
+
+- Setup discovers social and video apps from `ApplicationInfo.category` instead of a hardcoded
+  package list. Detected apps are pre-selected and grouped under **Social apps** and **Video
+  apps**; everything else stays visible under **Other installed apps** for manual selection.
+- Setup has a search field that filters installed apps by name or package, so apps that declare no
+  category (for example Netflix or JioHotstar) are one query away instead of a long scroll.
+- The app list refreshes when the setup step is opened and when an app is installed or removed.
+
+### Notes
+
+- The category comes from the app itself (its `android:appCategory`, or an installer hint). Apps
+  that declare none are not guessed at. On the test phone YouTube declares **video**; Netflix,
+  Instagram and JioHotstar declare nothing and therefore appear under Other. No new permissions
+  and no `QUERY_ALL_PACKAGES`.
+
 ## [2.0.0] - 2026-11-19
 
 One package, one APK. The `consumer` and `managed` builds are gone.
