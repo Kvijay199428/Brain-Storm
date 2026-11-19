@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
     Build, tag and publish a Brain Storm release — the local twin of .github/workflows/release.yml.
@@ -7,8 +7,7 @@
     Produces the same assets the CI workflow does, so a release made offline is indistinguishable
     from one made on a runner:
 
-        dist/Brain-Storm-<version>_consumer_<channel>.apk
-        dist/Brain-Storm-<version>_managed_<channel>.apk
+        dist/Brain-Storm-<version>_<channel>.apk
         dist/version.json      (read by the in-app updater)
         dist/SHA256SUMS
 
@@ -62,7 +61,7 @@ try {
     Write-Host "Releasing $tag (versionCode $code, channel $channel)" -ForegroundColor Cyan
 
     # ── Build ────────────────────────────────────────────────────────────────────────────────
-    & .\gradlew.bat :app:testConsumerDebugUnitTest :app:assembleConsumerRelease :app:assembleManagedRelease --console=plain
+    & .\gradlew.bat :app:testDebugUnitTest :app:assembleRelease --console=plain
     if ($LASTEXITCODE -ne 0) { throw 'Gradle build failed.' }
 
     # ── Collect ──────────────────────────────────────────────────────────────────────────────
@@ -86,41 +85,40 @@ try {
     }
     if (-not $apksigner) { throw 'apksigner not found — cannot verify APK signatures.' }
 
-    $apks = [ordered]@{}
-    foreach ($flavour in 'consumer', 'managed') {
-        $src = "app/build/outputs/apk/$flavour/release/app-$flavour-release.apk"
-        if (-not (Test-Path $src)) { throw "Missing $src" }
-        $name = "Brain-Storm-${version}_${flavour}_${channel}.apk"
-        Copy-Item $src (Join-Path $dist $name)
+    $src = 'app/build/outputs/apk/release/app-release.apk'
+    if (-not (Test-Path $src)) { throw "Missing $src" }
+    $name = "Brain-Storm-${version}_${channel}.apk"
+    Copy-Item $src (Join-Path $dist $name)
 
-        # A debug-signed APK would install here but could never be updated by a real release.
-        $cert = (& $apksigner verify --print-certs (Join-Path $dist $name) 2>&1) -join "`n"
-        if ($cert -match 'CN=Android Debug') { throw "$name is debug-signed. Check signingConfigs.release." }
+    # A debug-signed APK would install here but could never be updated by a real release.
+    $cert = (& $apksigner verify --print-certs (Join-Path $dist $name) 2>&1) -join "`n"
+    if ($cert -match 'CN=Android Debug') { throw "$name is debug-signed. Check signingConfigs.release." }
 
-        $hash = (Get-FileHash (Join-Path $dist $name) -Algorithm SHA256).Hash.ToLowerInvariant()
-        $apks[$flavour] = [ordered]@{
-            file   = $name
-            sha256 = $hash
-            size   = (Get-Item (Join-Path $dist $name)).Length
-        }
+    $hash = (Get-FileHash (Join-Path $dist $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+    $apk = [ordered]@{
+        file   = $name
+        sha256 = $hash
+        size   = (Get-Item (Join-Path $dist $name)).Length
     }
 
     $payload = [ordered]@{
+        schema      = 2
         versionCode = $code
         versionName = $version
         channel     = $channel
         tag         = $tag
         publishedAt = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-        apks        = $apks
+        package     = 'com.vegasol.brainstorm'
+        apk         = $apk
+        # 1.0.0 installs look up apks.<edition>. Kept for one release so they see an explicit
+        # package mismatch instead of a false "up to date".
+        apks        = [ordered]@{ consumer = $apk; managed = $apk }
     }
     $json = $payload | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText((Join-Path $dist 'version.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
 
-    $sums = foreach ($flavour in 'consumer', 'managed') {
-        $a = $apks[$flavour]
-        "$($a.sha256)  $($a.file)"
-    }
-    [IO.File]::WriteAllText((Join-Path $dist 'SHA256SUMS'), ($sums -join "`n") + "`n", (New-Object System.Text.UTF8Encoding($false)))
+    $sums = "$($apk.sha256)  $($apk.file)"
+    [IO.File]::WriteAllText((Join-Path $dist 'SHA256SUMS'), $sums + "`n", (New-Object System.Text.UTF8Encoding($false)))
 
     Write-Host "Assets in $dist" -ForegroundColor Green
     Get-ChildItem $dist | Select-Object Name, Length | Format-Table | Out-String | Write-Host
@@ -130,24 +128,45 @@ try {
         return
     }
 
+    # ── Release body from CHANGELOG.md ───────────────────────────────────────────────────────
+    $changelogPath = Join-Path $root 'CHANGELOG.md'
+    if (-not (Test-Path $changelogPath)) { throw 'CHANGELOG.md is missing.' }
+    $log = Get-Content $changelogPath
+    $start = -1
+    for ($i = 0; $i -lt $log.Count; $i++) {
+        if ($log[$i] -match "^## \[$([regex]::Escape($version))\]") { $start = $i + 1; break }
+    }
+    if ($start -lt 0) { throw "CHANGELOG.md has no section for $version; add one before releasing." }
+    $lines = New-Object System.Collections.Generic.List[string]
+    for ($i = $start; $i -lt $log.Count; $i++) {
+        if ($log[$i] -match '^## \[') { break }
+        $lines.Add($log[$i])
+    }
+    $section = ($lines -join "`n").Trim()
+    if (-not $section) { throw "CHANGELOG.md section for $version is empty." }
+
     # ── Tag + publish ────────────────────────────────────────────────────────────────────────
     git tag -a $tag -m "Brain Storm $version ($channel $code)"
     git push origin $tag
 
+    $sha = git rev-parse --short HEAD
     $body = @"
-Automated build of ``$(git rev-parse --short HEAD)`` (versionCode $code).
+Automated build of ``$sha`` (versionCode $code).
 
-Install over an older Brain Storm of the same flavour; upgrades keep your frozen policy.
+## What changed
 
-* ``Brain-Storm-${version}_consumer_${channel}.apk`` — normal install
-* ``Brain-Storm-${version}_managed_${channel}.apk`` — Device Owner build
-* ``version.json`` + ``SHA256SUMS`` — used by the in-app updater
+$section
+
+### Assets
+
+* ``Brain-Storm-${version}_${channel}.apk`` - install this on any supported Android phone
+* ``version.json`` + ``SHA256SUMS`` - read by the in-app updater
 "@
     if ($Notes) { $body += "`n$Notes" }
 
     $releaseArgs = @(
         'release', 'create', $tag,
-        '--target', (git rev-parse HEAD),
+        '--verify-tag',
         '--title', "Brain Storm $version ($channel $code)",
         '--notes', $body
     )

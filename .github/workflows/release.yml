@@ -1,7 +1,7 @@
 name: Release
 
 # Every push to main becomes an installable build: tag v<versionName>-<channel>.<commitCount>,
-# signed APK for both flavours, version.json + SHA256SUMS for the in-app updater.
+# one signed APK plus version.json + SHA256SUMS for the in-app updater.
 on:
   push:
     branches: [main]
@@ -52,10 +52,10 @@ jobs:
           } > keystore.properties
 
       - name: Unit tests
-        run: ./gradlew :app:testConsumerDebugUnitTest --console=plain
+        run: ./gradlew :app:testDebugUnitTest --console=plain
 
-      - name: Build both flavours
-        run: ./gradlew :app:assembleConsumerRelease :app:assembleManagedRelease --console=plain
+      - name: Build the release APK
+        run: ./gradlew :app:assembleRelease --console=plain
 
       - name: Collect, rename and checksum assets
         id: meta
@@ -72,34 +72,57 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
           mkdir -p dist
-          for f in consumer managed; do
-            src="app/build/outputs/apk/${f}/release/app-${f}-release.apk"
-            dst="dist/Brain-Storm-${VERSION}_${f}_${CHANNEL}.apk"
-            cp "$src" "$dst"
-          done
+          cp app/build/outputs/apk/release/app-release.apk "dist/Brain-Storm-${VERSION}_${CHANNEL}.apk"
 
           python3 - <<'PY'
-          import hashlib, json, os, pathlib, sys
+          import datetime, hashlib, json, os, pathlib, re, sys
           version = os.environ["VERSION"]; channel = os.environ["CHANNEL"]
           code = int(os.environ["CODE"]); tag = os.environ["TAG"]
-          apks = {}
-          for flavour in ("consumer", "managed"):
-              p = pathlib.Path(f"dist/Brain-Storm-{version}_{flavour}_{channel}.apk")
-              digest = hashlib.sha256(p.read_bytes()).hexdigest()
-              apks[flavour] = {"file": p.name, "sha256": digest, "size": p.stat().st_size}
+          apk = pathlib.Path("dist") / f"Brain-Storm-{version}_{channel}.apk"
+          entry = {
+              "file": apk.name,
+              "sha256": hashlib.sha256(apk.read_bytes()).hexdigest(),
+              "size": apk.stat().st_size,
+          }
           payload = {
+              "schema": 2,
               "versionCode": code,
               "versionName": version,
               "channel": channel,
               "tag": tag,
-              "publishedAt": os.popen("date -u +%Y-%m-%dT%H:%M:%SZ").read().strip(),
-              "apks": apks,
+              "publishedAt": datetime.datetime.now(datetime.timezone.utc)
+                  .strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "package": "com.vegasol.brainstorm",
+              "apk": entry,
+              # 1.0.0 installs look up apks.<edition>. Keep these for one release so such an
+              # install sees an explicit package mismatch instead of a false "up to date".
+              "apks": {"consumer": entry, "managed": entry},
           }
-          pathlib.Path("dist/version.json").write_text(json.dumps(payload, indent=2) + "\n")
-          with open("dist/SHA256SUMS", "w") as fh:
-              for flavour in ("consumer", "managed"):
-                  a = apks[flavour]
-                  fh.write(f"{a['sha256']}  {a['file']}\n")
+          pathlib.Path("dist/version.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          pathlib.Path("dist/SHA256SUMS").write_text(f"{entry['sha256']}  {entry['file']}\n", encoding="utf-8")
+
+          changelog = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          match = re.search(
+              rf"^## \[{re.escape(version)}\][^\n]*\n(.*?)(?=^## \[|\Z)",
+              changelog, re.MULTILINE | re.DOTALL,
+          )
+          if not match or not match.group(1).strip():
+              sys.exit(f"CHANGELOG.md has no section for {version}; add one before releasing.")
+          changes = match.group(1).strip()
+
+          sha = os.environ.get("GITHUB_SHA", "")[:7]
+          notes = f"""Automated build of `{sha}` (versionCode {code}).
+
+          ## What changed
+
+          {changes}
+
+          ### Assets
+
+          * `{apk.name}` - install this on any supported Android phone
+          * `version.json` + `SHA256SUMS` - read by the in-app updater
+          """
+          pathlib.Path("notes.md").write_text(notes, encoding="utf-8")
           print(json.dumps(payload, indent=2))
           PY
 
@@ -125,15 +148,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$TAG" -m "Brain Storm ${VERSION} (${CHANNEL} ${CODE})" "$GITHUB_SHA"
           git push origin "refs/tags/$TAG"
-          {
-            echo "Automated build of \`${GITHUB_SHA:0:7}\` (versionCode ${CODE})."
-            echo
-            echo "Install over an older Brain Storm of the same flavour; upgrades keep your frozen policy."
-            echo
-            echo "* \`Brain-Storm-${VERSION}_consumer_${CHANNEL}.apk\` — normal install"
-            echo "* \`Brain-Storm-${VERSION}_managed_${CHANNEL}.apk\` — Device Owner build"
-            echo "* \`version.json\` + \`SHA256SUMS\` — used by the in-app updater"
-          } > notes.md
           gh release create "$TAG" \
             --verify-tag \
             --title "Brain Storm ${VERSION} (${CHANNEL} ${CODE})" \
