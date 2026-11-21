@@ -160,8 +160,9 @@ code. `budgetCheck()` in `Core.kt` encodes that rule and is unit tested.
 | Mascot enum + pooled WebViews (`brainyPause`/`brainyResume`) | `mascot/Mascot.kt` |
 | One-time policy wizard | `feature/setup/SetupWizard.kt` |
 | Dashboard (state, pure derivation, ViewModel, components) | `feature/dashboard/**` |
-| Apps list (read-only + add) and app details (read-only) | `feature/apps/AppsScreen.kt` |
+| Apps list (read-only + add) and per-app reports (limits, hourly + 7/30-day charts) | `feature/apps/AppsScreen.kt`, `feature/apps/AppReportScreen.kt` |
 | Reports: 7/30-day charts, today-by-hour chart, streaks, lock history | `feature/reports/ReportsScreen.kt` |
+| Shared bar charts | `ui/Charts.kt` |
 | Settings (read-only policy + monitoring health) | `feature/settings/SettingsScreen.kt` |
 | Update check, verified download, install hand-off | `update/UpdateClient.kt`, `update/ApkInstaller.kt`, `update/UpdateManager.kt` |
 | Opt-in accessibility service, Shorts detector, debug probe | `detect/**` |

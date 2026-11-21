@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vegasol.brainstorm.Graph
-import com.vegasol.brainstorm.feature.apps.AppDetailsScreen
+import com.vegasol.brainstorm.feature.apps.AppReportScreen
 import com.vegasol.brainstorm.feature.apps.AppsScreen
 import com.vegasol.brainstorm.feature.dashboard.DashboardRoute
 import com.vegasol.brainstorm.feature.reports.ReportsScreen
@@ -60,15 +60,14 @@ fun MainShell() {
             val d = detail
             if (d != null) {
                 BackHandler { detail = null }
-                AppDetailsScreen(d) { detail = null }
+                AppReportScreen(d) { detail = null }
             } else when (tab) {
                 0 -> DashboardRoute(
-                    onOpenApp = { detail = it },
                     onOpenTab = { tab = it },
                     onOpenSettings = { tab = 3 }
                 )
                 1 -> AppsScreen { detail = it }
-                2 -> ReportsScreen()
+                2 -> ReportsScreen { detail = it }
                 else -> SettingsScreen()
             }
         }

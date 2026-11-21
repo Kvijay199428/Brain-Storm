@@ -159,6 +159,8 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
     @Upsert suspend fun upsert(u: DailyUsage)
     @Query("SELECT * FROM daily_usage WHERE usageDate=:d") fun observeDay(d: String): Flow<List<DailyUsage>>
     @Query("SELECT * FROM daily_usage WHERE usageDate>=:from") fun observeSince(from: String): Flow<List<DailyUsage>>
+    @Query("SELECT * FROM daily_usage WHERE packageName=:p AND usageDate>=:from")
+    fun observeSinceFor(p: String, from: String): Flow<List<DailyUsage>>
 }
 
 @Dao interface LockoutDao {
@@ -186,6 +188,8 @@ data class HourlyUsage(
 
 @Dao interface HourlyDao {
     @Query("SELECT * FROM hourly_usage WHERE usageDate=:d ORDER BY hour") fun observeDay(d: String): Flow<List<HourlyUsage>>
+    @Query("SELECT * FROM hourly_usage WHERE packageName=:p AND usageDate=:d ORDER BY hour")
+    fun observeDayFor(p: String, d: String): Flow<List<HourlyUsage>>
     @Query("SELECT * FROM hourly_usage WHERE usageDate=:d") suspend fun day(d: String): List<HourlyUsage>
     @Query("DELETE FROM hourly_usage WHERE usageDate=:d") suspend fun clearDay(d: String)
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertAll(rows: List<HourlyUsage>)

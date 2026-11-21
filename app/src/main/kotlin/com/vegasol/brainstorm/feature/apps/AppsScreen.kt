@@ -5,9 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +29,7 @@ import com.vegasol.brainstorm.ui.StatusChip
 import com.vegasol.brainstorm.ui.UsageProgressBar
 import com.vegasol.brainstorm.ui.fmtClock
 import com.vegasol.brainstorm.ui.fmtHm
+import com.vegasol.brainstorm.ui.fmtUsage
 import com.vegasol.brainstorm.ui.installed
 import com.vegasol.brainstorm.ui.nowTicker
 import com.vegasol.brainstorm.ui.statusOf
@@ -59,7 +58,7 @@ fun AppsScreen(onOpen: (String) -> Unit) {
         Row(Modifier.fillMaxWidth().padding(top = Space.l), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Applications", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                LockedNotice(text = "Limits were set during setup · locked")
+                LockedNotice(text = "Limits were set during setup Â· locked")
             }
             Button(
                 onClick = { picking = true },
@@ -100,7 +99,7 @@ fun AppsScreen(onOpen: (String) -> Unit) {
                                 StatusChip(statusOf(a, u, lock))
                             }
                             Text(
-                                "${fmtHm(used)} of ${fmtHm(limitSec)} today",
+                                "${fmtUsage(used)} of ${fmtHm(limitSec)} today",
                                 fontSize = 11.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 2.dp)
                             )
                             UsageProgressBar(
@@ -109,7 +108,7 @@ fun AppsScreen(onOpen: (String) -> Unit) {
                             )
                             if (lock != null) {
                                 Text(
-                                    "🔒 Unlocks in ${fmtClock(lock.expiresAt - now)}",
+                                    "ðŸ”’ Unlocks in ${fmtClock(lock.expiresAt - now)}",
                                     fontSize = 11.sp, color = Care.Danger, modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
@@ -140,7 +139,7 @@ fun AppsScreen(onOpen: (String) -> Unit) {
                 Column {
                     DurationPicker(
                         "Daily limit", minutes, { minutes = it },
-                        hint = "Frozen once added — this app can never be removed or changed."
+                        hint = "Frozen once added â€” this app can never be removed or changed."
                     )
                     Text(
                         "Adding raises your per-app limits total to " +
@@ -220,99 +219,3 @@ private fun AddAppDialog(existing: Set<String>, onDismiss: () -> Unit, onPick: (
     )
 }
 
-/** Read-only detail view. No stepper, no toggle: policy is frozen. */
-@Composable
-fun AppDetailsScreen(pkg: String, onBack: () -> Unit) {
-    val c = LocalContext.current
-    val now by nowTicker()
-    val apps by Graph.db.apps().observeAll().collectAsState(emptyList())
-    val key = Graph.engine.dayKey(now)
-    val usage by remember(key) { Graph.db.usage().observeDay(key) }.collectAsState(emptyList())
-    val locks by Graph.db.lockouts().observeActive().collectAsState(emptyList())
-
-    val a = apps.firstOrNull { it.packageName == pkg }
-    if (a == null) {
-        Column(Modifier.padding(Space.screen)) {
-            TextButton(onBack) { Text("← Back") }
-            Text("App not found")
-        }
-        return
-    }
-
-    val u = usage.firstOrNull { it.packageName == pkg }
-    val lock = locks.firstOrNull { it.packageName == pkg }
-    val used = u?.foregroundSeconds ?: 0L
-    val limitSec = (a.timeLimitMin ?: 0) * 60L
-    val hasDetector = com.vegasol.brainstorm.ContentCounting.hasDetector(pkg)
-    val counting = com.vegasol.brainstorm.ContentCounting.active(c, pkg)
-
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Space.screen),
-        verticalArrangement = Arrangement.spacedBy(Space.m)
-    ) {
-        TextButton(onBack, contentPadding = PaddingValues(0.dp)) { Text("← Back") }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AppIcon(pkg, 48.dp)
-            Column(Modifier.weight(1f).padding(start = Space.m)) {
-                Text(a.appName, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text(pkg, fontSize = 11.sp, color = Care.TextSecondary)
-            }
-        }
-        StatusChip(statusOf(a, u, lock))
-
-        StatRow("Today", fmtHm(used), "of ${fmtHm(limitSec)} limit")
-        UsageProgressBar(if (limitSec > 0) used * 100f / limitSec else 0f)
-
-        HorizontalDivider(Modifier.padding(vertical = Space.xs))
-        StatRow("Remaining today", fmtHm((limitSec - used).coerceAtLeast(0L)))
-        StatRow("Daily limit", fmtHm(limitSec))
-        StatRow("Content counting", if (counting) "${u?.contentCount ?: 0}" else "Not available")
-        if (!counting) {
-            Text(
-                if (hasDetector)
-                    "A detector exists (${com.vegasol.brainstorm.Detectors.label(pkg)}). Turn it on in Settings."
-                else com.vegasol.brainstorm.Detectors.label(pkg),
-                fontSize = 11.sp, color = Care.TextSecondary
-            )
-        }
-
-        if (lock != null) {
-            Column(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.card))
-                    .background(Care.tint(Care.Danger, 0.12f)).padding(Space.m)
-            ) {
-                Text(
-                    "🔒 Locked until " + java.text.DateFormat.getDateTimeInstance(
-                        java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
-                    ).format(java.util.Date(lock.expiresAt)),
-                    fontWeight = FontWeight.Bold
-                )
-                Text("Unlocks in ${fmtClock(lock.expiresAt - now)}", fontSize = 12.sp, color = Care.Danger)
-                Text(
-                    "Trigger: ${lock.triggerType} · ${lock.enforcementNote.ifBlank { "enforcement unknown" }}",
-                    fontSize = 11.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
-
-        HorizontalDivider(Modifier.padding(vertical = Space.xs))
-        LockedNotice(text = "Set during setup · this app's limit cannot be changed or removed")
-        Text(
-            "Locks are fixed for the configured duration and can never be shortened. Adding apps is " +
-                "allowed; removing or editing them is not.",
-            fontSize = 11.sp, color = Care.TextSecondary
-        )
-        Spacer(Modifier.height(Space.section))
-    }
-}
-
-@Composable
-private fun StatRow(label: String, value: String, sub: String? = null) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(label, fontSize = 13.sp)
-            if (sub != null) Text(sub, fontSize = 11.sp, color = Care.TextSecondary)
-        }
-        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-    }
-}

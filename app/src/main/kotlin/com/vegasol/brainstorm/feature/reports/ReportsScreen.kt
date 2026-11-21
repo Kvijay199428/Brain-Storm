@@ -1,6 +1,7 @@
 package com.vegasol.brainstorm.feature.reports
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,17 +25,18 @@ import com.vegasol.brainstorm.feature.dashboard.Derive
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
+import com.vegasol.brainstorm.ui.HourlyBarChart
 import com.vegasol.brainstorm.ui.SectionHeader
 import com.vegasol.brainstorm.ui.SurfaceCard
+import com.vegasol.brainstorm.ui.UsageBarChart
 import com.vegasol.brainstorm.ui.fmtHm
+import com.vegasol.brainstorm.ui.fmtUsage
 import com.vegasol.brainstorm.ui.minuteTicker
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
-fun ReportsScreen() {
+fun ReportsScreen(onOpenApp: (String) -> Unit) {
     val now by minuteTicker()
     val todayKey = remember(now / 60_000) { Graph.engine.dayKey(now) }
     val keys30 = remember(todayKey) { Graph.engine.dayKeys(30, now) }
@@ -123,7 +125,7 @@ fun ReportsScreen() {
                     Column(Modifier.weight(1f)) {
                         Text("Today by hour", fontSize = 15.sp, fontWeight = FontWeight.Bold)
                         Text(
-                            if (hourlyTotal > 0) "Monitored apps only · ${fmtHm(hourlyTotal)} today"
+                            if (hourlyTotal > 0) "Monitored apps only Â· ${fmtHm(hourlyTotal)} today"
                             else "Monitored apps only",
                             fontSize = 11.sp, color = Care.TextSecondary
                         )
@@ -135,7 +137,7 @@ fun ReportsScreen() {
                         fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = Space.m)
                     )
                 } else {
-                    HourlyBarChart(perHour, currentHour, Modifier.padding(top = Space.m))
+                    HourlyBarChart(perHour, Modifier.padding(top = Space.m), highlightHour = currentHour, currentHour = currentHour)
                     Text(
                         "Each bar is foreground time spent inside that clock hour. Data comes from " +
                             "Android's own event log and is split at hour boundaries, so a session " +
@@ -172,11 +174,13 @@ fun ReportsScreen() {
             items(todayRows, key = { it.packageName }) { row ->
                 Row(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.tile))
-                        .background(Care.Surface).padding(Space.m),
+                        .background(Care.Surface)
+                        .clickable { onOpenApp(row.packageName) }
+                        .padding(Space.m),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(names[row.packageName] ?: row.packageName, Modifier.weight(1f), fontSize = 13.sp)
-                    Text(fmtHm(row.foregroundSeconds), fontWeight = FontWeight.Bold, color = Care.Primary)
+                    Text(fmtUsage(row.foregroundSeconds), fontWeight = FontWeight.Bold, color = Care.Primary)
                 }
             }
         }
@@ -195,12 +199,12 @@ fun ReportsScreen() {
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            (if (l.triggerType == "BUDGET") "Daily budget · " else "") +
+                            (if (l.triggerType == "BUDGET") "Daily budget Â· " else "") +
                                 (names[l.packageName] ?: l.packageName),
                             fontWeight = FontWeight.SemiBold, fontSize = 13.sp
                         )
                         Text(
-                            "${l.triggerType} · ${df.format(Date(l.activatedAt))}",
+                            "${l.triggerType} Â· ${df.format(Date(l.activatedAt))}",
                             fontSize = 10.sp, color = Care.TextSecondary
                         )
                     }
@@ -229,106 +233,5 @@ private fun Achievement(value: String, label: String, modifier: Modifier = Modif
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Care.Primary)
         Text(label, fontSize = 10.sp, color = Care.TextSecondary)
-    }
-}
-
-/**
- * Bar chart for a variable-length window. Labels are skipped for long windows so the axis stays
- * readable on a phone.
- */
-@Composable
-fun UsageBarChart(
-    days: List<Pair<String, Long>>,
-    todayKey: String,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false
-) {
-    val maxSecs = (days.maxOfOrNull { it.second } ?: 0L).coerceAtLeast(60L)
-    val labelEvery = if (days.size <= 7) 1 else 5
-    Row(
-        modifier.fillMaxWidth().height(if (compact) 74.dp else 128.dp),
-        horizontalArrangement = Arrangement.spacedBy(if (compact) 1.dp else 6.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        days.forEachIndexed { index, (dateKey, secs) ->
-            val isToday = dateKey == todayKey
-            val fraction = if (secs <= 0) 0.02f else (secs.toFloat() / maxSecs).coerceIn(0.04f, 1f)
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                if (!compact) {
-                    Text(
-                        if (secs > 0) fmtHm(secs) else "—",
-                        fontSize = 8.sp, maxLines = 1,
-                        color = if (isToday) Care.TextPrimary else Care.TextSecondary,
-                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
-                    )
-                    Spacer(Modifier.height(3.dp))
-                }
-                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
-                    Box(Modifier.fillMaxSize().clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)).background(Care.SurfaceVariant))
-                    Box(
-                        Modifier.fillMaxWidth().fillMaxHeight(fraction)
-                            .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                            .background(if (isToday) Care.Primary else Care.Primary.copy(alpha = 0.45f))
-                    )
-                }
-                if (!compact) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        if (isToday) "Today" else dayLabel(dateKey),
-                        fontSize = 9.sp,
-                        color = if (isToday) Care.Primary else Care.TextSecondary,
-                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
-                    )
-                } else if (index % labelEvery == 0 || isToday) {
-                    Text(dayLabel(dateKey).take(1), fontSize = 8.sp, color = Care.TextSecondary)
-                }
-            }
-        }
-    }
-}
-
-private fun dayLabel(key: String): String = runCatching {
-    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    val d = sdf.parse(key) ?: return@runCatching key.takeLast(2)
-    SimpleDateFormat("EEE", Locale.US).format(d)
-}.getOrDefault(key.takeLast(2))
-
-/**
- * 24 bars, one per clock hour of the current day. Labelled every six hours so the axis stays
- * legible at phone width; the current hour is highlighted instead of being inferred by the reader.
- */
-@Composable
-private fun HourlyBarChart(hours: List<Long>, currentHour: Int, modifier: Modifier = Modifier) {
-    val maxSecs = (hours.maxOrNull() ?: 0L).coerceAtLeast(60L)
-    Row(
-        modifier.fillMaxWidth().height(96.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        hours.forEachIndexed { hour, secs ->
-            val isNow = hour == currentHour
-            val fraction = if (secs <= 0) 0.02f else (secs.toFloat() / maxSecs).coerceIn(0.04f, 1f)
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
-                    Box(
-                        Modifier.fillMaxSize()
-                            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                            .background(Care.SurfaceVariant)
-                    )
-                    Box(
-                        Modifier.fillMaxWidth().fillMaxHeight(fraction)
-                            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                            .background(if (isNow) Care.Primary else Care.Primary.copy(alpha = 0.45f))
-                    )
-                }
-                Spacer(Modifier.height(3.dp))
-                Text(
-                    if (hour % 6 == 0) "%02d".format(hour) else "",
-                    fontSize = 8.sp, maxLines = 1,
-                    color = if (isNow) Care.Primary else Care.TextSecondary,
-                    fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal
-                )
-            }
-        }
     }
 }

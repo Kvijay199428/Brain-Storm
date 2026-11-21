@@ -39,6 +39,12 @@ fun fmtDur(s: Long): String = when {
 /** Compact duration for cards: 2h 35m / 35m */
 fun fmtHm(s: Long): String = if (s >= 3600) "${s / 3600}h ${"%02d".format((s / 60) % 60)}m" else "${s / 60}m"
 
+/**
+ * Same as [fmtHm] but keeps sub-minute time visible: with real usage recorded, "0m" reads like a
+ * broken counter, so anything between one second and a minute prints "<1m".
+ */
+fun fmtUsage(s: Long): String = if (s in 1..59) "<1m" else fmtHm(s)
+
 fun fmtClock(ms: Long): String {
     val s = ms.coerceAtLeast(0) / 1000
     return "%02d:%02d:%02d".format(s / 3600, (s / 60) % 60, s % 60)

@@ -8,6 +8,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-21
+
+### Changed
+
+- The dashboard no longer repeats the monitored-app list. App management lives on the Apps tab;
+  Home keeps the budget, slot metrics, lockout and mascot cards.
+- App details are now a full per-app report: today's limit progress, a 24-hour chart with the peak
+  hour called out, and 7-day and 30-day trends with the daily limit marked in red when exceeded.
+- Report charts are shared UI components, so the Reports tab and the app report use the same
+  scales and labels.
+- Sub-minute time reads "<1m" instead of "0m", so a short session never looks like a broken
+  counter.
+
+### Added
+
+- Peak hour, best day, daily average and active-day insights per app, derived by pure functions
+  with unit tests (`AppReportDerive`).
+- Tapping an app in the Reports "Today by app" list opens its report.
+
 ## [2.1.0] - 2026-11-20
 
 ### Added

@@ -5,7 +5,6 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -24,9 +23,6 @@ import com.vegasol.brainstorm.feature.dashboard.components.DashboardHeader
 import com.vegasol.brainstorm.feature.dashboard.components.LockoutStatusCard
 import com.vegasol.brainstorm.feature.dashboard.components.MascotAdviceCard
 import com.vegasol.brainstorm.feature.dashboard.components.MascotHeroCard
-import com.vegasol.brainstorm.feature.dashboard.components.MonitoredAppRow
-import com.vegasol.brainstorm.feature.dashboard.components.MonitoredAppsHeader
-import com.vegasol.brainstorm.feature.dashboard.components.NoAppsCard
 import com.vegasol.brainstorm.feature.dashboard.components.ScreenTimeCard
 import com.vegasol.brainstorm.feature.dashboard.components.UpdateBanner
 import com.vegasol.brainstorm.feature.dashboard.components.WelcomeSection
@@ -40,7 +36,6 @@ import java.util.Calendar
 
 @Composable
 fun DashboardRoute(
-    onOpenApp: (String) -> Unit,
     onOpenTab: (Int) -> Unit,
     onOpenSettings: () -> Unit
 ) {
@@ -77,11 +72,9 @@ fun DashboardRoute(
         now = now,
         pool = pool,
         update = update,
-        onOpenApp = onOpenApp,
         onOpenTab = onOpenTab,
         onOpenSettings = onOpenSettings,
-        onFix = onFix,
-        onAddApps = { onOpenTab(1) }
+        onFix = onFix
     )
 }
 
@@ -91,11 +84,9 @@ fun DashboardScreen(
     now: State<Long>,
     pool: MascotPool,
     update: UpdateState,
-    onOpenApp: (String) -> Unit,
     onOpenTab: (Int) -> Unit,
     onOpenSettings: () -> Unit,
-    onFix: () -> Unit,
-    onAddApps: () -> Unit
+    onFix: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         DashboardHeader(
@@ -109,7 +100,7 @@ fun DashboardScreen(
         if (state.isLoading) {
             LinearProgressIndicator(Modifier.fillMaxWidth())
         } else {
-            DashboardBody(state, now, pool, update, onOpenApp, onOpenTab, onOpenSettings, onFix, onAddApps)
+            DashboardBody(state, now, pool, update, onOpenTab, onOpenSettings, onFix)
         }
     }
 }
@@ -120,11 +111,9 @@ private fun DashboardBody(
     now: State<Long>,
     pool: MascotPool,
     update: UpdateState,
-    onOpenApp: (String) -> Unit,
     onOpenTab: (Int) -> Unit,
     onOpenSettings: () -> Unit,
-    onFix: () -> Unit,
-    onAddApps: () -> Unit
+    onFix: () -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -138,17 +127,6 @@ private fun DashboardBody(
         }
         item("time") { ScreenTimeCard(state, onClick = { onOpenTab(2) }) }
         item("content") { ContentMetricsCard(state) }
-
-        item("appsHeader") {
-            MonitoredAppsHeader(state.monitoredApps.size, onAddApps)
-        }
-        if (state.monitoredApps.isEmpty()) {
-            item("appsEmpty") { NoAppsCard(onAddApps) }
-        } else {
-            items(state.monitoredApps, key = { it.packageName }) { model ->
-                MonitoredAppRow(model, now, onClick = { onOpenApp(model.packageName) })
-            }
-        }
 
         if (state.isLocked) {
             item("lockout") { LockoutStatusCard(state, now) }
