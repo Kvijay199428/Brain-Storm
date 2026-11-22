@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vegasol.brainstorm.ContentCounting
 import com.vegasol.brainstorm.Detectors
+import com.vegasol.brainstorm.DeviceInventory
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.theme.Care
@@ -28,6 +29,7 @@ import com.vegasol.brainstorm.theme.Space
 import com.vegasol.brainstorm.ui.AppIcon
 import com.vegasol.brainstorm.ui.HourlyBarChart
 import com.vegasol.brainstorm.ui.LockedNotice
+import com.vegasol.brainstorm.ui.Pill
 import com.vegasol.brainstorm.ui.StatusChip
 import com.vegasol.brainstorm.ui.SurfaceCard
 import com.vegasol.brainstorm.ui.UsageBarChart
@@ -43,7 +45,8 @@ import java.util.Locale
 /**
  * Read-only report for one app: today's budget progress, the hour it was used most, and 7/30-day
  * trends. Enforcement values come from the same daily/hourly rows the rest of the app uses, so this
- * screen cannot disagree with the lock logic.
+ * screen cannot disagree with the lock logic. Apps that are not monitored open here too (the device
+ * ranking includes them); they simply have no limit or lock section.
  */
 @Composable
 fun AppReportScreen(pkg: String, onBack: () -> Unit) {
@@ -61,22 +64,14 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
     val locks by Graph.db.lockouts().observeActive().collectAsState(emptyList())
 
     val a = apps.firstOrNull { it.packageName == pkg }
-    if (a == null) {
-        Column(Modifier.fillMaxSize().padding(Space.screen)) {
-            TextButton(onBack) { Text("<- Back") }
-            Text("App not found", fontWeight = FontWeight.SemiBold)
-            Text(
-                "This app is not monitored, so Brain Storm has no policy or usage history for it.",
-                fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-        return
-    }
-
     val u = usageToday.firstOrNull { it.packageName == pkg }
     val lock = locks.firstOrNull { it.packageName == pkg }
     val used = u?.foregroundSeconds ?: 0L
-    val limitSec = (a.timeLimitMin ?: 0) * 60L
+    val limitSec = (a?.timeLimitMin ?: 0) * 60L
+    val label = a?.appName
+        ?: u?.appName?.takeIf { it.isNotBlank() }
+        ?: DeviceInventory.userApps(LocalContext.current)[pkg]
+        ?: pkg
 
     val totalsByDay = history.associate { it.usageDate to it.foregroundSeconds }
     val chrono30 = keys30.reversed().map { it to (totalsByDay[it] ?: 0L) }
@@ -99,10 +94,11 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AppIcon(pkg, 48.dp)
             Column(Modifier.weight(1f).padding(start = Space.m)) {
-                Text(a.appName, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(label, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text(pkg, fontSize = 11.sp, color = Care.TextSecondary)
             }
-            StatusChip(statusOf(a, u, lock))
+            if (a != null) StatusChip(statusOf(a, u, lock))
+            else Pill("Not limited", Care.TextSecondary)
         }
 
         TodayCard(u, used, limitSec)
@@ -135,16 +131,28 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
 
         if (lock != null) LockCard(lock, now)
 
-        SurfaceCard(Modifier.fillMaxWidth()) {
-            Text("Policy", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-            Text(
-                "Daily limit ${fmtHm(limitSec)}. Set during setup and locked: it cannot be changed or removed.",
-                fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
-            )
-            LockedNotice(
-                text = "Adding apps is allowed; removing or editing them is not.",
-                modifier = Modifier.padding(top = Space.s)
-            )
+        if (a != null) {
+            SurfaceCard(Modifier.fillMaxWidth()) {
+                Text("Policy", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(
+                    "Daily limit ${fmtHm(limitSec)}. Set during setup and locked: it cannot be changed or removed.",
+                    fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
+                )
+                LockedNotice(
+                    text = "Adding apps is allowed; removing or editing them is not.",
+                    modifier = Modifier.padding(top = Space.s)
+                )
+            }
+        } else {
+            SurfaceCard(Modifier.fillMaxWidth()) {
+                Text("Not monitored", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(
+                    "This app is recorded for the device report, but it has no daily limit, no budget " +
+                        "share and no lock. Adding it from the Apps tab is permanent: after that the " +
+                        "limit cannot be changed or removed.",
+                    fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
         Spacer(Modifier.height(Space.section))
     }
@@ -157,25 +165,36 @@ private fun TodayCard(u: com.vegasol.brainstorm.DailyUsage?, used: Long, limitSe
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
             Text(fmtUsage(used), fontSize = 30.sp, fontWeight = FontWeight.Bold, color = Care.TextPrimary)
             Text(
-                " of ${fmtHm(limitSec)}",
+                if (limitSec > 0) " of ${fmtHm(limitSec)}" else " tracked",
                 fontSize = 13.sp, color = Care.TextSecondary,
                 modifier = Modifier.padding(bottom = 5.dp)
             )
         }
-        UsageProgressBar(
-            if (limitSec > 0) used * 100f / limitSec else 0f,
-            Modifier.padding(top = 8.dp), 7.dp
-        )
-        Row(Modifier.fillMaxWidth().padding(top = 10.dp)) {
-            Metric("Remaining", fmtHm((limitSec - used).coerceAtLeast(0L)), Modifier.weight(1f))
-            Metric("Limit", fmtHm(limitSec), Modifier.weight(1f))
-            Metric("Clips", if (u != null) "${u.contentCount}" else "0", Modifier.weight(1f))
+        if (limitSec > 0) {
+            UsageProgressBar(
+                used * 100f / limitSec,
+                Modifier.padding(top = 8.dp), 7.dp
+            )
+            Row(Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                Metric("Remaining", fmtHm((limitSec - used).coerceAtLeast(0L)), Modifier.weight(1f))
+                Metric("Limit", fmtHm(limitSec), Modifier.weight(1f))
+                Metric("Clips", if (u != null) "${u.contentCount}" else "0", Modifier.weight(1f))
+            }
+            Text(
+                if (used >= limitSec) "Limit reached - the app locks when this happens."
+                else "Time is real foreground time from Android's usage log.",
+                fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 8.dp)
+            )
+        } else {
+            Row(Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                Metric("Limit", "None", Modifier.weight(1f))
+                Metric("Clips", if (u != null) "${u.contentCount}" else "0", Modifier.weight(1f))
+            }
+            Text(
+                "Recorded for the device report. No limit, budget share or lock applies to this app.",
+                fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 8.dp)
+            )
         }
-        Text(
-            if (used >= limitSec && limitSec > 0) "Limit reached - the app locks when this happens."
-            else "Time is real foreground time from Android's usage log.",
-            fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 8.dp)
-        )
     }
 }
 
@@ -259,7 +278,7 @@ private fun MonthCard(days: List<Pair<String, Long>>, avg7: Long) {
         }
         UsageBarChart(days, "", Modifier.padding(top = Space.s), compact = true)
         Text(
-            "Total ${fmtHm(total)} across the window. Last 7-day average was ${fmtUsage(avg7)}.",
+            "Total ${fmtUsage(total)} across the window. Last 7-day average was ${fmtUsage(avg7)}.",
             fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 6.dp)
         )
     }

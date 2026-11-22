@@ -26,6 +26,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Peak hour, best day, daily average and active-day insights per app, derived by pure functions
   with unit tests (`AppReportDerive`).
 - Tapping an app in the Reports "Today by app" list opens its report.
+- Whole-device usage: `daily_usage` now stores every app you installed that has a launcher entry,
+  plus every monitored app, and keeps the app label with the row (Room v3, schema 3).
+- Reports now ranks today's apps by foreground time, names the top app and its share of device
+  time, and shows whole-device 7-day, 30-day and by-hour charts.
+- Reports rows open a report for any recorded app; apps outside the policy are marked "Not
+  limited" and show their usage without a limit or lock section.
+
+### Changed
+
+- Budget, streaks, locks and the wellness score still read monitored apps only. Storing other apps
+  cannot make them use up the budget or trigger a lock.
+- Non-monitored rows are only written when an app has been used today, and rows are rewritten only
+  when the time or the label changed.
 
 ## [2.1.0] - 2026-11-20
 

@@ -125,11 +125,19 @@ data class MonitoredApp(
     val timeLimitMin: Int? = 60, val contentLimit: Int? = null, val updatedAt: Long = 0
 )
 
+/**
+ * Per-app per-day totals. Since 2.2.0-beta.24 the table also holds apps that are not monitored, so
+ * Reports can show whole-device usage and a ranking. Budget and lock maths still read monitored
+ * packages only; see `DashboardViewModel` and `Lockout`. [appName] is the label seen at write time,
+ * kept so a ranking row still has a name after an app is uninstalled.
+ */
 @Entity(tableName = "daily_usage", indices = [Index(value = ["packageName", "usageDate"], unique = true)])
 data class DailyUsage(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val packageName: String, val usageDate: String,
-    val foregroundSeconds: Long = 0, val contentCount: Int = 0, val updatedAt: Long = 0
+    val foregroundSeconds: Long = 0, val contentCount: Int = 0, val updatedAt: Long = 0,
+    // Declared default matches MIGRATION_2_3, so moving from v2 to v3 passes Room's schema check.
+    @ColumnInfo(defaultValue = "''") val appName: String = ""
 )
 
 @Entity(tableName = "lockout_records", indices = [Index(value = ["packageName", "status"]), Index(value = ["expiresAt"])])
@@ -157,6 +165,7 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
 @Dao interface UsageDao {
     @Query("SELECT * FROM daily_usage WHERE packageName=:p AND usageDate=:d LIMIT 1") suspend fun get(p: String, d: String): DailyUsage?
     @Upsert suspend fun upsert(u: DailyUsage)
+    @Query("SELECT * FROM daily_usage WHERE usageDate=:d") suspend fun day(d: String): List<DailyUsage>
     @Query("SELECT * FROM daily_usage WHERE usageDate=:d") fun observeDay(d: String): Flow<List<DailyUsage>>
     @Query("SELECT * FROM daily_usage WHERE usageDate>=:from") fun observeSince(from: String): Flow<List<DailyUsage>>
     @Query("SELECT * FROM daily_usage WHERE packageName=:p AND usageDate>=:from")
@@ -197,7 +206,7 @@ data class HourlyUsage(
 
 @Database(
     entities = [MonitoredApp::class, DailyUsage::class, Lockout::class, ContentEvent::class, HourlyUsage::class],
-    version = 2, exportSchema = true
+    version = 3, exportSchema = true
 )
 abstract class BrainStormDb : RoomDatabase() {
     abstract fun apps(): AppDao
@@ -227,10 +236,21 @@ abstract class BrainStormDb : RoomDatabase() {
             }
         }
 
+        /**
+         * v3 only adds the persisted label on `daily_usage`; existing rows keep their package name
+         * and get an empty label, which the UI already falls back to the package for. No policy or
+         * usage row is rewritten, so an in-place update keeps the frozen setup intact.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `daily_usage` ADD COLUMN `appName` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         @Volatile private var i: BrainStormDb? = null
         fun get(c: Context): BrainStormDb = i ?: synchronized(this) {
             i ?: Room.databaseBuilder(c, BrainStormDb::class.java, "brainstorm.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
                 .also { i = it }
         }
@@ -265,8 +285,9 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
         val apps = db.apps().enabled()
         if (apps.isEmpty()) return
         val date = dayKey(now)
-        val watched = apps.map { it.packageName }.toSet()
-        val spans = intervals(watched, dayStart(now), now)
+        val labels = DeviceInventory.labels(ctx, apps, now)
+        val watched = apps.mapTo(HashSet()) { it.packageName }
+        val spans = intervals(labels.keys, dayStart(now), now)
         val zone = TimeZone.getDefault()
 
         // Totals keep the original semantics: one continuous foreground span counts once.
@@ -284,9 +305,17 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
             }
         }
 
-        for (a in apps) {
-            val cur = db.usage().get(a.packageName, date) ?: DailyUsage(packageName = a.packageName, usageDate = date)
-            db.usage().upsert(cur.copy(foregroundSeconds = (totals[a.packageName] ?: 0L) / 1000L, updatedAt = now))
+        // One row per included app. Monitored apps always keep a row (even at zero) so the Apps tab
+        // and reports can show them; other apps only get a row once they have been used, and rows
+        // are only rewritten when the number or the label changed.
+        val existing = db.usage().day(date).associateBy { it.packageName }
+        for ((pkg, label) in labels) {
+            val seconds = (totals[pkg] ?: 0L) / 1000L
+            val cur = existing[pkg]
+            if (cur == null && pkg !in watched && seconds <= 0L) continue
+            if (cur != null && cur.foregroundSeconds == seconds && cur.appName == label) continue
+            val row = cur ?: DailyUsage(packageName = pkg, usageDate = date)
+            db.usage().upsert(row.copy(foregroundSeconds = seconds, appName = label, updatedAt = now))
         }
         writeHourly(date, perHour, now)
     }
@@ -439,8 +468,10 @@ object ContentRepository {
         val date = Graph.engine.dayKey(o.timestamp)
         val id = db.content().insert(ContentEvent(packageName = o.packageName, usageDate = date, contentKey = key, method = method, confidence = out.confidence, detectedAt = o.timestamp))
         if (id != -1L) {
-            val cur = db.usage().get(o.packageName, date) ?: DailyUsage(packageName = o.packageName, usageDate = date)
-            db.usage().upsert(cur.copy(contentCount = cur.contentCount + 1, updatedAt = o.timestamp))
+            val name = db.apps().get(o.packageName)?.appName ?: ""
+            val cur = db.usage().get(o.packageName, date)
+                ?: DailyUsage(packageName = o.packageName, usageDate = date, appName = name)
+            db.usage().upsert(cur.copy(contentCount = cur.contentCount + 1, appName = cur.appName.ifBlank { name }, updatedAt = o.timestamp))
         }
     }
 }

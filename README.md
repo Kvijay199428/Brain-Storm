@@ -161,7 +161,8 @@ code. `budgetCheck()` in `Core.kt` encodes that rule and is unit tested.
 | One-time policy wizard | `feature/setup/SetupWizard.kt` |
 | Dashboard (state, pure derivation, ViewModel, components) | `feature/dashboard/**` |
 | Apps list (read-only + add) and per-app reports (limits, hourly + 7/30-day charts) | `feature/apps/AppsScreen.kt`, `feature/apps/AppReportScreen.kt` |
-| Reports: 7/30-day charts, today-by-hour chart, streaks, lock history | `feature/reports/ReportsScreen.kt` |
+| Reports: whole-device 7/30-day charts, today-by-hour, per-app ranking, streaks, lock history | `feature/reports/ReportsScreen.kt`, `feature/reports/ReportsDerive.kt` |
+| Which apps count as "the device" (pure rule + cached PackageManager lookup) | `DeviceScope.kt` |
 | Shared bar charts | `ui/Charts.kt` |
 | Settings (read-only policy + monitoring health) | `feature/settings/SettingsScreen.kt` |
 | Update check, verified download, install hand-off | `update/UpdateClient.kt`, `update/ApkInstaller.kt`, `update/UpdateManager.kt` |
@@ -215,10 +216,14 @@ published at a URL, and the contact placeholder must be replaced first.
   reported instead of pretending protection is active.
 - **The setup freeze is UI-level.** Without Device Owner, clearing app data or uninstalling
   resets every policy value. It is high-friction, not tamper-proof.
-- **Hourly data starts with this build.** Reports draws today's foreground time per clock hour
+- **Hourly data starts with 2.1.0.** Reports draws today's foreground time per clock hour
   (`hourly_usage`, Room v2). Time is split at hour boundaries so a session that began at 10:58 is
-  credited to both 10 and 11, and only monitored apps are counted. Days recorded before the v1→v2
-  migration have no hourly rows, and the chart shows today only — it never invents history.
+  credited to both 10 and 11. Days recorded before the v1→v2 migration have no hourly rows, and the
+  chart shows today only — it never invents history.
+- **Whole-device scope.** `daily_usage` stores every app you installed that has a launcher entry,
+  plus every monitored app, with the label recorded at write time (Room v3). Brain Storm, launchers
+  and the system UI are excluded. Budget, locks, streaks and the wellness score still read monitored
+  apps only, so an app outside the policy can never spend the budget or trigger a lock.
 - **Dark theme only** in this pass; tokens are structured for a later light scheme.
 - Simplified vs the blueprint: one Gradle module (packages instead of ~40 modules), no Hilt,
   SharedPreferences instead of DataStore, compileSdk 35.

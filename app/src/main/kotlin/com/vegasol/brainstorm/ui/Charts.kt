@@ -51,7 +51,7 @@ fun UsageBarChart(
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 if (!compact) {
                     Text(
-                        if (secs > 0) fmtHm(secs) else "—",
+                        if (secs > 0) fmtUsage(secs) else "—",
                         fontSize = 8.sp, maxLines = 1,
                         color = if (isToday) Care.TextPrimary else Care.TextSecondary,
                         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal

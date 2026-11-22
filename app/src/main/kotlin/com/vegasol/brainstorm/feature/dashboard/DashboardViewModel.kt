@@ -137,7 +137,11 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         lockHistory: List<Lockout>
     ): DashboardUiState {
         val budgetSec = Graph.prefs.budgetMin * 60L
-        val totalUsed = c.usage.sumOf { it.foregroundSeconds }
+        // daily_usage also holds apps that are not monitored (whole-device reports), so every
+        // budget-facing number has to be filtered back to the frozen policy.
+        val watched = c.apps.mapTo(HashSet()) { it.packageName }
+        val monitoredUsage = c.usage.filter { it.packageName in watched }
+        val totalUsed = monitoredUsage.sumOf { it.foregroundSeconds }
         val perAppTotal = c.apps.sumOf { (it.timeLimitMin ?: 0) * 60L }
         val budgetPercent = Derive.percent(totalUsed, budgetSec)
 
@@ -176,7 +180,9 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             else -> ProtectionStatus.ACTIVE
         }
 
-        val totalsByDay = historyUsage.groupBy { it.usageDate }
+        val totalsByDay = historyUsage
+            .filter { it.packageName in watched }
+            .groupBy { it.usageDate }
             .mapValues { entry -> entry.value.sumOf { it.foregroundSeconds } }
         val keys = Graph.engine.dayKeys(HISTORY_DAYS).reversed()          // oldest → newest
         val streak = Derive.streakDays(keys, totalsByDay, budgetSec)
@@ -222,7 +228,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             perAppLimitsTotalSeconds = perAppTotal,
             usePercent = budgetPercent,
             remainingSeconds = remaining,
-            totalContentCount = c.usage.sumOf { it.contentCount },
+            totalContentCount = monitoredUsage.sumOf { it.contentCount },
             contentCountingAvailable = apps.any { it.contentSupported },
             contentDetectorExists = c.apps.any { ContentCounting.hasDetector(it.packageName) },
             wellnessScore = score,
