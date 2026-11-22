@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vegasol.brainstorm.BuildConfig
 import com.vegasol.brainstorm.EnforcementProvider
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitorService
@@ -55,15 +56,16 @@ fun SettingsScreen() {
     val heartbeatFresh = now - prefs.heartbeat < 90_000
     val perAppTotal = remember(apps) { apps.sumOf { (it.timeLimitMin ?: 0) } }
 
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Space.screen),
-        verticalArrangement = Arrangement.spacedBy(Space.m)
-    ) {
-        Column {
+    Column(Modifier.fillMaxSize().padding(horizontal = Space.screen)) {
+        Column(Modifier.padding(top = Space.l)) {
             Text("Settings", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             LockedNotice()
         }
 
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top = Space.m),
+            verticalArrangement = Arrangement.spacedBy(Space.m)
+        ) {
         SurfaceCard(Modifier.fillMaxWidth()) {
             SectionHeader("Policy · locked")
             Spacer(Modifier.height(Space.s))
@@ -149,7 +151,11 @@ fun SettingsScreen() {
 
         UpdatesCard()
 
-        BrainyMascotCard()
+        // The mascot playground is a beta-only experiment: stable users get a smaller, calmer
+        // Settings page, while beta testers keep the controls to exercise it.
+        if (BuildConfig.CHANNEL.lowercase() != "stable") {
+            BrainyMascotCard()
+        }
 
         SurfaceCard(Modifier.fillMaxWidth()) {
             SectionHeader("Content detection · experimental")
@@ -197,6 +203,7 @@ fun SettingsScreen() {
             fontSize = 10.sp, color = Care.TextSecondary
         )
         Spacer(Modifier.height(Space.section))
+        }
     }
 }
 

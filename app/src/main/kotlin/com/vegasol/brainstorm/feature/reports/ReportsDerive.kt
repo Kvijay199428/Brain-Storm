@@ -2,6 +2,9 @@ package com.vegasol.brainstorm.feature.reports
 
 import com.vegasol.brainstorm.DailyUsage
 
+/** One app in the all-time ranking, aggregated across every day in the usage log. */
+data class LifetimeRank(val packageName: String, val label: String, val seconds: Long)
+
 /**
  * Pure derivations for whole-device reports. No Android or database types beyond the row itself, so
  * the ranking and the numbers the screen prints are unit-tested directly.
@@ -38,4 +41,25 @@ object ReportsDerive {
         val pct = Math.round(partSeconds * 100.0 / totalSeconds).toInt()
         return pct.coerceIn(0, 100)
     }
+
+    /**
+     * All-time ranking: sum every recorded day per package, busiest first. Zero-time apps are
+     * dropped and ties are alphabetical so a row never shifts for no reason. The longest label
+     * seen for a package wins, since an older row may predate a persisted app name.
+     */
+    fun lifetimeRanking(rows: List<DailyUsage>): List<LifetimeRank> {
+        val totals = LinkedHashMap<String, Long>()
+        val labels = HashMap<String, String>()
+        rows.forEach { row ->
+            totals[row.packageName] = (totals[row.packageName] ?: 0L) + row.foregroundSeconds
+            val known = labels[row.packageName].orEmpty()
+            if (row.appName.length > known.length) labels[row.packageName] = row.appName
+        }
+        return totals
+            .map { (pkg, seconds) -> LifetimeRank(pkg, labels[pkg]?.takeIf { it.isNotBlank() } ?: pkg, seconds) }
+            .filter { it.seconds > 0L }
+            .sortedWith(compareByDescending<LifetimeRank> { it.seconds }.thenBy { it.label.lowercase() })
+    }
+
+    fun lifetimeTotal(ranking: List<LifetimeRank>): Long = ranking.sumOf { it.seconds }
 }

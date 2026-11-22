@@ -89,11 +89,7 @@ fun DashboardScreen(
     onFix: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
-        DashboardHeader(
-            hasLockout = state.isLocked,
-            onBell = { onOpenTab(2) },
-            onSettings = onOpenSettings
-        )
+        DashboardHeader(onSettings = onOpenSettings)
         // Nothing below the header is drawn until the first database emission. The old placeholder
         // painted "Finish setup", "no apps" and a row of zeroes for a beat on every cold start, and
         // setup is finished by the time the dashboard exists at all.

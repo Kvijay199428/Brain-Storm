@@ -17,9 +17,16 @@ class ContentDetectionTest {
     private val channel = "probe channel"
     private val like = "like this video along with 1234 other people"
 
+    private fun analyse(
+        ids: List<String>,
+        texts: List<String>,
+        descriptions: List<String>,
+        markers: List<String> = YouTubeShortsDetector.MARKERS
+    ) = ShortsSignals.analyse(ids, texts, descriptions, markers)
+
     @Test
     fun `short player is recognised from a container id`() {
-        val s = ShortsSignals.analyse(
+        val s = analyse(
             ids = listOf("reel_player", "bottom_bar_container"),
             texts = listOf(title),
             descriptions = emptyList()
@@ -30,7 +37,7 @@ class ContentDetectionTest {
 
     @Test
     fun `short player is recognised from the remix action label`() {
-        val s = ShortsSignals.analyse(
+        val s = analyse(
             ids = emptyList(),
             texts = listOf(title),
             descriptions = listOf("Remix this video", like)
@@ -40,7 +47,7 @@ class ContentDetectionTest {
 
     @Test
     fun `home screen nav label Shorts is not a false positive`() {
-        val s = ShortsSignals.analyse(
+        val s = analyse(
             ids = listOf("bottom_bar_container"),
             texts = listOf("Home", "Shorts", "Subscriptions", "Library"),
             descriptions = listOf("Home", "Shorts", "Subscriptions", "Library")
@@ -50,12 +57,12 @@ class ContentDetectionTest {
 
     @Test
     fun `engagement counters do not look like a new item`() {
-        val first = ShortsSignals.analyse(
+        val first = analyse(
             ids = listOf("reel_player"),
             texts = listOf(title, channel, "1234 likes"),
             descriptions = listOf(like)
         )
-        val liked = ShortsSignals.analyse(
+        val liked = analyse(
             ids = listOf("reel_player"),
             texts = listOf(title, channel, "1235 likes"),
             descriptions = listOf("like this video along with 1235 other people")
@@ -65,12 +72,12 @@ class ContentDetectionTest {
 
     @Test
     fun `formatted counters are ignored`() {
-        val a = ShortsSignals.analyse(
+        val a = analyse(
             ids = listOf("reel_player"),
             texts = listOf(title, "1.2k likes", "34k views"),
             descriptions = emptyList()
         )
-        val b = ShortsSignals.analyse(
+        val b = analyse(
             ids = listOf("reel_player"),
             texts = listOf(title, "1.3k likes", "35k views"),
             descriptions = emptyList()
@@ -80,12 +87,12 @@ class ContentDetectionTest {
 
     @Test
     fun `a different short changes the fingerprint`() {
-        val first = ShortsSignals.analyse(
+        val first = analyse(
             ids = listOf("reel_player"),
             texts = listOf(title, channel),
             descriptions = listOf(like)
         )
-        val next = ShortsSignals.analyse(
+        val next = analyse(
             ids = listOf("reel_player"),
             texts = listOf("probe short 2", "another channel"),
             descriptions = listOf(like)
@@ -95,13 +102,24 @@ class ContentDetectionTest {
 
     @Test
     fun `no readable text leaves the fingerprint empty`() {
-        val s = ShortsSignals.analyse(
+        val s = analyse(
             ids = listOf("reel_player"),
             texts = emptyList(),
             descriptions = listOf("Remix this video")
         )
         assertTrue(s.inShorts)
         assertNull(s.fingerprint)
+    }
+
+    @Test
+    fun `markers from one app do not match another app's surface`() {
+        val s = analyse(
+            ids = listOf("reel_player"),
+            texts = listOf(title),
+            descriptions = emptyList(),
+            markers = listOf("clips_viewer")
+        )
+        assertFalse(s.inShorts)
     }
 
     @Test

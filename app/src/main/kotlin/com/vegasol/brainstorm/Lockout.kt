@@ -12,6 +12,8 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.room.withTransaction
 
@@ -51,9 +53,29 @@ object Blocker {
             val wm = c.getSystemService(WindowManager::class.java)
             if (Settings.canDrawOverlays(c)) {
                 runCatching { overlay?.let { wm.removeView(it) } }
-                val tv = TextView(c).apply {
-                    text = c.getString(R.string.overlay_locked); setTextColor(Color.WHITE)
-                    gravity = Gravity.CENTER; textSize = 26f; setBackgroundColor(0xFF1A1238.toInt())
+                // The badge shows the icon of the app that was just blocked, not ours, so the
+                // message is unmistakably about the app the user was in a second ago.
+                val icon = runCatching { c.packageManager.getApplicationIcon(l.packageName) }.getOrNull()
+                    ?: runCatching { c.packageManager.getApplicationIcon(c.packageName) }.getOrNull()
+                val density = c.resources.displayMetrics.density
+                val view = LinearLayout(c).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    setBackgroundColor(0xFF1A1238.toInt())
+                    if (icon != null) {
+                        addView(ImageView(c).apply {
+                            setImageDrawable(icon)
+                            layoutParams = LinearLayout.LayoutParams(
+                                (96 * density).toInt(), (96 * density).toInt()
+                            ).apply { bottomMargin = (24 * density).toInt() }
+                        })
+                    }
+                    addView(TextView(c).apply {
+                        text = c.getString(R.string.overlay_locked)
+                        setTextColor(Color.WHITE)
+                        gravity = Gravity.CENTER
+                        textSize = 26f
+                    })
                 }
                 val lp = WindowManager.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,
@@ -61,9 +83,9 @@ object Blocker {
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                     PixelFormat.OPAQUE
                 )
-                runCatching { wm.addView(tv, lp); overlay = tv }
+                runCatching { wm.addView(view, lp); overlay = view }
                 Handler(Looper.getMainLooper()).postDelayed({
-                    runCatching { wm.removeView(tv) }; if (overlay === tv) overlay = null
+                    runCatching { wm.removeView(view) }; if (overlay === view) overlay = null
                 }, 1800)
             }
             runCatching {

@@ -8,6 +8,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-11-23
+
+Beta of the next line: the same usage reports and pinned headers as 3.0.0, with the **Brainy
+Mascot** controls back in Settings for beta testers.
+
+## [3.0.0] - 2026-11-23
+
+First stable release.
+
+### Added
+
+- Today's app ranking lives on the Apps tab: monitored apps are ordered by foreground time, each
+  row carries a rank and the most-used app is called out.
+- All-time ranking: a card on Reports opens a full screen that ranks every recorded app by total
+  foreground time across the whole usage log. Rows open the existing per-app report.
+- Adding an app is now a full page with its own loading animation and a separate daily-limit step,
+  instead of two stacked dialogs.
+- Content detection gained a vertical-feed detector and refreshed Shorts signals.
+
+### Changed
+
+- Reports no longer repeats the daily app ranking or the lock history. Lock history remains on each
+  app's own report, where it already lived.
+- The lock overlay shows the icon of the app that was just blocked. The lock screen leads with the
+  "close the phone and read something" nudge and drops the early-unlock explainer.
+- Page headers on Reports, app details, All-time ranking and Settings stay put while their content
+  scrolls, like Home and Apps.
+- One shared back button across detail pages; the unused dashboard notification bell is gone.
+- The Brainy Mascot card is hidden in the stable channel; beta builds keep it.
+
+### Fixed
+
+- Garbled Unicode text in the Apps tab (the lock notice, the unlock countdown and the frozen-limit
+  hint) now renders as plain text.
+- Ranking, lifetime totals and Apps ordering are produced by pure, unit-tested derivations.
+
 ## [2.2.0] - 2026-11-21
 
 ### Changed

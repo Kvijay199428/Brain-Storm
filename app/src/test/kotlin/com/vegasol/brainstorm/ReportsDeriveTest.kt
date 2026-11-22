@@ -56,4 +56,33 @@ class ReportsDeriveTest {
         assertEquals(67, ReportsDerive.sharePercent(2, 3))
         assertEquals(100, ReportsDerive.sharePercent(300, 100))
     }
+
+    @Test
+    fun `lifetime ranking sums every day and drops zero-time apps`() {
+        val rows = listOf(
+            row("a", 60, "Alpha", "2026-11-21"),
+            row("a", 240, "Alpha", "2026-11-22"),
+            row("b", 100, "Beta", "2026-11-22"),
+            row("c", 0, "Charlie", "2026-11-22")
+        )
+        val ranking = ReportsDerive.lifetimeRanking(rows)
+        assertEquals(listOf("a", "b"), ranking.map { it.packageName })
+        assertEquals(300L, ranking.first().seconds)
+        assertEquals(400L, ReportsDerive.lifetimeTotal(ranking))
+    }
+
+    @Test
+    fun `lifetime ties are alphabetical and labels fall back to the package`() {
+        val rows = listOf(row("z", 300, "Zebra"), row("a", 300, "Alpha"), row("p", 30))
+        assertEquals(
+            listOf("Alpha", "Zebra", "p"),
+            ReportsDerive.lifetimeRanking(rows).map { it.label }
+        )
+    }
+
+    @Test
+    fun `lifetime ranking prefers the longest persisted label`() {
+        val rows = listOf(row("a", 60, "", "2026-11-20"), row("a", 60, "Alpha", "2026-11-22"))
+        assertEquals("Alpha", ReportsDerive.lifetimeRanking(rows).single().label)
+    }
 }

@@ -4,6 +4,11 @@ Digital-wellbeing app: a per-app daily limit **and** a combined daily budget →
 lockout → 3D brain mascot (Brainy).
 Kotlin · Jetpack Compose · Room · WorkManager · three.js mascot (bundled offline, rendered in a WebView).
 
+## Changelog
+
+Release notes for every version are in [CHANGELOG.md](CHANGELOG.md). Published builds, tags and
+assets are listed on the [GitHub Releases page](https://github.com/Kvijay199428/Brain-Storm/releases).
+
 ## What it does
 
 1. **One-time setup** fixes the whole policy: the apps to watch, each app's daily limit, a
@@ -88,28 +93,31 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=2.0.0`, `channel=beta`) |
+| Version name + channel | `version.properties` (`versionName=3.0.0`, `channel=stable`; beta line: `3.1.0`, `beta`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v2.0.0-beta.17` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.0.0-stable.25` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
 | Local equivalent | `tools/release.ps1` (`-SkipPublish` to build + checksum only) |
+
+Stable publishes a full release and hides the Brainy Mascot settings card; beta publishes a
+pre-release and keeps the mascot controls for testing.
 
 `version.json` is the updater's contract:
 
 ```json
 {
   "schema": 2,
-  "versionCode": 17,
-  "versionName": "2.0.0",
-  "channel": "beta",
-  "tag": "v2.0.0-beta.17",
+  "versionCode": 25,
+  "versionName": "3.0.0",
+  "channel": "stable",
+  "tag": "v3.0.0-stable.25",
   "package": "com.vegasol.brainstorm",
-  "apk": { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 },
+  "apk": { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 },
   "apks": {
-    "consumer": { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 },
-    "managed":  { "file": "Brain-Storm-2.0.0_beta.apk", "sha256": "…", "size": 19629365 }
+    "consumer": { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 },
+    "managed":  { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 }
   }
 }
 ```

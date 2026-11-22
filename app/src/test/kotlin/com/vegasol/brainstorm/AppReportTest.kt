@@ -55,4 +55,43 @@ class AppReportTest {
         assertEquals("23:00-00:00", AppReportDerive.hourLabel(23))
         assertEquals("23:00-00:00", AppReportDerive.hourLabel(99))
     }
+
+    @Test
+    fun `apps are ranked by today's usage with unused apps last`() {
+        val apps = listOf(
+            MonitoredApp(packageName = "a", appName = "Alpha"),
+            MonitoredApp(packageName = "b", appName = "Beta"),
+            MonitoredApp(packageName = "c", appName = "Charlie")
+        )
+        val usage = listOf(
+            DailyUsage(packageName = "a", usageDate = "2026-11-22", foregroundSeconds = 60),
+            DailyUsage(packageName = "b", usageDate = "2026-11-22", foregroundSeconds = 600)
+        )
+        val ranked = AppReportDerive.rankByTodayUsage(apps, usage)
+        assertEquals(listOf("b", "a", "c"), ranked.map { it.app.packageName })
+        assertEquals(listOf(1, 2, 3), ranked.map { it.rank })
+        assertEquals(600L, ranked.first().usedSeconds)
+    }
+
+    @Test
+    fun `ranking keeps alphabetical order on ties and never loses an app`() {
+        val apps = listOf(
+            MonitoredApp(packageName = "z", appName = "Zebra"),
+            MonitoredApp(packageName = "a", appName = "Alpha"),
+            MonitoredApp(packageName = "m", appName = "Middle")
+        )
+        val ranked = AppReportDerive.rankByTodayUsage(apps, emptyList())
+        assertEquals(listOf("a", "m", "z"), ranked.map { it.app.packageName })
+        assertEquals(listOf(0L, 0L, 0L), ranked.map { it.usedSeconds })
+    }
+
+    @Test
+    fun `duplicate usage rows for one package use the larger total`() {
+        val apps = listOf(MonitoredApp(packageName = "a", appName = "Alpha"))
+        val usage = listOf(
+            DailyUsage(packageName = "a", usageDate = "x", foregroundSeconds = 30),
+            DailyUsage(packageName = "a", usageDate = "y", foregroundSeconds = 90)
+        )
+        assertEquals(90L, AppReportDerive.rankByTodayUsage(apps, usage).single().usedSeconds)
+    }
 }

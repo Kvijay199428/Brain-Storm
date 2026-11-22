@@ -1,12 +1,8 @@
 package com.vegasol.brainstorm.feature.reports
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,21 +10,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vegasol.brainstorm.DailyUsage
 import com.vegasol.brainstorm.DeviceInventory
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.UsageBuckets
 import com.vegasol.brainstorm.feature.dashboard.Derive
 import com.vegasol.brainstorm.theme.Care
-import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
-import com.vegasol.brainstorm.ui.AppIcon
 import com.vegasol.brainstorm.ui.HourlyBarChart
 import com.vegasol.brainstorm.ui.SectionHeader
 import com.vegasol.brainstorm.ui.SurfaceCard
@@ -37,22 +29,20 @@ import com.vegasol.brainstorm.ui.UsageProgressBar
 import com.vegasol.brainstorm.ui.fmtHm
 import com.vegasol.brainstorm.ui.fmtUsage
 import com.vegasol.brainstorm.ui.minuteTicker
-import java.text.DateFormat
-import java.util.Date
 
 /**
  * Whole-device report. `daily_usage` holds every included app (user-installed plus monitored), so
- * the totals and the ranking here cover the device, while streaks and the budget line stay on the
- * monitored apps that the frozen policy actually enforces.
+ * the totals and the device summary here cover the device, while streaks and the budget line stay on
+ * the monitored apps that the frozen policy actually enforces. Today's app ranking lives on the Apps
+ * tab; lock history lives on each app's own report.
  */
 @Composable
-fun ReportsScreen(onOpenApp: (String) -> Unit) {
+fun ReportsScreen(onOpenLifetimeRanking: () -> Unit) {
     val now by minuteTicker()
     val todayKey = remember(now / 60_000) { Graph.engine.dayKey(now) }
     val keys30 = remember(todayKey) { Graph.engine.dayKeys(30, now) }
     val rows by remember(keys30) { Graph.db.usage().observeSince(keys30.last()) }.collectAsStateWithLifecycle(emptyList())
     val hourly by Graph.db.hourly().observeDay(todayKey).collectAsStateWithLifecycle(emptyList())
-    val lockHistory by Graph.db.lockouts().observeHistory().collectAsStateWithLifecycle(emptyList())
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
 
     val ctx = LocalContext.current
@@ -65,7 +55,6 @@ fun ReportsScreen(onOpenApp: (String) -> Unit) {
         }
     }
     val monitored = remember(apps) { apps.mapTo(HashSet()) { it.packageName } }
-    val limits = remember(apps) { apps.associate { it.packageName to (it.timeLimitMin ?: 0) * 60L } }
 
     val budgetSec = Graph.prefs.budgetMin * 60L
     val perHour = remember(hourly) {
@@ -96,20 +85,17 @@ fun ReportsScreen(onOpenApp: (String) -> Unit) {
     val deviceToday = remember(ranking) { ranking.sumOf { it.foregroundSeconds } }
     val monitoredToday = monitoredTotals[todayKey] ?: 0L
     val topApp = ranking.firstOrNull()
-    val df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
-    LazyColumn(
-        Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = Space.screen, vertical = Space.l),
-        verticalArrangement = Arrangement.spacedBy(Space.m)
-    ) {
-        item("title") {
-            Column {
-                Text("Reports", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Text("Computed on-device from your own usage log.", fontSize = 11.sp, color = Care.TextSecondary)
-            }
+    Column(Modifier.fillMaxSize().padding(horizontal = Space.screen)) {
+        Column(Modifier.padding(top = Space.l)) {
+            Text("Reports", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Computed on-device from your own usage log.", fontSize = 11.sp, color = Care.TextSecondary)
         }
-
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = Space.m),
+            verticalArrangement = Arrangement.spacedBy(Space.m)
+        ) {
         item("device") {
             SurfaceCard(Modifier.fillMaxWidth()) {
                 Text("Today on this device", fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -157,29 +143,19 @@ fun ReportsScreen(onOpenApp: (String) -> Unit) {
             }
         }
 
-        item("rankHeader") {
-            Column {
-                SectionHeader("Today by app")
-                Text(
-                    "Ranked by foreground time. Only apps you installed, plus monitored apps, are counted.",
-                    fontSize = 10.sp, color = Care.TextSecondary, modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-        }
-        if (ranking.isEmpty()) {
-            item("rankEmpty") {
-                Text("No usage recorded today yet.", fontSize = 12.sp, color = Care.TextSecondary)
-            }
-        } else {
-            itemsIndexed(ranking, key = { _, row -> row.packageName }) { index, row ->
-                RankingRow(
-                    rank = index + 1,
-                    row = row,
-                    label = names[row.packageName] ?: row.packageName,
-                    limitSec = limits[row.packageName] ?: 0L,
-                    deviceTotal = deviceToday,
-                    onClick = { onOpenApp(row.packageName) }
-                )
+        item("lifetime") {
+            SurfaceCard(Modifier.fillMaxWidth().clickable(onClick = onOpenLifetimeRanking)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("All-time ranking", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Apps ranked by total time since tracking began",
+                            fontSize = 11.sp, color = Care.TextSecondary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                    Text(">", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Care.Primary)
+                }
             }
         }
 
@@ -272,38 +248,6 @@ fun ReportsScreen(onOpenApp: (String) -> Unit) {
             }
         }
 
-        item("lockHeader") { SectionHeader("Lock history") }
-        if (lockHistory.isEmpty()) {
-            item("lockEmpty") {
-                Text("No lockouts yet. Nice discipline!", fontSize = 12.sp, color = Care.TextSecondary)
-            }
-        } else {
-            items(lockHistory, key = { it.id }) { l ->
-                Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.tile))
-                        .background(Care.Surface).padding(Space.m),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            (if (l.triggerType == "BUDGET") "Daily budget - " else "") +
-                                (names[l.packageName] ?: l.packageName),
-                            fontWeight = FontWeight.SemiBold, fontSize = 13.sp
-                        )
-                        Text(
-                            "${l.triggerType} - ${df.format(Date(l.activatedAt))}",
-                            fontSize = 10.sp, color = Care.TextSecondary
-                        )
-                    }
-                    Text(
-                        l.status,
-                        fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                        color = if (l.status == "ACTIVE") Care.Danger else Care.Success
-                    )
-                }
-            }
-        }
-
         item("footnote") {
             Text(
                 "Media-playback and content-consumption trends are not shown for apps without a " +
@@ -312,54 +256,7 @@ fun ReportsScreen(onOpenApp: (String) -> Unit) {
             )
         }
         item("end") { Spacer(Modifier.height(Space.section)) }
-    }
-}
-
-@Composable
-private fun RankingRow(
-    rank: Int,
-    row: DailyUsage,
-    label: String,
-    limitSec: Long,
-    deviceTotal: Long,
-    onClick: () -> Unit
-) {
-    val share = ReportsDerive.sharePercent(row.foregroundSeconds, deviceTotal)
-    val monitored = limitSec > 0
-    Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.tile))
-            .background(Care.Surface)
-            .clickable(onClick = onClick)
-            .padding(horizontal = Space.m, vertical = Space.s),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            "$rank",
-            Modifier.width(20.dp),
-            fontSize = 12.sp, fontWeight = FontWeight.Bold,
-            color = if (rank == 1) Care.Primary else Care.TextSecondary
-        )
-        AppIcon(row.packageName, 34.dp)
-        Column(Modifier.weight(1f).padding(start = Space.s)) {
-            Text(
-                label,
-                fontSize = 13.sp,
-                fontWeight = if (rank == 1) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 1
-            )
-            Text(
-                if (rank == 1) "Top app - $share% of device time"
-                else "$share% of device time" + if (monitored) " - limit ${fmtHm(limitSec)}" else " - not limited",
-                fontSize = 10.sp,
-                color = if (rank == 1) Care.Primary else Care.TextSecondary
-            )
         }
-        Text(
-            fmtUsage(row.foregroundSeconds),
-            fontWeight = FontWeight.Bold,
-            color = Care.Primary,
-            modifier = Modifier.padding(start = Space.s)
-        )
     }
 }
 

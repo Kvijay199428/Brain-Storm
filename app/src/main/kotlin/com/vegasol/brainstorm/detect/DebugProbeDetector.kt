@@ -15,5 +15,6 @@ class DebugProbeDetector : ContentDetector {
     private val delegate = YouTubeShortsDetector()
     override val packages: Set<String> = setOf(BuildConfig.APPLICATION_ID)
     override val support: Support = Support.EXPERIMENTAL
+    override val markers: List<String> get() = delegate.markers
     override fun process(o: ContentObservation): DetectionOutcome = delegate.process(o)
 }

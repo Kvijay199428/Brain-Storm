@@ -20,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,6 +33,7 @@ import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.feature.apps.AppReportScreen
 import com.vegasol.brainstorm.feature.apps.AppsScreen
 import com.vegasol.brainstorm.feature.dashboard.DashboardRoute
+import com.vegasol.brainstorm.feature.reports.LifetimeRankingScreen
 import com.vegasol.brainstorm.feature.reports.ReportsScreen
 import com.vegasol.brainstorm.feature.settings.SettingsScreen
 import com.vegasol.brainstorm.theme.Care
@@ -40,11 +41,21 @@ import com.vegasol.brainstorm.ui.BrainStormAppIcon
 
 private data class Destination(val label: String, val icon: ImageVector)
 
+/** Detail screens stack so Back from an app opened via the ranking returns to that ranking. */
+private sealed interface Detail {
+    data class App(val pkg: String) : Detail
+    data object LifetimeRanking : Detail
+}
+
 @Composable
 fun MainShell() {
     var tab by remember { mutableIntStateOf(0) }
-    var detail by remember { mutableStateOf<String?>(null) }
+    val detailStack = remember { mutableStateListOf<Detail>() }
     val locks by Graph.db.lockouts().observeActive().collectAsStateWithLifecycle(emptyList())
+
+    fun back() {
+        if (detailStack.isNotEmpty()) detailStack.removeAt(detailStack.lastIndex)
+    }
 
     Scaffold(
         containerColor = Care.Background,
@@ -52,22 +63,29 @@ fun MainShell() {
             DashboardBottomNavigation(
                 selected = tab,
                 hasLockout = locks.isNotEmpty(),
-                onSelect = { tab = it; detail = null }
+                onSelect = { tab = it; detailStack.clear() }
             )
         }
     ) { pad ->
         Box(Modifier.padding(pad).fillMaxSize().background(Care.Background)) {
-            val d = detail
-            if (d != null) {
-                BackHandler { detail = null }
-                AppReportScreen(d) { detail = null }
+            if (detailStack.isNotEmpty()) {
+                BackHandler { back() }
+                when (val d = detailStack.last()) {
+                    is Detail.App -> AppReportScreen(d.pkg) { back() }
+                    Detail.LifetimeRanking -> LifetimeRankingScreen(
+                        onBack = { back() },
+                        onOpenApp = { detailStack.add(Detail.App(it)) }
+                    )
+                }
             } else when (tab) {
                 0 -> DashboardRoute(
                     onOpenTab = { tab = it },
                     onOpenSettings = { tab = 3 }
                 )
-                1 -> AppsScreen { detail = it }
-                2 -> ReportsScreen { detail = it }
+                1 -> AppsScreen { detailStack.add(Detail.App(it)) }
+                2 -> ReportsScreen(
+                    onOpenLifetimeRanking = { detailStack.add(Detail.LifetimeRanking) }
+                )
                 else -> SettingsScreen()
             }
         }

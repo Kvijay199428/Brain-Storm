@@ -33,7 +33,7 @@ import java.util.Date
 
 /**
  * Full-screen lock. Deliberately offers one action only: go home. There is no early unlock,
- * including for a budget lockout.
+ * including for a budget lockout; the nudge to put the phone down is the focus of the screen.
  */
 @Composable
 fun LockoutScreen(pkg: String, onHome: () -> Unit) {
@@ -99,31 +99,24 @@ fun LockoutScreen(pkg: String, onHome: () -> Unit) {
                 "Unlocks " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(active.expiresAt)),
                 fontSize = 12.sp, color = Care.TextSecondary
             )
-            Column(
-                Modifier
-                    .padding(top = Space.m)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(Radius.tile))
-                    .background(Care.tint(Care.Warning, 0.1f))
-                    .padding(Space.m)
-            ) {
+            if (active.enforcementNote.startsWith("NOT ENFORCED")) {
                 Text(
-                    "No early unlock. This lock runs its full duration — that's the whole design.",
-                    fontSize = 11.sp, color = Care.TextPrimary
+                    "⚠ Android did not accept the enforcement request (" +
+                        active.enforcementNote.removePrefix("NOT ENFORCED: ") +
+                        "). Without Device Owner provisioning this lock is best-effort.",
+                    fontSize = 10.sp, color = Care.Warning, modifier = Modifier.padding(top = Space.m)
                 )
-                if (active.enforcementNote.startsWith("NOT ENFORCED")) {
-                    Text(
-                        "⚠ Android did not accept the enforcement request (" +
-                            active.enforcementNote.removePrefix("NOT ENFORCED: ") +
-                            "). Without Device Owner provisioning this lock is best-effort.",
-                        fontSize = 10.sp, color = Care.Warning, modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
             }
             Text(
                 "Close the phone and read something great. Your future self will thank you.",
-                fontSize = 12.sp, color = Care.TextSecondary, textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = Space.m)
+                fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Care.Primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = Space.l)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(Radius.tile))
+                    .background(Care.tint(Care.Primary, 0.14f))
+                    .padding(Space.m)
             )
         }
 

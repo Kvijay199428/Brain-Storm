@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,6 +26,7 @@ import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
 import com.vegasol.brainstorm.ui.AppIcon
+import com.vegasol.brainstorm.ui.BackButton
 import com.vegasol.brainstorm.ui.HourlyBarChart
 import com.vegasol.brainstorm.ui.LockedNotice
 import com.vegasol.brainstorm.ui.Pill
@@ -86,11 +86,8 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
     val hasDetector = ContentCounting.hasDetector(pkg)
     val counting = ContentCounting.active(LocalContext.current, pkg)
 
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Space.screen),
-        verticalArrangement = Arrangement.spacedBy(Space.m)
-    ) {
-        TextButton(onBack, contentPadding = PaddingValues(0.dp)) { Text("<- Back") }
+    Column(Modifier.fillMaxSize().padding(Space.screen)) {
+        BackButton(onBack)
         Row(verticalAlignment = Alignment.CenterVertically) {
             AppIcon(pkg, 48.dp)
             Column(Modifier.weight(1f).padding(start = Space.m)) {
@@ -101,6 +98,10 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
             else Pill("Not limited", Care.TextSecondary)
         }
 
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top = Space.m),
+            verticalArrangement = Arrangement.spacedBy(Space.m)
+        ) {
         TodayCard(u, used, limitSec)
         HourCard(hours, todayHours, peakHour)
         WeekCard(chrono7, key, limitSec, avg7, active7, AppReportDerive.peakDay(chrono7))
@@ -155,6 +156,7 @@ fun AppReportScreen(pkg: String, onBack: () -> Unit) {
             }
         }
         Spacer(Modifier.height(Space.section))
+        }
     }
 }
 

@@ -1,10 +1,5 @@
 package com.vegasol.brainstorm.detect
 
-import com.vegasol.brainstorm.ContentDetector
-import com.vegasol.brainstorm.ContentObservation
-import com.vegasol.brainstorm.DetectionOutcome
-import com.vegasol.brainstorm.Support
-
 /**
  * Experimental detector for YouTube's Shorts player.
  *
@@ -12,22 +7,17 @@ import com.vegasol.brainstorm.Support
  * exposes to Android's accessibility tree and looks for markers that only occur on the Shorts
  * surface. The service counts a new item when the visible signature changes (see [ShortsSignals]).
  *
- * It stays [Support.EXPERIMENTAL] on purpose: YouTube can rename or remove these labels in any
- * release. Counts are therefore informational — the time limit remains the enforced limit.
+ * It stays [com.vegasol.brainstorm.Support.EXPERIMENTAL] on purpose: YouTube can rename or remove
+ * these labels in any release. Counts are therefore informational - the time limit remains the
+ * enforced limit.
  */
-class YouTubeShortsDetector : ContentDetector {
-    override val packages: Set<String> = setOf(YOUTUBE)
-    override val support: Support = Support.EXPERIMENTAL
-
-    override fun process(o: ContentObservation): DetectionOutcome {
-        val hit = o.markers.any { marker -> MARKERS.any { marker.contains(it) } }
-        if (!hit || o.contentId.isNullOrBlank()) return DetectionOutcome(false, null, 0f)
-        return DetectionOutcome(true, o.contentId, CONFIDENCE)
-    }
-
+class YouTubeShortsDetector : VerticalFeedDetector(
+    packages = setOf(YOUTUBE),
+    markers = MARKERS
+) {
     companion object {
         const val YOUTUBE = "com.google.android.youtube"
-        const val CONFIDENCE = 0.6f
+        const val CONFIDENCE = VerticalFeedDetector.CONFIDENCE
 
         /**
          * Lower-case fragments of resource ids and content descriptions that occur in the Shorts

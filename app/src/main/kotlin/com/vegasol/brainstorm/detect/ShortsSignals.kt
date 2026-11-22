@@ -29,14 +29,15 @@ object ShortsSignals {
     fun analyse(
         ids: Collection<String>,
         texts: Collection<String>,
-        descriptions: Collection<String>
+        descriptions: Collection<String>,
+        markers: Collection<String>
     ): UiSignals {
         val normIds = ids.map { it.trim().lowercase() }.filter { it.isNotEmpty() }
         val normTexts = texts.map { it.trim().lowercase() }.filter { it.isNotEmpty() }
         val normDesc = descriptions.map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
-        val markers = (normIds + normDesc + normTexts).toSet()
-        val inShorts = markers.any { m -> YouTubeShortsDetector.MARKERS.any { m.contains(it) } }
+        val seen = (normIds + normDesc + normTexts).toSet()
+        val inShorts = seen.any { m -> markers.any { m.contains(it) } }
 
         // Engagement counts, durations and the action row itself must not change the fingerprint,
         // otherwise "1234 likes" would be counted as a new video.
@@ -51,7 +52,7 @@ object ShortsSignals {
             .map { it.take(MAX_PART) }
 
         val fingerprint = if (parts.isEmpty()) null else hash(parts.joinToString("|"))
-        return UiSignals(inShorts, fingerprint, markers)
+        return UiSignals(inShorts, fingerprint, seen)
     }
 
     private fun isAction(value: String) =

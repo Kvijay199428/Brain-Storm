@@ -54,7 +54,7 @@ class ContentAccessibilityService : AccessibilityService() {
         val texts = ArrayList<String>()
         val descriptions = ArrayList<String>()
         read(root, ids, texts, descriptions)
-        val signals = ShortsSignals.analyse(ids, texts, descriptions)
+        val signals = ShortsSignals.analyse(ids, texts, descriptions, detector.markers)
         if (!signals.inShorts) {
             lastFingerprint = null
             return

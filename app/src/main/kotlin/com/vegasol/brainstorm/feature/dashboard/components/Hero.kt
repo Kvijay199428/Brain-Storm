@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,8 +52,6 @@ private fun heroCopy(p: ProtectionStatus): Pair<String, String> = when (p) {
 
 @Composable
 fun DashboardHeader(
-    hasLockout: Boolean,
-    onBell: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -66,16 +63,6 @@ fun DashboardHeader(
         Column(Modifier.weight(1f).padding(start = 10.dp)) {
             Text("Brain Storm", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Care.TextPrimary)
             Text("Digital wellness", fontSize = 11.sp, color = Care.TextSecondary)
-        }
-        IconButton(onBell) {
-            Box(contentAlignment = Alignment.TopEnd) {
-                Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Care.TextSecondary)
-                if (hasLockout) {
-                    Box(
-                        Modifier.size(8.dp).clip(RoundedCornerShape(Radius.pill)).background(Care.Danger)
-                    )
-                }
-            }
         }
         IconButton(onSettings) {
             Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Care.TextSecondary)

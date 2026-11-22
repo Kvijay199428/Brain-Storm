@@ -170,6 +170,7 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
     @Query("SELECT * FROM daily_usage WHERE usageDate>=:from") fun observeSince(from: String): Flow<List<DailyUsage>>
     @Query("SELECT * FROM daily_usage WHERE packageName=:p AND usageDate>=:from")
     fun observeSinceFor(p: String, from: String): Flow<List<DailyUsage>>
+    @Query("SELECT * FROM daily_usage") fun observeAll(): Flow<List<DailyUsage>>
 }
 
 @Dao interface LockoutDao {
@@ -435,12 +436,17 @@ data class DetectionOutcome(val detected: Boolean, val contentKey: String?, val 
 interface ContentDetector {
     val packages: Set<String>
     val support: Support
+    /**
+     * Lower-case fragments of resource ids and content descriptions that only occur on this app's
+     * short-form surface. Kept per detector because every app names its player differently.
+     */
+    val markers: List<String>
     fun process(o: ContentObservation): DetectionOutcome
 }
 object Detectors {
     /**
-     * Shipped adapters. Only the YouTube Shorts detector exists today and it is EXPERIMENTAL:
-     * it is validated in debug builds with a probe surface, not against every YouTube release.
+     * Shipped adapters. Every one is EXPERIMENTAL: the labels are not a public contract, so only
+     * detectors validated against a real device build are listed here.
      */
     val all: List<ContentDetector> = listOfNotNull(
         YouTubeShortsDetector(),
