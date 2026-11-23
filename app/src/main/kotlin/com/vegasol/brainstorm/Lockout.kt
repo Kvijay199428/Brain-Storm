@@ -19,7 +19,13 @@ import androidx.room.withTransaction
 
 // ───────────── Enforcement abstraction (Phase 4) ─────────────
 enum class Health { ACTIVE, PARTIALLY_ACTIVE, PERMISSION_REQUIRED, UNAVAILABLE }
-data class EnfResult(val ok: Boolean, val note: String)
+
+/** Confirmed OS-level state of a lockout. A requested restriction is never "enforced". */
+enum class EnforcementState { PENDING, ENFORCED, PARTIAL, EXPIRED, RELEASED }
+
+data class EnfResult(val ok: Boolean, val note: String) {
+    val state: EnforcementState get() = if (ok) EnforcementState.ENFORCED else EnforcementState.PARTIAL
+}
 
 interface EnforcementController {
     val mode: String
@@ -32,7 +38,9 @@ interface EnforcementController {
 class ConsumerEnforcement(private val c: Context) : EnforcementController {
     override val mode = "CONSUMER"
     override suspend fun apply(l: Lockout) =
-        if (!Perms.overlay(c)) EnfResult(false, "overlay permission required") else EnfResult(true, "blocks on next open")
+        if (!Perms.overlay(c)) EnfResult(false, "overlay permission required")
+        // An overlay can cover the screen but cannot stop a PiP/audio session. Report PARTIAL.
+        else EnfResult(false, "blocks on next open; playback not terminated")
     override suspend fun remove(l: Lockout) = EnfResult(true, "")
     override fun health(): Health = when {
         !Perms.usage(c) || !Perms.overlay(c) -> Health.PERMISSION_REQUIRED
@@ -107,6 +115,7 @@ object Triggers {
 }
 
 class LockoutManager(private val db: BrainStormDb, private val prefs: Prefs, private val enf: EnforcementController) {
+    private val enforcer = LockoutEnforcer(db, enf)
 
     suspend fun evaluateAll(now: Long = System.currentTimeMillis()) {
         expireDue(now)
@@ -167,9 +176,17 @@ class LockoutManager(private val db: BrainStormDb, private val prefs: Prefs, pri
     }
 
     private suspend fun applyAll(rows: List<Lockout>) {
-        for (l in rows) {
-            val r = enf.apply(l)
-            db.lockouts().note(l.id, if (r.ok) r.note else "NOT ENFORCED: " + r.note)   // DB state ≠ enforcement state
+        rows.forEach { enforcer.enforce(it) }
+    }
+
+    /**
+     * Re-check every active lockout independently of which app is in the foreground. This repairs
+     * PENDING/PARTIAL rows and keeps Device Owner suspension alive after process death.
+     */
+    suspend fun enforceActive(now: Long = System.currentTimeMillis()) {
+        for (l in db.lockouts().allActive()) {
+            if (l.expiresAt <= now) continue
+            if (LockoutEnforcer.stateOf(l) != EnforcementState.ENFORCED) enforcer.enforce(l)
         }
     }
 
@@ -177,14 +194,14 @@ class LockoutManager(private val db: BrainStormDb, private val prefs: Prefs, pri
         val due = db.lockouts().allActive().filter { it.expiresAt <= now }
         if (due.isEmpty()) return
         db.withTransaction { db.lockouts().expireDue(now) }
-        due.forEach { enf.remove(it) }
+        due.forEach { l ->
+            db.lockouts().setState(l.id, EnforcementState.EXPIRED.name)
+            enforcer.release(l)
+        }
     }
 
     /** After reboot / process death: repair OS-level enforcement from the database source of truth. */
     suspend fun reapplyActive() {
-        for (l in db.lockouts().allActive()) {
-            val r = enf.apply(l)
-            db.lockouts().note(l.id, if (r.ok) r.note else "NOT ENFORCED: " + r.note)
-        }
+        db.lockouts().allActive().forEach { enforcer.enforce(it) }
     }
 }

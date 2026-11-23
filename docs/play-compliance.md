@@ -112,6 +112,24 @@ likely to be questioned. If review rejects it, ship the Play build with the serv
 as unavailable in that case. Keep the counter in the sideloaded/GitHub build. The app does not
 depend on it.
 
+### 4b. Lockout window detection (beta, opt-in)
+
+A **second**, separate accessibility service (`LockoutAccessibilityService`) may be enabled from
+Settings → Lockout detection. It listens only for `TYPE_WINDOW_STATE_CHANGED`, checks the local
+lockout table, and looks at a window's package and size to notice a restricted app shown in
+picture-in-picture. It does **not** read window text, perform gestures, or monitor any package that
+does not already have an active lockout. Its only action is to show Brain Storm's blocking screen.
+
+A separate Notification-listener service (`PlaybackNotificationListener`) may be enabled to let
+`MediaSessionManager` report which packages have active playback. No notification content is read
+or stored.
+
+**Honest limitation:** neither service can stop third-party audio or video on a standard install.
+They are detection and disclosure mechanisms; Device Owner package suspension is the only full
+enforcement path. The UI reports `PARTIAL` enforcement in standard mode. If Play review rejects
+either declaration, both services can be removed without affecting usage accounting, lockout
+creation or the Device Owner path.
+
 ## 5. Content rating (IARC questionnaire)
 
 | Question | Answer |

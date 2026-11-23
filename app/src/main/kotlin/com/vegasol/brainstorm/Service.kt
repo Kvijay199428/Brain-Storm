@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 
 class MonitorService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val media by lazy { MediaSessionMonitor(this) }
     private var job: Job? = null
 
     override fun onBind(i: Intent?): IBinder? = null
@@ -83,6 +84,19 @@ class MonitorService : Service() {
             runCatching {
                 fg = Graph.engine.pollForeground(since, now, fg); since = now
                 if (tick % 8 == 0) { Graph.engine.reconcile(now); Graph.lockouts.evaluateAll(now) }
+                // Independent of the foreground app: an active lockout in PiP or background still
+                // gets its OS-level enforcement re-checked.
+                if (tick % 30 == 0) Graph.lockouts.enforceActive(now)
+                // Best effort only: notice a locked app still playing in the background. This does
+                // NOT pause the session; the blocker screen is the honest response.
+                if (tick % 15 == 0) {
+                    val playing = media.activePackages()
+                    if (playing.isNotEmpty()) {
+                        Graph.db.lockouts().allActive()
+                            .filter { it.expiresAt > now && it.packageName in playing }
+                            .forEach { Blocker.show(this@MonitorService, it) }
+                    }
+                }
                 if (tick % 5 == 0) Graph.prefs.heartbeat = now
                 val p = fg
                 if (p != null && p != packageName) {

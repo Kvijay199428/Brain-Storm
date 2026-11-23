@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.vegasol.brainstorm.ContentCounting
 import com.vegasol.brainstorm.DailyUsage
 import com.vegasol.brainstorm.EnforcementProvider
+import com.vegasol.brainstorm.EnforcementState
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
 import com.vegasol.brainstorm.MonitoredApp
@@ -170,7 +171,9 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         val usageOk = Perms.usage(ctx)
         val overlayOk = Perms.overlay(ctx)
         val hbFresh = System.currentTimeMillis() - Graph.prefs.heartbeat < HEARTBEAT_STALE_MS
-        val notEnforced = c.locks.any { it.enforcementNote.startsWith(NOT_ENFORCED) }
+        val notEnforced = c.locks.any {
+            it.enforcementState == EnforcementState.PARTIAL.name || it.enforcementNote.startsWith(NOT_ENFORCED)
+        }
 
         val protection = when {
             !usageOk -> ProtectionStatus.PERMISSION_REQUIRED

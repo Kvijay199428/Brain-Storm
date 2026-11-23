@@ -49,6 +49,8 @@ fun SettingsScreen() {
     val c = LocalContext.current
     val resume = rememberResumeTick()
     val accessibility = remember(resume, c) { Perms.accessibility(c) }
+    val pipDetection = remember(resume, c) { Perms.lockoutAccessibility(c) }
+    val notificationAccess = remember(resume, c) { Perms.notificationAccess(c) }
     val batteryOk = remember(resume, c) { Perms.batteryUnrestricted(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
@@ -184,6 +186,43 @@ fun SettingsScreen() {
                     if (accessibility) "Accessibility settings" else "Turn on content detection",
                     fontSize = 12.sp
                 )
+            }
+        }
+
+        SurfaceCard(Modifier.fillMaxWidth()) {
+            SectionHeader("Lockout detection · beta")
+            Spacer(Modifier.height(Space.s))
+            SettingRow(
+                "PiP window detection",
+                if (pipDetection) "on" else "off",
+                good = if (pipDetection) true else null
+            )
+            SettingRow(
+                "Playback detection",
+                if (notificationAccess) "on" else "off",
+                good = if (notificationAccess) true else null
+            )
+            HorizontalDivider(Modifier.padding(vertical = Space.s))
+            Text(
+                "Both are off by default and opt in through Android settings. They can show the " +
+                    "blocking screen when a locked app is visible in picture-in-picture or is still " +
+                    "playing in the background. On a standard install Android does not let Brain " +
+                    "Storm stop that playback; Device Owner package suspension is the only full " +
+                    "enforcement path.",
+                fontSize = 11.sp, color = Care.TextSecondary
+            )
+            Row(
+                Modifier.fillMaxWidth().padding(top = Space.m),
+                horizontalArrangement = Arrangement.spacedBy(Space.s)
+            ) {
+                OutlinedButton(
+                    { c.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+                    Modifier.weight(1f), shape = RoundedCornerShape(Radius.button)
+                ) { Text("PiP access", fontSize = 12.sp) }
+                OutlinedButton(
+                    { c.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) },
+                    Modifier.weight(1f), shape = RoundedCornerShape(Radius.button)
+                ) { Text("Playback access", fontSize = 12.sp) }
             }
         }
 

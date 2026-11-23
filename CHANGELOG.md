@@ -8,6 +8,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.1] - 2026-11-23
+
+Beta of the layered PiP-safe enforcement work.
+
+### Added
+
+- Explicit confirmed enforcement states per lockout (`PENDING`, `ENFORCED`, `PARTIAL`, `EXPIRED`,
+  `RELEASED`) with a Room v4 migration; a requested restriction is never reported as enforced.
+- Periodic enforcement of **all** active lockouts, independent of which app is in the foreground.
+- Overlap-free usage intervals and per-package visible-time reconciliation, so a PiP window and its
+  main activity cannot double-count, and PiP-visible time can count toward the same limit.
+- Two separate opt-in detectors in Settings: an accessibility service that notices PiP-sized
+  windows of locked apps, and a Notification-access based media-session monitor for background
+  playback. Neither reads notification content or window text.
+
+### Changed
+
+- Standard (non-Device-Owner) installs now report `PARTIAL` enforcement: an overlay can block the
+  screen but cannot terminate third-party audio or PiP playback. Device Owner package suspension
+  remains the full enforcement path.
+
 ## [3.2.0] - 2026-11-23
 
 Next stable line. Version numbers increase across channels, so this release follows the 3.1.1 beta

@@ -106,14 +106,26 @@ object Perms {
      * accessibility settings. Reading the setting (instead of a local flag) keeps the UI honest:
      * revoking access from the system screen immediately reports counting as unavailable.
      */
-    fun accessibility(c: Context): Boolean {
+    fun accessibility(c: Context): Boolean = accessibilityService(c, ContentAccessibilityService::class.java.name)
+
+    /** Opt-in PiP/lockout window detector. Separate from content detection so either can be off. */
+    fun lockoutAccessibility(c: Context): Boolean = accessibilityService(c, LockoutAccessibilityService::class.java.name)
+
+    private fun accessibilityService(c: Context, className: String): Boolean {
         val cr = c.contentResolver
         if (Settings.Secure.getInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, 0) != 1) return false
         val flat = Settings.Secure.getString(cr, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
         return flat.split(':').any { entry ->
             val cn = ComponentName.unflattenFromString(entry) ?: return@any false
-            cn.packageName == c.packageName && cn.className == ContentAccessibilityService::class.java.name
+            cn.packageName == c.packageName && cn.className == className
         }
+    }
+
+    /** True only when the user granted Notification access to our listener (needed for media sessions). */
+    fun notificationAccess(c: Context): Boolean {
+        val flat = Settings.Secure.getString(c.contentResolver, "enabled_notification_listeners") ?: return false
+        val mine = ComponentName(c, PlaybackNotificationListener::class.java)
+        return flat.split(':').any { entry -> ComponentName.unflattenFromString(entry) == mine }
     }
 }
 
@@ -144,7 +156,8 @@ data class DailyUsage(
 data class Lockout(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val packageName: String, val triggerType: String, val triggerValue: Long, val limitValue: Long,
-    val activatedAt: Long, val expiresAt: Long, val status: String = "ACTIVE", val enforcementNote: String = ""
+    val activatedAt: Long, val expiresAt: Long, val status: String = "ACTIVE", val enforcementNote: String = "",
+    @ColumnInfo(defaultValue = "PENDING") val enforcementState: String = "PENDING"
 )
 
 @Entity(tableName = "content_events", indices = [Index(value = ["packageName", "usageDate", "contentKey"], unique = true)])
@@ -181,6 +194,10 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
     @Insert suspend fun insert(l: Lockout): Long
     @Query("UPDATE lockout_records SET status='EXPIRED' WHERE status='ACTIVE' AND expiresAt<=:now") suspend fun expireDue(now: Long)
     @Query("UPDATE lockout_records SET enforcementNote=:n WHERE id=:id") suspend fun note(id: Long, n: String)
+    @Query("UPDATE lockout_records SET enforcementState=:state, enforcementNote=:note WHERE id=:id")
+    suspend fun setEnforcement(id: Long, state: String, note: String)
+    @Query("UPDATE lockout_records SET enforcementState=:state WHERE id=:id")
+    suspend fun setState(id: Long, state: String)
 }
 
 @Dao interface ContentDao {
@@ -207,7 +224,7 @@ data class HourlyUsage(
 
 @Database(
     entities = [MonitoredApp::class, DailyUsage::class, Lockout::class, ContentEvent::class, HourlyUsage::class],
-    version = 3, exportSchema = true
+    version = 4, exportSchema = true
 )
 abstract class BrainStormDb : RoomDatabase() {
     abstract fun apps(): AppDao
@@ -248,10 +265,20 @@ abstract class BrainStormDb : RoomDatabase() {
             }
         }
 
+        /**
+         * v4 records the confirmed enforcement state per lockout. Existing rows start as PENDING,
+         * which makes the next enforcement pass verify them and upgrade the state honestly.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `enforcementState` TEXT NOT NULL DEFAULT 'PENDING'")
+            }
+        }
+
         @Volatile private var i: BrainStormDb? = null
         fun get(c: Context): BrainStormDb = i ?: synchronized(this) {
             i ?: Room.databaseBuilder(c, BrainStormDb::class.java, "brainstorm.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
                 .also { i = it }
         }
@@ -291,27 +318,37 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
         val spans = intervals(labels.keys, dayStart(now), now)
         val zone = TimeZone.getDefault()
 
-        // Totals keep the original semantics: one continuous foreground span counts once.
+        // Merge overlapping spans per package: a main activity and a PiP window must not book the
+        // same wall-clock second twice. Hourly buckets come from the same merged intervals.
         val totals = HashMap<String, Long>()
-        // Hourly buckets split a span at clock boundaries, so a session that started at 10:58 is
-        // not booked entirely into 10:00 when the report draws the 11:00 bar.
         val perHour = HashMap<Pair<String, Int>, Long>()
-        for (s in spans) {
-            val ms = (s.endMs - s.startMs).coerceAtLeast(0L)
-            if (ms <= 0L) continue
-            totals[s.packageName] = (totals[s.packageName] ?: 0L) + ms
-            for (slice in UsageBuckets.slices(s.startMs, s.endMs, zone)) {
-                val k = s.packageName to slice.hour
-                perHour[k] = (perHour[k] ?: 0L) + slice.millis
+        for ((pkg, list) in spans.groupBy { it.packageName }) {
+            val merged = UsageVisibilityTracker.merge(
+                list.map { UsageVisibilityTracker.TimeSpan(it.startMs, it.endMs) }
+            )
+            var msTotal = 0L
+            for (span in merged) {
+                val ms = (span.endMs - span.startMs).coerceAtLeast(0L)
+                if (ms <= 0L) continue
+                msTotal += ms
+                for (slice in UsageBuckets.slices(span.startMs, span.endMs, zone)) {
+                    val k = pkg to slice.hour
+                    perHour[k] = (perHour[k] ?: 0L) + slice.millis
+                }
             }
+            totals[pkg] = msTotal / 1000L
         }
+
+        // UsageStats visible time is per-package and can cover PiP. Never add it to event time —
+        // they overlap. The larger value is the honest lower bound of on-screen time.
+        val visible = visibleSeconds(now, dayStart(now))
 
         // One row per included app. Monitored apps always keep a row (even at zero) so the Apps tab
         // and reports can show them; other apps only get a row once they have been used, and rows
         // are only rewritten when the number or the label changed.
         val existing = db.usage().day(date).associateBy { it.packageName }
         for ((pkg, label) in labels) {
-            val seconds = (totals[pkg] ?: 0L) / 1000L
+            val seconds = UsageVisibilityTracker.reconcileSeconds(totals[pkg] ?: 0L, visible[pkg] ?: 0L)
             val cur = existing[pkg]
             if (cur == null && pkg !in watched && seconds <= 0L) continue
             if (cur != null && cur.foregroundSeconds == seconds && cur.appName == label) continue
@@ -319,6 +356,14 @@ class UsageEngine(private val ctx: Context, private val db: BrainStormDb, privat
             db.usage().upsert(row.copy(foregroundSeconds = seconds, appName = label, updatedAt = now))
         }
         writeHourly(date, perHour, now)
+    }
+
+    /** Per-package visible time from Android's own aggregate stats (PiP included where reported). */
+    private fun visibleSeconds(now: Long, from: Long): Map<String, Long> {
+        val stats = runCatching {
+            usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, from, now + 1_000L)
+        }.getOrNull() ?: return emptyMap()
+        return stats.associate { it.packageName to (it.totalTimeVisible / 1_000L) }
     }
 
     /**
