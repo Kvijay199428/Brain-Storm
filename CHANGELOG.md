@@ -8,10 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [3.1.0] - 2026-11-23
+## [3.1.1] - 2026-11-23
 
 Beta of the next line: the same usage reports and pinned headers as 3.0.0, with the **Brainy
 Mascot** controls back in Settings for beta testers.
+
+### Added
+
+- Setup now asks whether to use **Recommended** or **Manual** app selection. Recommended matches
+  installed apps by package or app name against a catalog of 831 reviewed video/social apps shipped
+  in the APK, pre-selects the matches and lets the user change any tick; Manual starts empty.
+- The catalog is generated from a committed CSV by `tools/build_recommended_apps.py`, with pure,
+  unit-tested case-insensitive matching.
 
 ## [3.0.0] - 2026-11-23
 

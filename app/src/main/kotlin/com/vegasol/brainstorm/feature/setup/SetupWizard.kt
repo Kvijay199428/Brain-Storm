@@ -43,7 +43,6 @@ import com.vegasol.brainstorm.save
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
-import com.vegasol.brainstorm.ui.AppCategory
 import com.vegasol.brainstorm.ui.BrainStormAppIcon
 import com.vegasol.brainstorm.ui.DurationPicker
 import com.vegasol.brainstorm.ui.Inst
@@ -59,6 +58,8 @@ import kotlinx.coroutines.withContext
 private const val LAST_STEP = 6
 private const val DEFAULT_APP_LIMIT = 60
 private const val DEFAULT_BUDGET = 120
+
+private enum class SelectionMode { RECOMMENDED, MANUAL }
 
 /**
  * One-time policy setup. When this finishes every field it collects is frozen: the Apps screen
@@ -81,15 +82,19 @@ fun SetupWizard(onDone: () -> Unit) {
     var resetHour by remember { mutableIntStateOf(0) }
     var editing by remember { mutableStateOf<String?>(null) }
     var confirming by remember { mutableStateOf(false) }
+    var catalog by remember { mutableStateOf<List<RecommendedEntry>>(emptyList()) }
+    var selectionMode by remember { mutableStateOf<SelectionMode?>(null) }
+    var recommendedPkgs by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var showModeDialog by remember { mutableStateOf(false) }
 
     val notif = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
     LaunchedEffect(Unit) {
         val list = withContext(Dispatchers.IO) { installed(c) }
         apps = list
-        // Only apps that told Android they are social or video are pre-selected. Everything else
-        // stays an explicit choice; a guess here would silently put a limit on the wrong app.
-        selected = list.filter { it.detected }.associate { it.pkg to DEFAULT_APP_LIMIT }
+        catalog = withContext(Dispatchers.IO) { RecommendedCatalog.load(c) }
+        // Nothing is ticked until the user picks Recommended or Manual in the Apps step.
+        selected = emptyMap()
         seeded = true
     }
 
@@ -98,6 +103,7 @@ fun SetupWizard(onDone: () -> Unit) {
     LaunchedEffect(step) {
         if (step == 3 && seeded) {
             apps = withContext(Dispatchers.IO) { installed(c) }
+            if (selectionMode == null) showModeDialog = true
         }
     }
 
@@ -150,6 +156,15 @@ fun SetupWizard(onDone: () -> Unit) {
         }
     }
 
+    fun applyMode(mode: SelectionMode) {
+        selectionMode = mode
+        recommendedPkgs = if (mode == SelectionMode.RECOMMENDED) {
+            RecommendedApps.match(apps, catalog)
+        } else emptySet()
+        selected = recommendedPkgs.associateWith { DEFAULT_APP_LIMIT }
+        showModeDialog = false
+    }
+
     Column(Modifier.fillMaxSize().background(Care.Background).systemBarsPadding()) {
         // Header + progress
         Column(Modifier.padding(horizontal = Space.screen, vertical = Space.m)) {
@@ -178,9 +193,17 @@ fun SetupWizard(onDone: () -> Unit) {
                 0 -> StepWelcome(pool)
                 1 -> StepPrivacy()
                 2 -> StepPermissions(c, notif, resume)
-                3 -> StepApps(apps, selected, onToggle = { pkg, on ->
-                    selected = if (on) selected + (pkg to DEFAULT_APP_LIMIT) else selected - pkg
-                }, onEdit = { editing = it })
+                3 -> StepApps(
+                    apps = apps,
+                    selected = selected,
+                    recommendedPkgs = recommendedPkgs,
+                    mode = selectionMode,
+                    onChangeMode = { showModeDialog = true },
+                    onToggle = { pkg, on ->
+                        selected = if (on) selected + (pkg to DEFAULT_APP_LIMIT) else selected - pkg
+                    },
+                    onEdit = { editing = it }
+                )
                 4 -> StepBudget(budget, onBudget = { budget = it }, sumMinutes = sumMinutes, check = check, tooTight = tooTight)
                 5 -> StepLock(lockHours, resetHour, { lockHours = it }, { resetHour = it })
                 else -> StepSummary(selected, apps, budget, sumMinutes, lockHours, resetHour, check, tooTight)
@@ -217,6 +240,41 @@ fun SetupWizard(onDone: () -> Unit) {
                 )
             },
             confirmButton = { TextButton({ editing = null }) { Text("Done") } }
+        )
+    }
+
+    if (showModeDialog) {
+        AlertDialog(
+            onDismissRequest = { showModeDialog = false },
+            title = { Text("How should we pick apps?") },
+            text = {
+                Column {
+                    Text("Recommended", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        "Use the built-in catalog of ${catalog.size} video and social apps. Matching " +
+                            "apps installed on this phone are pre-selected — you can still untick " +
+                            "any of them.",
+                        fontSize = 12.sp, color = Care.TextSecondary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                    Spacer(Modifier.height(Space.m))
+                    Text("Manual", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        "Start with nothing selected and tick every app you want to limit.",
+                        fontSize = 12.sp, color = Care.TextSecondary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { applyMode(SelectionMode.RECOMMENDED) },
+                    enabled = catalog.isNotEmpty()
+                ) { Text("Use recommended") }
+            },
+            dismissButton = {
+                TextButton({ applyMode(SelectionMode.MANUAL) }) { Text("Choose manually") }
+            }
         )
     }
 
@@ -337,24 +395,54 @@ private fun PermissionRow(title: String, desc: String, ok: Boolean, onGrant: () 
 private fun StepApps(
     apps: List<Inst>,
     selected: Map<String, Int>,
+    recommendedPkgs: Set<String>,
+    mode: SelectionMode?,
+    onChangeMode: () -> Unit,
     onToggle: (String, Boolean) -> Unit,
     onEdit: (String) -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         Text("Apps to limit", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text(
-            "Social and video apps are pre-selected from the category Android reports. That can " +
-                "include messaging apps and video editors, so untick anything you don't want " +
-                "limited. Apps that declare no category are under Other.",
+            when (mode) {
+                SelectionMode.RECOMMENDED ->
+                    "Apps matching the built-in video catalog are selected. Untick anything you " +
+                        "don't want limited, or tick more apps below."
+                else ->
+                    "Tick every app you want to limit. Each one gets its own daily limit, which " +
+                        "you can edit before setup is frozen."
+            },
             fontSize = 12.sp, color = Care.TextSecondary, modifier = Modifier.padding(vertical = 4.dp)
         )
-        if (apps.isNotEmpty() && apps.none { it.detected }) {
+
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.tile)).background(Care.Surface)
+                .padding(horizontal = Space.m, vertical = Space.s),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (mode == SelectionMode.RECOMMENDED)
+                        "Recommended - ${recommendedPkgs.size} matched"
+                    else "Manual selection",
+                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    if (mode == SelectionMode.RECOMMENDED) "Matched by package or app name"
+                    else "Nothing pre-selected",
+                    fontSize = 10.sp, color = Care.TextSecondary
+                )
+            }
+            TextButton(onChangeMode) { Text("Change", fontSize = 12.sp) }
+        }
+
+        if (mode == SelectionMode.RECOMMENDED && recommendedPkgs.isEmpty()) {
             Text(
-                "Android reported no social or video category for any installed app. Choose the " +
-                    "apps you want below.",
-                fontSize = 11.sp, color = Care.Warning, modifier = Modifier.padding(bottom = 4.dp)
+                "No installed app matched the catalog. Tick apps yourself or change mode.",
+                fontSize = 11.sp, color = Care.Warning, modifier = Modifier.padding(top = 4.dp)
             )
         }
+
         var query by remember { mutableStateOf("") }
         OutlinedTextField(
             value = query,
@@ -369,18 +457,19 @@ private fun StepApps(
         }
         val listState = rememberLazyListState()
         // Changing the filter re-anchors the list on a surviving item key; jump back to the top so
-        // clearing the query always shows the Social group again instead of dropping into Other.
+        // clearing the query never drops the user into the middle of a group.
         LaunchedEffect(query) { listState.scrollToItem(0) }
-        LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
-            val groups = listOf(
-                AppCategory.SOCIAL to "Social apps",
-                AppCategory.VIDEO to "Video apps",
-                AppCategory.OTHER to "Other installed apps"
-            )
-            groups.forEach { (category, title) ->
-                val rows = shown.filter { it.category == category }
+        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(top = Space.s)) {
+            val groups: List<Pair<String, List<Inst>>> = when (mode) {
+                SelectionMode.RECOMMENDED -> listOf(
+                    "Recommended for you" to shown.filter { it.pkg in recommendedPkgs },
+                    "Other installed apps" to shown.filter { it.pkg !in recommendedPkgs }
+                )
+                else -> listOf("Installed apps" to shown)
+            }
+            groups.forEach { (title, rows) ->
                 if (rows.isNotEmpty()) {
-                    item(key = "header-${category.name}") {
+                    item(key = "header-$title") {
                         Text(
                             "$title (${rows.size})",
                             fontSize = 11.sp,
@@ -401,10 +490,14 @@ private fun StepApps(
                             Checkbox(mins != null, { onToggle(a.pkg, it) })
                             Column(Modifier.weight(1f)) {
                                 Text(a.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text(
-                                    a.pkg + if (a.detected) "  ·  detected ${a.category.label}" else "",
-                                    fontSize = 10.sp, color = Care.TextSecondary
-                                )
+                                Text(a.pkg, fontSize = 10.sp, color = Care.TextSecondary)
+                                if (mode == SelectionMode.RECOMMENDED && a.pkg in recommendedPkgs) {
+                                    Text(
+                                        "Recommended",
+                                        fontSize = 10.sp, color = Care.Primary,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
                             if (mins != null) {
                                 TextButton({ onEdit(a.pkg) }) { Text(fmtMinutes(mins), fontSize = 12.sp) }

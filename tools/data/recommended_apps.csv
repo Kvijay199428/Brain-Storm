@@ -1,0 +1,832 @@
+record_id,app_name,package_name,categories,priority,package_status,notes
+1,TikTok,com.zhiliaoapp.musically,SHORT_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+2,Moj,in.mohalla.video,SHORT_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+3,Josh,com.eterno.shortvideos,SHORT_VIDEO,HIGH,KNOWN_ID,Corrected from in.josh.app; active on Google Play.
+4,Likee,video.like,SHORT_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+5,Triller,co.triller.droid,SHORT_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+6,Kwai,com.kwai.video,SHORT_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+7,SnackVideo,com.kwai.bulldog,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+8,Chingari,io.chingari.app,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+9,Roposo,com.roposo.android,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+10,ShareChat,in.mohalla.sharechat,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+11,Clapper,com.newsclapper.video,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+12,Lomotif,com.lomotif.android,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+13,Douyin,com.ss.android.ugc.aweme,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+14,Kuaishou,com.smile.gifmaker,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+15,Weishi,com.tencent.weishi,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,China-only Tencent short-video app; not on Google Play.
+16,Zynn,com.owlii.zynn,SHORT_VIDEO,HIGH,NOT_VERIFIED,Discontinued in 2021; historical package ID.
+17,Firework,com.loopnow.kamino,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+18,Funimate,com.avcrbt.funimate,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+19,Zigazoo,com.zigazoo.zigazoo,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+20,Fanbase,com.fanbase,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+21,RedNote (Xiaohongshu),com.xingin.xhs,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+22,Lemon8,com.bd.nproject,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+23,Byte,co.byte.video,SHORT_VIDEO,HIGH,NOT_VERIFIED,Discontinued/rebranded; historical package ID.
+24,Meipai,com.meitu.meipai,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+25,Inke,com.meelive.ingkee,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+26,Vigo Video,com.ss.android.ugc.boom,SHORT_VIDEO,HIGH,NOT_VERIFIED,Discontinued in 2020 and banned in India; historical package ID.
+27,Vskit,com.s.vskit,SHORT_VIDEO,HIGH,NOT_VERIFIED,Discontinued/removed from Play Store; historical package ID.
+28,Likee Lite,video.like.lite,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Active globally (banned in India).
+29,TikTok Lite,com.zhiliaoapp.musically.go,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+30,Instagram Lite,com.instagram.lite,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+31,Netflix,com.netflix.mediaclient,VIDEO_STREAMING,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+32,Amazon Prime Video,com.amazon.avod.thirdpartyclient,VIDEO_STREAMING,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+33,JioHotstar,in.startv.hotstar,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+34,ZEE5,com.graymatrix.did,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+35,Sony LIV,com.sonyliv,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+36,JioCinema,com.jio.media.ondemand,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+37,Amazon MX Player,com.mxtech.videoplayer.ad,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+38,Sun NXT,com.suntv.sunnxt,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+39,Aha,ahaflix.tv,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+40,Hoichoi,com.viewlift.hoichoi,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+41,Lionsgate Play,com.lionsgateplay.videoapp,VIDEO_STREAMING,HIGH,KNOWN_ID,Corrected from com.lionsgateplay.video; active on Google Play.
+42,Apple TV,com.apple.atve.androidtv.appletv,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+43,Disney+,com.disney.disneyplus,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+44,Hulu,com.hulu.plus,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+45,Max,com.wbd.stream,VIDEO_STREAMING,HIGH,KNOWN_ID,Updated from retired com.hbo.hbonow; active globally (geo-restricted).
+46,Peacock,com.peacocktv.peacockandroid,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+47,Paramount+,com.cbs.app,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+48,Tubi,com.tubitv,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+49,Pluto TV,tv.pluto.android,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+50,Crunchyroll,com.crunchyroll.crunchyroid,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+51,Viki,com.viki.android,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+52,Viu,com.vuclip.viu,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+53,iQIYI,com.iqiyi.i18n,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+54,WeTV,com.tencent.qqlivei18n,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+55,Tencent Video,com.tencent.qqlive,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+56,Youku,com.youku.phone,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+57,Mango TV,com.hunantv.imgo.activity,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+58,TVING,net.cj.cjhv.gs.tving,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+59,Wavve,kr.co.captv.pooqV2,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+60,U-NEXT,jp.unext.mediaplayer,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+61,ABEMA,tv.abema,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+62,KOCOWA+,com.kocowa.kocowa,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+63,Shahid,net.mbc.shahid,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+64,OSN+,com.osn.go,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+65,STARZPLAY,com.parsifal.starz,VIDEO_STREAMING,HIGH,KNOWN_ID,Corrected from com.starzplay.starz; active in MENA.
+66,Showmax,com.showmax.showmax.google,VIDEO_STREAMING,HIGH,KNOWN_ID,Updated from legacy com.showmax.app; active in Africa.
+67,Globoplay,com.globo.globotv,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+68,ViX,com.univision.uvideos,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+69,Stan,au.com.stan.and,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+70,BBC iPlayer,bbc.iplayer.android,VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+71,Instagram,com.instagram.android,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+72,Facebook,com.facebook.katana,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+73,Snapchat,com.snapchat.android,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+74,Reddit,com.reddit.frontpage,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+75,X (Twitter),com.twitter.android,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+76,Threads,com.instagram.barcelona,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+77,Pinterest,com.pinterest,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+78,Tumblr,com.tumblr,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+79,Telegram,org.telegram.messenger,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+80,Discord,com.discord,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+81,LinkedIn,com.linkedin.android,SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+82,VK,com.vkontakte.android,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+83,Weibo,com.sina.weibo,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+84,WeChat,com.tencent.mm,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Common Android package ID; still validate against installed app/store listing.
+85,Bluesky,xyz.blueskyweb.app,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+86,Mastodon,org.joinmastodon.android,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+87,Nextdoor,com.nextdoor,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+88,Yubo,co.yellw.yellowapp,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+89,Vero,co.vero.app,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+90,MeWe,com.mewe,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+91,Mixi,jp.mixi,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+92,Odysee,com.odysee.app,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+93,Rumble,com.rumble.battles,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+94,Dailymotion,com.dailymotion.dailymotion,SOCIAL_VIDEO;VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+95,Vimeo,com.vimeo.android.videoapp,SOCIAL_VIDEO;VIDEO_STREAMING,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+96,Pixelfed,com.pixelfed,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Official Pixelfed Android app on Google Play.
+97,PeerTube,org.framasoft.peertube,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Official PeerTube Android app on Google Play.
+98,Flickr,com.yahoo.mobile.client.android.flickr,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+99,9GAG,com.ninegag.android.app,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+100,BeReal,com.bereal.ft,SOCIAL_VIDEO,HIGH,VERIFY_BEFORE_USE,Candidate package ID; verify against current Google Play listing before production use.
+101,Facebook Lite,com.facebook.lite,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Lightweight Facebook app with Reels scrolling.
+102,Hipi,com.zee5.hipi,SHORT_VIDEO,HIGH,KNOWN_ID,ZEE5 Indian short-video & reels platform.
+103,Moj Lite+,in.mohalla.video.lite,SHORT_VIDEO,HIGH,KNOWN_ID,Lightweight Moj short-video app.
+104,Josh Lite,com.eterno.shortvideos.lite,SHORT_VIDEO,HIGH,VERIFY_BEFORE_USE,Lightweight Josh short-video app.
+105,ShareChat Lite,in.mohalla.sharechat.lite,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Lightweight ShareChat app with short videos.
+106,Bilibili,com.bstar.intl,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Global Bilibili app with anime and short video clips.
+107,Bilibili (China),tv.danmaku.bili,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Mainland China Bilibili app.
+108,Public,com.cardfeed.video_public,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Indian hyperlocal short-video news and community feed.
+109,Dailyhunt,com.eterno,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Includes vertical short-video news and entertainment reels.
+110,CapCut,com.lemon.lvoverseas,SHORT_VIDEO,HIGH,KNOWN_ID,Includes scrollable vertical template feed for Reels/Shorts.
+111,WhatsApp,com.whatsapp,SOCIAL_VIDEO,HIGH,KNOWN_ID,Status vertical video stories and Channels video feeds.
+112,WhatsApp Business,com.whatsapp.w4b,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Status vertical video stories and business video updates.
+113,Messenger,com.facebook.orca,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Stories and shared Reels playback.
+114,Glance,com.glance.internet,SHORT_VIDEO,MEDIUM,VERIFY_BEFORE_USE,Lock-screen short video and live content feed.
+115,Xigua Video,com.ss.android.article.video,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,ByteDance China short & mid-form video app.
+116,Haokan Video,com.baidu.haokan,SHORT_VIDEO,MEDIUM,VERIFY_BEFORE_USE,Baidu short-video feed app (China).
+117,VK Clips,com.vk.clips,SHORT_VIDEO,MEDIUM,KNOWN_ID,Dedicated vertical short-video app by VK.
+118,Yappy,ru.ritm.yappy,SHORT_VIDEO,MEDIUM,VERIFY_BEFORE_USE,Russian vertical short-video reels app.
+119,Likee (Alt Variant),video.like.app,SHORT_VIDEO,MEDIUM,VERIFY_BEFORE_USE,Alternative regional package variant of Likee.
+120,Koo,com.koo.app,SOCIAL_VIDEO,LOW,NOT_VERIFIED,Discontinued Indian microblogging app; legacy package ID.
+121,ReelShort,com.newleaf.app.android.victor,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Leading vertical short-drama reels scrolling app.
+122,DramaBox,com.storymatrix.drama,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Vertical micro-drama and short series reels app.
+123,ShortMax,com.shorttv.android,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Vertical short-drama streaming and scrolling app.
+124,GoodShort,com.newreading.goodreels,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Short-form vertical drama reels platform.
+125,FreeReels,com.freereels.app,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID; free vertical short dramas and reels.
+126,DramaWave,com.dramawave.app,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID (SKYWORK AI); vertical micro-drama reels.
+127,NetShort,com.netshort.abroad,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID (NETSTORY); vertical short drama app.
+128,FlickReels,com.zyhwplatform.shortplay,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID (FARSUNPTE); vertical short-drama reels.
+129,Kuku TV,com.vlv.aravali.reels,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID (Kuku Technologies); Indian vertical micro-drama app.
+130,QuickTV,in.mohalla.quicktv,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID (ShareChat); Indian vertical short-drama app.
+131,Vertical TV,com.eight.network.android.vertical,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID; Indian vertical short-drama reels app.
+132,Micro Drama,com.shortbox.drama,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID; vertical bite-sized drama reels.
+133,FlareFlow,tv.flareflow.drama,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Verified Play Store ID; 1-minute vertical dramas.
+134,FlexTV,com.ym.flextv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,HD vertical mini-drama streaming app.
+135,MoboReels,com.changdu.ereader,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Vertical short drama and reel series app.
+136,Kalos TV,com.kalostv.android,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Vertical short-drama episodes app.
+137,Sereal+,com.sereal.plus,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Short-form vertical drama series platform.
+138,Vigloo,com.spoonradio.vigloo,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Global short-form vertical drama app.
+139,MeloShort,com.halofun.meloshort,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Vertical short-drama movies and reels.
+140,Shortime,com.codecrayon.shortime,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,K-drama vertical short-video streaming app.
+141,My Drama,com.holywater.mydrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Vertical short-form drama series app.
+142,TopShort,com.topshort.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Short dramas and vertical reels app.
+143,DreameShort,com.dreameshort.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Romance vertical short-drama reels app.
+144,JoyReels,com.joyreels.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Short-form vertical drama and reels app.
+145,StardustTV,com.stardusttv.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Vertical short drama streaming platform.
+146,Twitch,tv.twitch.android.app,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Includes vertical Clips discovery feed + live streaming.
+147,Kick,com.kick.mobile,SOCIAL_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Live streaming and short clips platform.
+148,Bigo Live,sg.bigo.live,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Live streaming with short-video Moments feed.
+149,Tango,com.sgiggle.production,SOCIAL_VIDEO,HIGH,KNOWN_ID,Live video streaming and social video feed.
+150,Poppo Live,com.baitu.qingshu,SOCIAL_VIDEO,MEDIUM,VERIFY_BEFORE_USE,Live video streaming and short social clips.
+151,Chamet,com.hkfuliao.chamet,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live video chat and short social video streams.
+152,MICO,com.mico,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live video streaming and social discovery feed.
+153,LivU,com.videochat.livu,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live video chat and social discovery.
+154,Azar,com.azarlive.android,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live video discovery and streaming.
+155,Loco,com.showtimeapp,SOCIAL_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Indian gaming live-stream and short clips app.
+156,Rooter,com.threesixteen.app,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,"Indian gaming reels, clips, and live streaming."
+157,Nimo TV,com.huya.nimo,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Gaming live streams and short video highlights.
+158,Trovo,com.tencent.trovo,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Gaming live streaming and short clips.
+159,SOOP (AfreecaTV),kr.co.nowcom.mobile.afreeca,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,South Korean live streaming and short VOD clips.
+160,CHZZK,com.navercorp.game.android.community,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Naver South Korean gaming live-stream & clips app.
+161,Niconico,jp.nicovideo.android,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Japanese social video and comment-overlay platform.
+162,TwitCasting Live,com.sidefeed.TCLive,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Japanese live streaming and social video app.
+163,17LIVE,com.machipopo.media17,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Asian live-streaming and short social clips app.
+164,Pococha,com.dena.pokota,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live social video streaming community.
+165,Uplive,com.asiainno.uplive,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Global live video streaming platform.
+166,LiveMe,com.cmcm.live,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Live video broadcasting and short clips.
+167,YouNow,com.younow.uview,SOCIAL_VIDEO,LOW,KNOWN_ID,Live social video streaming community.
+168,MeetMe,com.myyearbook.m,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Social discovery with live video streams.
+169,Skout,com.skout.android,SOCIAL_VIDEO,LOW,KNOWN_ID,Social discovery and live video streaming.
+170,Tagged,com.taggedapp,SOCIAL_VIDEO,LOW,KNOWN_ID,Social network with live video streams.
+171,Huya Live,com.duowan.kiwi,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Chinese gaming live-streaming app.
+172,DouYu,air.tv.douyu.android,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Chinese gaming and entertainment live streaming.
+173,Weverse,co.benx.weverse,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Fan community with short artist videos and live streams.
+174,ZEPETO,me.zepeto.main,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,3D avatar short-video reels and social feed.
+175,Medal.tv,tv.medal.android,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Scrollable vertical gaming short-clips feed.
+176,Imgur,com.imgur.mobile,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,"Scrollable meme, GIF, and short-video feed."
+177,iFunny,mobi.ifunny,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Scrollable comedy memes and short-video clips.
+178,Coub,com.coub.android,SHORT_VIDEO;SOCIAL_VIDEO,LOW,KNOWN_ID,Looping short-video clips feed.
+179,GIPHY,com.giphy.messenger,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Scrollable GIF and short-clip discovery feed.
+180,VSCO,com.vsco.cam,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Visual creator feed with short video edits.
+181,Patreon,com.patreon.android,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,KNOWN_ID,Creator video posts and exclusive clips.
+182,Substack,com.substack.app,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Notes feed with embedded vertical short videos.
+183,Truth Social,com.truthsocial.android.app,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Social feed with embedded video posts.
+184,Gab,com.gab.app,SOCIAL_VIDEO,LOW,VERIFY_BEFORE_USE,Social video and microblogging platform.
+185,GETTR,com.gettr.gettr,SHORT_VIDEO;SOCIAL_VIDEO,LOW,KNOWN_ID,Social platform with GTok short-video feed.
+186,BitChute,com.bitchute.app,SOCIAL_VIDEO;VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Alternative social video streaming platform.
+187,VK Video,com.vk.vkvideo,VIDEO_STREAMING;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Dedicated video and live-stream app by VK.
+188,Rutube,ru.rutube.app,VIDEO_STREAMING;SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Russian video hosting and short clips app.
+189,OK.RU (Odnoklassniki),ru.ok.android,SOCIAL_VIDEO,MEDIUM,KNOWN_ID,Social network with live video and short clips.
+190,Line VOOM / LINE,jp.naver.line.android,SHORT_VIDEO;SOCIAL_VIDEO,HIGH,KNOWN_ID,Includes LINE VOOM vertical short-video reels feed.
+191,JioTV,com.jio.jioplay.tv,VIDEO_STREAMING,HIGH,KNOWN_ID,Live TV and short catch-up clips in India.
+192,Airtel Xstream Play,tv.accedo.airtel.wynk,VIDEO_STREAMING,HIGH,KNOWN_ID,Aggregated OTT streaming app in India.
+193,Tata Play Binge,com.tatasky.binge,VIDEO_STREAMING,HIGH,KNOWN_ID,Multi-OTT video streaming aggregator in India.
+194,Vi Movies & TV,com.vodafone.vodafoneplay,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Telecom OTT video streaming app in India.
+195,FanCode,com.dream11sports.fancode,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Live sports streaming and vertical match highlights/reels.
+196,Discovery+,com.discoveryplus.mobile.india,VIDEO_STREAMING,HIGH,KNOWN_ID,Documentary and reality TV streaming (India package).
+197,Discovery+ (Global/US),com.discovery.discoveryplus.mobile,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Global/US Discovery+ streaming app.
+198,STAGE,in.stage,VIDEO_STREAMING,MEDIUM,KNOWN_ID,"Indian regional dialect OTT (Haryanvi, Rajasthani, Bhojpuri)."
+199,Chaupal,com.chaupal,VIDEO_STREAMING,MEDIUM,KNOWN_ID,"Punjabi, Haryanvi, and Bhojpuri OTT platform."
+200,ShemarooMe,com.shemaroo.shemaroome,VIDEO_STREAMING,MEDIUM,KNOWN_ID,"Indian movies, comedy clips, and regional OTT."
+201,Eros Now,com.erosnow,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Bollywood movies and short video clips.
+202,Dangal Play,com.enterr10.dangalplay,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Indian TV serials and short episode clips.
+203,WAVES (Prasar Bharati),com.prasarbharati.waves,VIDEO_STREAMING,MEDIUM,VERIFY_BEFORE_USE,Prasar Bharati OTT platform with live TV and clips.
+204,ULLU,com.ullu.app,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Indian web series and short video streaming.
+205,ALTT,com.balaji.alt,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Indian web series OTT platform.
+206,Epic On,com.epicon,VIDEO_STREAMING,LOW,KNOWN_ID,Indian infotainment video streaming.
+207,ManoramaMAX,com.mmtv.manoramamax.android,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Malayalam OTT streaming platform.
+208,ETV Win,com.etvwin.mobile,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Telugu OTT streaming platform.
+209,Planet Marathi,com.planetmarathi.ott,VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Marathi OTT streaming platform.
+210,Addatimes,com.addatimes.android,VIDEO_STREAMING,LOW,KNOWN_ID,Bengali OTT web series and movies app.
+211,Klikk,com.klikk.ott,VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Bengali OTT streaming platform.
+212,Oho Gujarati,com.ohogujarati,VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Gujarati OTT streaming platform.
+213,Koode,com.koode.ott,VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Malayalam OTT streaming platform.
+214,TarangPlus,com.otv.tarangplus,VIDEO_STREAMING,LOW,KNOWN_ID,Odia OTT streaming platform.
+215,NammaFlix,com.nammaflix,VIDEO_STREAMING,LOW,VERIFY_BEFORE_USE,Kannada OTT streaming platform.
+216,Hungama Play,com.hungama.movies,VIDEO_STREAMING,MEDIUM,KNOWN_ID,"Indian movies, web series, and short videos."
+217,DocuBay,com.epic.docubay,VIDEO_STREAMING,LOW,KNOWN_ID,Global documentary streaming app.
+218,MUBI,com.mubi,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Curated cinema streaming platform.
+219,Plex,com.plexapp.android,VIDEO_STREAMING,HIGH,KNOWN_ID,"Free ad-supported movies, live TV, and personal media streaming."
+220,Roku,com.roku.remote,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Roku Channel free streaming and device companion.
+221,Fubo,tv.fubo.mobile,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Live sports and TV streaming (US/global).
+222,Sling TV,com.sling,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Live TV and on-demand streaming (US).
+223,DAZN,com.dazn,VIDEO_STREAMING,HIGH,KNOWN_ID,Global live sports streaming platform.
+224,ESPN,com.espn.score_center,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,Live sports streaming and vertical highlight clips.
+225,ITVX,air.ITVMobilePlayer,VIDEO_STREAMING,MEDIUM,KNOWN_ID,UK OTT streaming platform.
+226,Channel 4 (All 4),com.channel4.ondemand,VIDEO_STREAMING,MEDIUM,KNOWN_ID,UK on-demand streaming app.
+227,My5,com.mobileiq.demand5,VIDEO_STREAMING,LOW,KNOWN_ID,UK Channel 5 streaming app.
+228,Sky Go,com.bskyb.skygo,VIDEO_STREAMING,MEDIUM,KNOWN_ID,UK/EU live TV and on-demand streaming.
+229,NOW TV,com.bskyb.nowtv.beta,VIDEO_STREAMING,MEDIUM,KNOWN_ID,UK OTT streaming service by Sky.
+230,BritBox,com.britbox.us,VIDEO_STREAMING,MEDIUM,KNOWN_ID,British TV streaming service.
+231,Acorn TV,com.acorn.tv,VIDEO_STREAMING,LOW,KNOWN_ID,British & international mystery/drama streaming.
+232,Shudder,com.dramafever.shudder,VIDEO_STREAMING,LOW,KNOWN_ID,Horror and thriller OTT streaming platform.
+233,AMC+,com.amcnetworks.amcplus,VIDEO_STREAMING,MEDIUM,KNOWN_ID,AMC Networks OTT streaming service.
+234,STARZ (US),com.bydeluxe.d3.android.program.starz,VIDEO_STREAMING,MEDIUM,KNOWN_ID,US STARZ OTT streaming app.
+235,MGM+,com.epix.epix,VIDEO_STREAMING,MEDIUM,KNOWN_ID,MGM+ movies and original series streaming.
+236,Curiosity Stream,com.curiosity.curiositystream,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Documentary and science OTT streaming.
+237,Nebula,tv.standard.nebula,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Creator-owned video streaming platform.
+238,Dropout,vhx.dropout,VIDEO_STREAMING,LOW,KNOWN_ID,Comedy OTT streaming service.
+239,HIDIVE,com.hidive.android,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Anime OTT streaming platform.
+240,Kanopy,com.kanopy,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Library-supported movies and documentaries streaming.
+241,Hoopla Digital,com.hoopladigital.android,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Library video and movie streaming.
+242,Xumo Play,com.xumo.xumo,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Free ad-supported live TV and movies (FAST).
+243,Samsung TV Plus,com.samsung.android.tvplus,VIDEO_STREAMING,HIGH,KNOWN_ID,Free ad-supported streaming TV (FAST) on Samsung devices.
+244,Crave,ca.bellmedia.cravetv,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Canadian OTT streaming platform.
+245,CBC Gem,ca.cbc.android.cbctv,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Canadian public broadcaster OTT app.
+246,9Now,au.com.nine.ninemsn.ninelive,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Australian catch-up and live streaming OTT.
+247,7plus,com.swm.sevenplus,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Australian live TV and on-demand streaming.
+248,BINGE,au.com.streamotion.binge,VIDEO_STREAMING,MEDIUM,KNOWN_ID,Australian OTT streaming platform.
+249,Coupang Play,com.coupang.mobile.play,VIDEO_STREAMING,MEDIUM,KNOWN_ID,South Korean OTT streaming platform.
+250,Vidio,com.vidio.android,SHORT_VIDEO;VIDEO_STREAMING,HIGH,KNOWN_ID,"Indonesian OTT streaming, sports, and short clips."
+251,DashReels: Short Movies & TV,com.dashtoon.video.reels,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+252,Mojo: Reels and Video Captions,video.mojo,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+253,MoboReels: Good Reel Short TV,com.changdu.mobovideo,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+254,AnyReel - Good Short & Drama,com.anyreel.android.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+255,Reelshorts: Make AI Reel Video,com.reelshorts.myapp,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+256,VibeShort: AI Short Dramas,com.vibeshort.visualnovel.android,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+257,Vigloo - Premier Short Dramas,com.vigloo,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+258,Reels Maker for Instagram BEAT,io.onelightapps.video.reels.maker.beat,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+259,iDrama – Short Dramas & Reels,com.gooddrama.idrama,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+260,ShortMax - Short Dramas & TV,live.shorttv.apps,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+261,Shortical Drama TV Short Reels,shortical.com,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+262,"FlexTV: Short Drama, Reels, TV",com.aytech.flextv,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+263,Story TV - Watch Short Dramas,story.tv.drama.reels,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+264,StoryReel: Short Dramas & TV,com.storyreel.tv.android,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+265,Moj Lite,com.next.innovation.takatak,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+266,BestReels,com.cd.bestreels,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+267,NoScroll: Shorts Reels Blocker,uz.ravshanbaxranov.noscroll,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short video reels app
+268,FeelShorts: Drama Short Video,com.osal.feelshorts.drama,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+269,Shorta - Vertical Series,com.shorta.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+270,Vertical Player,com.codesandme.vertical_player,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+271,YouTake Short Videos,com.youtake.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+272,Swag Shots: Short Video & Live,com.swagshots.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+273,RapidTV - Short Dramas,com.rapid.short.tv,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+274,Offline short video player,shortvideo.vertical.video.player,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+275,ShortsScroll,com.khaouitiapps.shortsscroll,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+276,V+SHORT - Global Shorts & Hits,com.vplushort,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+277,ShortViral: Watch Short Drama,com.techltd.shortviral.shortdrama,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+278,"Video To Clips, Reels & Shorts",com.avtunes.videotoclips,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+279,Short Drama & Series,com.play.dramatv.drama.shorts.film,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical short videos
+280,ClipVibe: Funny Video Clips,ali.alhadidi.clipvibe,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+281,MegaLOL: Funny Videos & Memes,com.megalol.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+282,Funny Memes GIFs & Video Clips,maheshperi.funny_memes,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+283,Motika IO - Funny Videos,io.motika.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+284,MemTok: Video Memes,com.sakovkid.memtok,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+285,Memes Today short funny videos,com.adivadev.memes,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+286,FUN TV 420 & FUNNY VIDEOS,com.busyfuncomedy.banglafunnyvideos,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+287,Funny Short Videos & Memes,com.snakefunny.videos.shortvideosreel,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: funny short video clips
+288,video status download,com.status.video.lovestatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+289,Love Status - Video Status,com.status.videoapp,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+290,All Gods Video Status Bhakti,com.god_video.status_app,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+291,Vid status Video For WhatsApp,vidstatus.com,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+292,Love Status Video - Hindi,com.assamappdev.lovestatusvideo,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+293,AI StatusMaker: Bhakti Status,com.genxaistudio.aistatusmaker,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+294,Video Status Maker & Download,com.sky.editor.dpvideo,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+295,Voowy FullScreen Status Videos,com.as7media.voowy,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+296,Hanuman Video status,hanumanvideostatus.bajarangbali.video.status,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+297,Hindi Video Status 2025,com.singularity.newhindistatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+298,Vido : Video Status Maker,com.vido.particle.ly.lyrical.status.maker,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+299,Tamil Video Status - VidStatus,com.tamilstatus.videostatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+300,SnapReel Status & Videos Maker,com.snapreel.renderer,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: status video reels india
+301,Reels & Story Maker Storybeat,com.storybeat,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: trending reels app
+302,Reelsapp video trends,com.nextgen.reelsapp,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: trending reels app
+303,InStories AI Reels Story Maker,io.instories,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: trending reels app
+304,ReelRise: AI to Go Viral,com.reelrise.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: trending reels app
+305,FreeDrama: Short Drama & Reels,com.drama.free,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+306,HoneyReels-Short Drama & Reels,com.yawentv.ywshortplay,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+307,BlinkDrama - HD Short Dramas,com.blink.drama.player,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+308,ReelSaga - Indian Short Drama,in.reelsaga.android,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+309,Rigi TV: Short Drama App,com.litvibes,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+310,Kalos TV-Short Dramas & Reels,com.kwshortvideo.kalostv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+311,My Drama - Short Dramas Stream,com.dashdramas,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+312,ReelyGo - Stream Short Dramas,com.zw.freeshortplay,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: short drama reels
+313,"ShortDramas：MiniSerie,Reel&TV",com.shortdramas.mrt,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+314,VerticalDrama-Watch Vertically,com.pili.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+315,ShortFlix - V: Vertical Dramas,com.shortflixv.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+316,Drama Spark: Mini Series TV,com.nth.dramalive.shortstory.dramawave,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+317,Mini Series - Reels Drama,com.abingkk.miniseries.reels.drama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+318,DramaTV – Watch Drama Shorts,shorts.drama.tv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+319,Short Drama: Mini Series & TV,com.shortdrama.miniseries.tv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+320,Short Drama: Watch Mini Series,com.ShortDramas.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+321,Short Dramas - Mini Series,com.shortdramastv.miniseries,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+322,RadReel - Dramas & Movies,com.wolftv.wolf,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: vertical drama mini series
+323,ReelDrama: Movies & Web series,com.ott.reeldrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+324,ReelDrama,com.tvapp.reeldrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+325,Romance Reels：Drama Short&Show,com.novadrama.shorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+326,Reel Drama Short: Drama Series,com.shh.reeldrama.shortfilms,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+327,ReelDrama: Short Movies,com.reel.drama.short.movies,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+328,Short Drama - Reel Stories,com.dramma.videos.story.episode.entertainment.pro,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+329,Reel Story: Short Drama Reels,com.reel.story.short.drama.reels,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+330,LoveDrama: Short Drama TV,com.kedoo.drama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+331,ShortReels Drama : Reels & TV,com.shortdrama.reelapp,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+332,Reel Drama,com.reel.drama.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+333,DramaReel - Short Dramas,com.merakos.dramareel.short.dramas,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+334,ReelDramas: Short Drama Story,com.reeldramas.shortdrama.dramastory,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+335,ShortReel: Short Drama & Mini,com.joytovideo.reel,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+336,Reelala: Short Drama & Reels,com.zw.coolshort,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+337,ReelDrama – Short Series,com.r.e.e.l.d.r.a.m.a.new.com,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+338,DramaReels - Binge Short Drama,com.dramareels.tv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: reel drama episodes
+339,DramaShorts: Watch TV & Shows,io.drama.shorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+340,Soda TV: Stream Drama Shorts,com.republic.sodatv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+341,MiniDrama - Watch Short Shows,com.shortlens.minidrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+342,MinuteDrama - Short Drama,com.minute.minishort.drama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+343,Drama Mini - Short Dramas,com.ppptools.video,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+344,Qovie – Watch Mini Drama Shows,com.instantshadow.qovie,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+345,MiniShorts,com.noventure.minishorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+346,Bullet- Micro Drama OTT,com.bulletshorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: mini drama streaming
+347,QTV Hindi - Short Drama Series,in.mohalla.qtvhindi,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+348,FastTV: Short Hindi Dramas,com.app.hmini,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+349,Story Max- Movies & Reel Shows,com.storymax.reels.shorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+350,LUMEN: Hindi Short Dramas,com.lumenlabs.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+351,LoveHit: Premium Short Dramas,com.lovehit.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+352,DramaTadka - Shorts,com.melot.sktv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: hindi short drama
+353,SuperLive- Live Stream & Chat,com.superlive.liveapp,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+354,Trendo-Live Video Community,com.ct.shots.video,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+355,YouNow - Live Stream & Go Live,younow.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+356,Ti.Live-Chill & Stream,com.ti.live.stream,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+357,"BuzzCast: Live, Video, Chat",com.guochao.faceshow,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+358,LiveMe+: Live Stream & Go Live,com.plusme.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+359,PRISM Live Studio: Games & IRL,com.prism.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+360,Ti.Live Lite-Chill & Stream,com.live.vcast.and,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+361,"Suka - Live Stream, Chat",com.suka.blog.and,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+362,"Vone: Live, Video Party & Fun",com.love.vone,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+363,ELive-Chill&Stream,com.elive.joy.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+364,Baat Live - Video & Voice Room,com.baatlive.sgvie,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+365,Mango live-Go Live Streaming,com.wheat.mango,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+366,YahLive-Go Live in a Tap,com.gijoy.yah.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+367,MIKA: Live Streaming Chat,com.mikaapp.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+368,Streamlabs: Live Streaming,com.streamlabs,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+369,Plamfy: Live Stream Video Chat,com.plamfy.platform,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+370,GOGO LIVE Streaming Video Chat,com.gogolive,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+371,MLiveU : Live Stream Show,com.mlive.mliveapp,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+372,"ZODO: Live Stream, Chat, Party",com.zodolive.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live video streaming social
+373,Avento-Live Stream App,tribe.avento.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+374,C2 - Live Streaming,co.c2live.c2live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+375,Momo Live - Live Stream & Chat,com.huixin.momo,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+376,ManyCam - Easy live streaming,com.visicommedia.manycam,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+377,MoonLive - Live Stream & Chat,com.apple.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+378,OneStream Live,com.onestream.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live stream broadcast app
+379,Glip Screen Recorder,glip.gg,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: gaming live stream clips
+380,Live Now - Live Stream,com.nabiapp.livenow,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: gaming live stream clips
+381,Stream Game Live: Livestream,com.appcode.mobilestreamstudio,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: gaming live stream clips
+382,Idle Streamer - Tuber game,com.wazzapps.idle.streamer,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: gaming live stream clips
+383,Kumu Livestream Community,im.kumu.ph,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+384,Veeka: Find Community & Fun,sg.partying.android.lite,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+385,Kutumb App - Community App,com.kutumb.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+386,Social Vibes,io.socialvibes.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+387,Coverstar,com.norae.spotlight,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+388,Seeta – Conecta con Latinos,com.mztech.seeta,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+389,Minichat – The Fast Video Chat,mini.video.chat,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+390,Chatta - Live Meet Friends,com.metaztech.chatta,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+391,streamy - مجتمع فيديوهات قصيرة,com.nakra.streamy,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+392,Erra – Live Video Chat & Meet,com.erra.social,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+393,Chatter Social,io.chattersocial.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+394,Bermuda Video Chat,vixr.bermuda,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+395,ZKTOR - Indian Social App,fandl.softa.zktor,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: social video community
+396,imo-International Calls & Chat,com.imo.android.imoim,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+397,MIGO Live-Voice and Video Chat,com.migo.mobile,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+398,OmeTV – Video Chat Alternative,omegle.tv,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+399,imo beta -video calls and chat,com.imo.android.imoimbeta,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+400,imo Lite -video calls and chat,com.imo.android.imoimlite,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+401,Omega - Live video call & chat,ly.omegle.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+402,Google Meet,com.google.android.apps.tachyon,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+403,Zoom Workplace,us.zoom.videomeetings,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+404,Joi - Live Video Chat,video.chat.joi,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+405,Zeep Live - Video Chat & Party,com.zeeplive.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+406,Nozy: Random Live Video Chat,nozy.video.livestream,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+407,Rakuten Viber Messenger,com.viber.voip,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+408,Camsea - Video Chat,com.camsea.videochat,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+409,Coco - Live Video Chat HD,com.newellmediallc.live.coco,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: video chat live stream
+410,Mastii OTT: Web series & Shows,com.arj.mastii,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+411,Hungama OTT: Shows & Movies,com.hungama.myplay.activity,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+412,OTTplay: Watch Movies & Shows,com.ht.ottplay,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+413,Ultra Play Hindi Movies,com.ultrahindi.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+414,All Movies,com.onlinemovies.allmovie,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+415,"OTT Watch - Shows, Movies, TV",movies.old.watched.free,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+416,Chaupal - Movies & Web Series,tv.chaupal.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+417,"Picasso: Live TV, Movie & Show",com.offshore.picasso,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+418,MovieFlix: Movies & Web Series,movietrailers.bollywood.hollywood.movies.movieshd,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+419,"ShemarooMe: OTT, Shows, LiveTv",com.saranyu.shemarooworld,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+420,"PlayboxTV: OTT, TV, Microdrama",playboxtv.mobile.app.in,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+421,OTT Plus,com.enterone.ottplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+422,Tata Play Binge: 30+ OTTs in 1,com.tataskymore.open.uat,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+423,Chana Jor: Movies & Web Series,com.chanajor.ott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+424,Navrang OTT,com.tamashaplus.user,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: indian ott movies web series
+425,Chai Shots - Regional OTT,com.chaiShots,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+426,OTT India,com.ottindia.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+427,Streaming OTT,com.app.streamingott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+428,"TV One: Indian Live TV, OTT HD",tv.one.ott.channel,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+429,VROTT TV,tv.vrott.leanback,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+430,VZY: 29+ OTTs in 1 App,com.vzy.one,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+431,VROTT : Global ka Local,io.binarynumbers.vrott.ott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+432,Ottclub,cc.ottclub.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+433,OTT Platform - Live TV & Movie,com.vginfotec.ottplatform,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+434,IPTV OTT PLATINUM PLAYER,com.iptv.platinumott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+435,OTT Checker,com.ottchecker.mobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+436,OTT Plus,com.gotipath.ottplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+437,PlayboxTV for Android TV,playboxtv.tv.android.in,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+438,DailyOTT: OTT Movie Tracker,in.dailyott.movieapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+439,"OttC : OTT, Sports & Cinema",com.ottc.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+440,Showtime OTT,com.showtime.media,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: regional ott streaming india
+441,Fawesome: Free Movies and TV,com.future.moviesByFawesomeAndroidTV,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+442,TVStream: Watch Movies & TV,com.anbinh.tvstream.livetv.movie.tvshow,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+443,FilmRise - Movies and TV Shows,com.recipe.filmrise,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+444,Filmzie – Movie Streaming App,com.filmzie.platform,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+445,Google TV,com.google.android.videos,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+446,Movies +: Movies & TV Shows,com.onestudio.freemovieplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+447,SWEET.TV - TV and movies,tv.sweet.player,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+448,MovieArk: Stream Movies & Live,com.tcl.movieark,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+449,MovieHub - Movies & TV Shows,vip.moviehub.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+450,JustWatch - Streaming Guide,com.justwatch.justwatch,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: free movies tv streaming
+451,Noon Anime (Multi Language),com.noonanime.watchhindi,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+452,Anime Salt,com.animesalt.animewatch,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+453,Anime App: Videos & Trivia,manga.anime.toon,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+454,Mugen Anime,com.mugenstream.anime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+455,Anime tv - Watch Anime Online,com.anomevshow.trailleranimes,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+456,Anime Box: Anime TV,com.animebox,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+457,A2z Animes,com.abz.ztwoanime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+458,Zoro To Anime Series,com.animes_flix.zorotv2,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+459,Anime tv - Anime Watching App,com.animetv.sub.dub,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+460,Anime Tv - Watch Anime Online,com.tv.animekill,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+461,AnimeFlix - Anime Watch TV,com.animeflix.anime.watchtv.anime.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+462,Anime World - Watch Anime,com.animeworld.animeonline,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+463,AnimeFlix - Watch Anime TV,com.animeflix.traiilers,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+464,"YOUKU-Drama,Shorts,Show,Anime",com.youku.international.phone,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+465,Anime tv - Anime Tv Online HD,com.animetv.animetvonline.us2002,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+466,AnimeTime - Watch Anime Online,com.animetime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+467,ZA Anime - Nonton Anime EN-ID,com.zaanime.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+468,AniVera - Anime TV SUB & DUB,com.aniVera.animwatchdub,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+469,AnimeFlix - Watch Anime TV,com.animeflix.watchamineonline,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+470,Herogram: Anime Streaming,app.herogram.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+471,Japanese Anime & Dramas – mov,movie.mov.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+472,Chinese Anime App - Donghua,org.tv.animetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: anime streaming ott
+473,MyDramaList - Asian Drama DB,com.mydramalist.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+474,PlayFlix : K-Drama,com.goldflix.playfixapplication,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+475,"Dramacool: Asian Drama, Movies",com.DramaCool.dramatooflixx,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+476,PlayFlix TV : K-Drama,com.playflixtv.tvapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+477,iQIYI Video – Dramas & Movies,com.iqiyi.i18n.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+478,KDrama: Korean Drama,com.koreandrama.kdramaa,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+479,Movies Drama & TV series: Info,infoguide.movies.trailers.dramas.tvshows.webseries,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+480,Korean Drama in Hindi,com.korean.kdrama,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: asian drama streaming
+481,AllLive TV – TV Everywhere,com.mytv.alllivetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+482,OTTplay Android TV,com.htlabs.ottplay,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+483,JioTV+: LiveTV & OTTs,com.jio.media.jiotvplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+484,OTT TV,appnovatica.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+485,Live TV: Live Sports Streaming,com.aj.watchtv.movieschill,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+486,OttPlayer,es.ottplayer.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+487,VTV OTT,com.vtv.ott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+488,Swift TV: Free OTT & Live TV,com.thegermanemedia.playswift_tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+489,FREETVPLUS,com.freetvinmob.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+490,Watcho:For Everything you love,com.watcho,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: live tv streaming ott
+491,FanCode - Watch Live Sports,com.dream11sportsguru,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+492,"myco: Sports, & Entertainment",com.mcontent,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+493,SportyTV: Live Scores & News,com.sporty.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+494,Cricbuzz - Live Cricket Scores,com.cricbuzz.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+495,Red Bull TV: Videos & Sports,com.nousguide.android.rbtv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+496,TOD by beIN,com.todtv.tod,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+497,FloSports: Watch Live Sports,tv.flosports,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+498,Cricinfo - Live Cricket Scores,com.july.cricinfo,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+499,StreamMySport: Sports Live Cam,com.streammysport,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+500,SRF Sport - Live Sport,ch.srf.sport,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+501,The Athletic: All Sports News,com.theathletic,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+502,NFL,com.gotv.nflgamecenter.us.lite,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+503,Veo,co.veo.live,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+504,Bally Sports Live,com.ballyscorp.ballylive,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+505,DStv Stream,com.dstvmobile.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+506,"sooka-Sports, TV Shows, Movies",com.astro.sott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+507,NBA: Live Games & Scores,com.nbaimd.gametime.nba2011,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: sports live streaming app
+508,The Chosen,net.comeandsee.thechosen,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+509,atresplayer・Estrenos de Series,com.a3.sgt,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+510,Chaupal - Movies & Web Series,video.laminar.tv.chaupal.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+511,Netflix,com.netflix.ninja,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+512,Prime Night: WEB SERIES & MORE,com.primenightwebseries.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+513,Angel: Watch Movies & TV Shows,com.vidangel.thechosen,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (IN) | Query: web series streaming app
+514,PineDrama - Short Dramas,com.ss.android.ttmd.video,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short video reels app
+515,JoyReels - Enjoy Short Dramas,com.joyreels.video,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short video reels app
+516,Gishort - Short Dramas & Reels,tv.winshort.winshort,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short video reels app
+517,"BibiShort - Reel, Drama Series",com.aik.topreel.ai.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short video reels app
+518,Shorts AI - Video Creator App,com.wildmedia.shortsai,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short video reels app
+519,DailyShort - Short Dramas TV,com.dailyshort.androidapp,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical short videos
+520,Touch Shorts -Short Drama,com.touchskits.video,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical short videos
+521,America’s Funniest Home Videos,com.fbwmedia.AFV,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: funny short video clips
+522,Navaratri Video Status Reels,navratrivideos.navratrieels.navratristatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: status video reels india
+523,Video Status Hindi Song & DP,com.fiveman.videostatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: status video reels india
+524,Balaji Status Video,com.balaji.statusvideo,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: status video reels india
+525,InTrend - Reels Template,com.softtech.intrend,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+526,ViralFinder - Trending Content,com.diegoas2.viralpost,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+527,Trending Viral Music Charts,me.spotytube.spotytube,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+528,Unfold: Story & Reels Maker,com.moonlab.unfold,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+529,Dracin - Binge Short Reels,com.reel_short.drachin_shortdrama,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+530,Reels - Shorts Video App,marketplace.x.cod,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+531,Vibe Reels: Short Drama Reels,com.joytv.android,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+532,"Scoopz: Real Life, Real Videos",com.localaiapp.scoops,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: trending reels app
+533,DreameShort - Dramas and Shows,com.stary.dreamshort,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short drama reels
+534,Shortly: Drama Shorts & Series,shorts.movies.drama.tv.series,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short drama reels
+535,ReadShort - Short Dramas & TV,com.bubb.app.readshort.gp,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short drama reels
+536,StarShort - Dramas & Movies,com.rlkj.lang.movie,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: short drama reels
+537,DramaBox Lite - Mini Drama TV,com.storymatrix.lite,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: micro drama app
+538,RushDrama Pro:MiniSeries,com.rushdramapro.miniseries,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+539,MiniSeries TV：DramaShort&Reels,com.miniseries.dramatv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+540,Fast Drama: Mini Series,com.fastdrama.watchseries.mini,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+541,ShortDrama TV：Reels&MiniSeries,com.shortdramatv.rlles,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+542,Miniseries: Watch Short Dramas,com.shortreels.free.video.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+543,Rush Drama：MiniSeries&episodes,com.dramashorts.episodes,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+544,HD Reel - Mini Drama Series,com.drama.liveshort.shortplay.goodreels,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: vertical drama mini series
+545,Reel.AI,com.ireel.playlet,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+546,Short Reel: Movies & Series,dramashorts.reels.series,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+547,Short Drama: Reels & Movies,shortdrama.reelsmovies,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+548,Short Drama: Reels & Dramas,reel.drama.shorts.new,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+549,Reelure: Short Drama Series,com.tranquiltmt.reelure,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+550,ReelSaga: Short Drama Series,org.nanobit.shorts,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+551,ReelSeries: Stream Drama & TV,com.nhu.reelseries.dramatv.shortstory,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+552,DramaTV: Reel & Drama Shorts,com.atc.trendingdrama.videoapp,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+553,Short Reels - Drama & Show,com.short.reels.drama.sh,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: reel drama episodes
+554,FlickReel: Mini Drama Play,com.flickreel.minidramaplay.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: mini drama streaming
+555,"Sereal+ Short Drama, TV Series",com.sereal.short.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: hindi short drama
+556,MoreShort - Dramas & Stories,live.moreshort.app,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: hindi short drama
+557,StreamKar - Live Stream & Chat,com.thankyo.hwgame,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live video streaming social
+558,TikTok Lite - Faster TikTok,com.tiktok.lite.go,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live video streaming social
+559,Papaya Live-Live Stream，Show,com.papaya.client,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live video streaming social
+560,"Philo: Shows, Movies, Live TV.",com.philo.philo.google,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live stream broadcast app
+561,Medal - Gaming Clips,tv.medal.recorder,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: gaming live stream clips
+562,Moonlight Game Streaming,com.limelight,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: gaming live stream clips
+563,Clubhouse,com.clubhouse.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: social video community
+564,Locals.com,com.locals.localsapp,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: social video community
+565,Waveful - Become a Creator,app.waveful,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: social video community
+566,WeLive - Video Chat&Meet,com.video.welive,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: video chat live stream
+567,Tigo-Live Video Chat&More,com.tigo.flower,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: video chat live stream
+568,JusTalk - Video Chat & Calls,com.juphoon.justalk,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: video chat live stream
+569,MateMet - Live Video Call,com.oversea.matemet,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: video chat live stream
+570,Ullu,cdi.videostreaming.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+571,WatchStar OTT,com.vvedigital.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+572,OTT Movie App Stream,com.ott.movie,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+573,Volt-OTT Web Series,com.voltpro.entertainment,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+574,"Kutingg: WebSeries, MicroDrama",com.kutingg.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+575,Opra-OTT Web Series,com.opra.entertainment,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+576,Vibe - Web Series & Shows,in.vibeentertainment.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+577,CinePrime-OTT Web Series,com.cineprime.entertainment,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+578,Atrangii,in.atrangii.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: indian ott movies web series
+579,DIRECTV: TV & Movie Streaming,com.att.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+580,GaitherTV+,video.gideo.gaithertv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+581,NK Bigstar,com.nkbigstar.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+582,KableOne - Home of Punjabi OTT,com.kableone.tveverywhere,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+583,Jayam OTT,com.jayam.ott.tamil,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+584,"EPIC ON - Originals, Movies",com.epicchannel.epicon,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+585,Indian Short Movies,com.indianshortfilms.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+586,The NBC App - Stream TV Shows,com.nbcuni.nbc,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+587,INNOVASAT OTT RDC,com.cicodrc.innovasatott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+588,NK Bigstar TV,tv.mogiio.ott.nkbigstar,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+589,Sri 5 OTT Live TV Channels,com.sritvworld.sritv5,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: regional ott streaming india
+590,Movie Box Visio: Movies & TV,com.visio.hdmovies.box,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: free movies tv streaming
+591,HD Movies : Watch Movie & TV,com.freebox.watchhdmovie.hdmoviespro.allmovies2026,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: free movies tv streaming
+592,Hi Anime : Watch Anime,com.bhantul.animeto,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+593,AnimeNow - Anime TV SUB & DUB,com.anikoto.watchanime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+594,Vid!O: Anime Streaming,com.PineNuts.arch,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+595,AniVera - Anime TV SUB & DUB,com.anivera.moviestvhdanimdetvfdtq,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+596,Anistream,com.anistream,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+597,Bibi Anime: Watch & Stream,com.w2studio.bibianime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+598,Anime TV - Anime Watching app,com.anime.tv.flix.plus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+599,AnimePulse: Watch Anime TV,com.flixcode.animepulse,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+600,AnimeOshi: Social Diary,com.kasagimobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+601,Ani Wave AIMovies & Animes,com.aniwave.aniwaveanimeai,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+602,Anixta - watch anime,com.anixta.wanime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+603,AniWatch - Anime TV,com.aniwatch.appentgoanniwatchse,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+604,WiiAnime - Watch Anime TV,com.wiianime2.showsanimes,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+605,Animlab - Watch Anime,com.animlab.moviestvboxdhsc,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+606,Animlab - watch Anime,com.animlab.moviestvboxdhs,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: anime streaming ott
+607,"KOCOWA+: K-Drama, K-Pop & TV",com.kocowa.android.mobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+608,DramaPlay: KDramas & Movies,com.dramaplay.asiandrama,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+609,RookTV : K-Drama & Movie &TV,com.nyxio.tenebroj,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+610,DramaKu: Asian Drama,dev.wahidev.dramaku,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+611,AsianCrush - Movies & TV,com.dmr.asiancrush,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+612,AllyU - Asian Drama & Movies,com.pd4hs7h9aeso3ph74vc90.mobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+613,Tencent Video,com.tencent.qqlivei18n.us,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: asian drama streaming
+614,Spectrum TV,com.TWCableTV,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live tv streaming ott
+615,Bravo - Live Stream TV Shows,com.nbcu.tve.bravo,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live tv streaming ott
+616,UVOtv: Watch Live TV & Movies,com.uvotv.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: live tv streaming ott
+617,FOX Sports: Watch Live Games,com.foxsports.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+618,"FOX One: Live News, Sports, TV",com.fox.foxone,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+619,CBS Sports: Live Scores & News,com.handmark.sportcaster,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+620,Fubo: Watch Live TV & Sports,com.fubo.firetv.screen,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+621,Setanta Sports: Sports TV App,com.setanta.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+622,CBS,com.cbs.tve,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+623,Midco Sports Plus,com.midco.sportsplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+624,TrillerTV: Live Sports,com.flipps.fitetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (US) | Query: sports live streaming app
+625,Melolo - Short Dramas & Reels,com.worldance.drama,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: short video reels app
+626,Shortstop : Block Shorts/Reels,com.ladeon.shortstop,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: short video reels app
+627,ReelFree: Block Reels & Shorts,app.unrot,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: short video reels app
+628,Slow Motion Frame Video Player,com.proframeapps.videoframeplayer,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical short videos
+629,ShortVideo - Short TV & Videos,com.hot.video.player,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical short videos
+630,Flip Video - Mirror Video,com.psoffritti.flip.video,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical short videos
+631,Shorts & Reels Blocker,dev.atick.shorts,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical short videos
+632,4Musti (Short Video),com.fourmusti,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical short videos
+633,Clip.video: AI Shorts & Editor,video.clip,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+634,VFunny - Funny Videos & Memes,vfunny.shortvideovfunnyapp,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+635,Viggle AI Video: Meme & Dance,com.warpengine.viggle,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+636,JibJab: Funny Birthday Cards,com.jibjab.android.messages.fbmessenger,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+637,LOLIO – Funny Videos,com.lolio.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+638,Funny Videos,app.funny.video,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+639,Comedy Short Video Status,com.statusvideoapp.comedyvideorenew1,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+640,RidiVidi - Funny Videos,com.ridividi.videosgraciosos,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+641,Gupi : Go Live & Short Videos,com.gupi.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+642,Funny Video Jokes & Chutkule,com.abnuj.funVideoJoke,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: funny short video clips
+643,TikTok Studio,com.ss.android.tt.creator,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: trending reels app
+644,Crazy Popcorn - Short Dramas,com.reel.short.drama.crazy.popcorn,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: vertical drama mini series
+645,Reels Drama: Short Drama Story,com.aa.reelsdrama.shortstory.dramatv,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: reel drama episodes
+646,Niki Live - Live Stream&Party,com.glive.niki,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live stream broadcast app
+647,Vero Live,com.fun.vero.and,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: social video community
+648,wedium - social social network,social.wedium.app,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: social video community
+649,"WeAM Shorts: Videos, Social",com.weamvideo.us,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: social video community
+650,Zeetok - Meet and Chat,com.zeetok.videochat,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: social video community
+651,imo HD - Video Calls and Chats,com.imo.android.imoimhd,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: video chat live stream
+652,"Waho - Live Stream, Voice Chat",com.waho.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: video chat live stream
+653,Paramount+,com.cbs.ca,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: regional ott streaming india
+654,National Theatre at Home,com.ntathome,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: regional ott streaming india
+655,Ustreme,com.maz.tvod169,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: regional ott streaming india
+656,Vindaloo – Konkani OTT,com.anonymous.vindaloo,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: regional ott streaming india
+657,Stremio,com.stremio.one,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: free movies tv streaming
+658,AnimePeak- Anime TV SUB & DUB,com.hianime.watchanimetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: anime streaming ott
+659,Animo  Fanz - Anime Library,com.animofan.animofanapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: anime streaming ott
+660,HiAnime - Watch Anime,com.hi.anime.watch.tv.hianime,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: anime streaming ott
+661,4anime,com.tv4anime.forwatching.animes,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: anime streaming ott
+662,K DRAMA - Watch KDramas Online,com.kdrama.streamingapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: asian drama streaming
+663,KDrama Club: Korean Drama Quiz,com.llegolasi.doramahub,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: asian drama streaming
+664,Live Channels,com.google.android.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+665,"VETO Live Sports, News, Series",com.indiatv.androidtv.livetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+666,Xiaomi TV+: Watch Live TV,com.mitv.tvhome.mitvplus,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+667,"Stream Live TV, Movies & Drama",app.tv.gratis,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+668,Live TV,com.tcl.livetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+669,Freeview,uk.co.freeview.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+670,Metax TV - Live TV & Movies,com.seraphic.metaxplay,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+671,World Free TV,com.clearpathdigitallabs.worldfreetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+672,"YuppTV LiveTV, IPL 2026 Live",com.tru,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+673,YuppTV Android TV: Live TV IPL,com.yupptv.androidtv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+674,BYUtv: Binge TV Shows & Movies,org.byutv.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+675,TV Stream - Watch Live TV,stream.tv.online,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+676,PrimeTV: Live TV & Watch Movie,com.pgkh.primetv.livetv.watchmovies.tvshow,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: live tv streaming ott
+677,BBC Sport - News & Live Scores,uk.co.bbc.android.sportdomestic,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+678,RacingAmerica.tv,com.speed51,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+679,WNBA - Live Games & Scores,com.wnba.centercourt,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+680,Tennis TV - Live Streaming,com.tennistv.cdtv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+681,SVT Sport,se.svt.sport,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+682,Real - Sports,vg.real,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+683,Sky Sports,com.bskyb.sportnews,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+684,Sportstech Live,com.sportstechbrands.sportstechlive,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (GB) | Query: sports live streaming app
+685,TikTok,com.ss.android.ugc.trill,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: short video reels app
+686,VideoFit – Vertical Video 9:16,com.creamworks.videofit,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: vertical short videos
+687,Verticalizer: Convert Videos,com.reaspect.verticalizer,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: vertical short videos
+688,Short Drama: Reels & Series,com.watch.short.dramas,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: short drama reels
+689,Drama Pops - Reel Shorts TV,com.deepvision.shortdrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: short drama reels
+690,Drama TV – Short Drama Series,com.aimusic.videoeditor,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: vertical drama mini series
+691,Short Dramas Reels :ShortVodeo,com.shortvodeoo.drama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: reel drama episodes
+692,DramaReel: Reel Shorts Drama,com.cck.dramareels.watchdrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: reel drama episodes
+693,Pop Drama: Binge-Worthy Dramas,com.popdramas.top,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: mini drama streaming
+694,Short Drama - Mini Drama Reels,com.realm.shortdrama.videoseries.minidrama,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: mini drama streaming
+695,SHOWROOM-video live streaming,jp.dena.showroom,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live video streaming social
+696,Hornet Live - Stream & Connect,com.queernetworkinc.hornetlive,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live video streaming social
+697,Nova-Live Streaming & Chat,com.novalive.novalive,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live stream broadcast app
+698,"LiLy: Live Stream, Multistream",com.allstar.lily.live,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+699,Game Screen Recorder Pro,com.binaryscript.gamescreenrecorderpro,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+700,Nimo TV for Streamer,com.huya.nimogameassist,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+701,Mobizen Live,com.rsupport.mobizen.live,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+702,Eklipse: AI Gaming Clip Maker,com.eklip.se,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+703,Vlogger Go Viral: Tuber Life,br.com.tapps.vloggergoviral,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+704,SplitCam Live Multistreaming,com.splitcam,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+705,TikPlay: Live Stream Games,com.tikplaygames.app,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+706,Record & Rewatch TT Live TKREC,com.tkrec.app,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+707,"LiveRec: Record, Rewatch Lives",com.abdillahi117.liverecmobile,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+708,StreamElements Live Streaming,com.streamelements.firestream,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+709,CameraFi Live,com.vaultmicro.camerafi.live,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+710,"Cross Clip: Edit, Post, Grow",com.crossclip,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+711,ViuLive: Multi-Cam Stream,com.millennium.vumemobile,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+712,Medal Mobile Recorder,tv.medal.recorder.game,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+713,Dazz X - Live Stream & Chat,app.dazz.live,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+714,Steam Link,com.valvesoftware.steamlink,SOCIAL_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: gaming live stream clips
+715,TikTok Lite,com.ss.android.ugc.tiktok.lite,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: social video community
+716,Peeks Social,com.keek,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: social video community
+717,"RealU: Hang out, Make Friends",com.realu.dating,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: social video community
+718,MeetJoy - Social Chat,com.metaztech.meetly,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: social video community
+719,Mako - Live Streams&Chat,com.matchu.machat,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: video chat live stream
+720,Hana - Live & Video Chat,com.rock.glisten.hana,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: video chat live stream
+721,TenderU - Online video chat,com.client.tenderu.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: video chat live stream
+722,"OTT Watch - Shows, Movies, TV",com.ott.watch.pikashow.livetv.picasso,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: indian ott movies web series
+723,EORTV: Movies & Web Series,com.eortv.eortvandroid,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: indian ott movies web series
+724,Tamil Streams - Indian Live TV,com.tamilstreams.mobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: regional ott streaming india
+725,vjstream - vj stream movies,com.vjstream.mobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: regional ott streaming india
+726,WATCHA,com.frograms.wplay,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+727,MangoTV,com.hunantv.imgo.activity.inter,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+728,FlixDrama,tv.dramaflix.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+729,DramaDose- Korean Drama Hindi,com.dramadose.hindidrama,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+730,DramaShine-Drama Shorts Stream,com.lanshan.reelgo,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+731,Heavenly : BL GL drama movie,io.amond.heavenly,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: asian drama streaming
+732,World TV - Live Channels,com.sdpsablagedumont.player5,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+733,Orbitv: World TV Channels,com.orbitv.io,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+734,YuppTV Scope,com.yupptv.scope,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+735,nexGTv HD,com.mediamatrix.nexgtv.hd,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+736,"Tellygence TV: Live TV, Movies",tv.tellygence.fastapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+737,StarTimes ON Lite-Live TV,com.star.mobile.video.lite,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+738,Live TV Channels: Veora,com.veora.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+739,"StarTimes ON-Live TV, Football",com.star.mobile.video,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+740,nexGTv Live TV News Cricket,com.digivive.offdeck,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+741,"MEGOGO: Online TV, Movies",com.megogo.application,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: live tv streaming ott
+742,Fast TV - Watch live sports,com.vmediamobile,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+743,StreamFC - Sports TV Guide,dev.mogoni.streamfc,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+744,SpoLive: Live Sports&Cheering,com.ntt.spolive,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+745,Eurosport: News & Results,com.eurosport,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+746,SportCam - Video & Scoreboard,com.rankedin.video,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+747,"CANAL+, Live and catch-up TV",com.canal.android.canal,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: sports live streaming app
+748,Addatimes Web Series | Movies,com.addatimes.Addatimes,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: web series streaming app
+749,Prime Video,com.amazon.amazonvideo.livingroom,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (KR) | Query: web series streaming app
+750,Mi Video-Short Video Download,com.miui.videoplayer,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: short video reels app
+751,Vertical and Horizontal Camera,ms.vertical.and.horizontal.camera,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: vertical short videos
+752,VideoFlip - Video Rotate,com.crumpetstudio.videoflip,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: vertical short videos
+753,Kids Tube Video Shorts,com.kidstube.video.shorts,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: vertical short videos
+754,AIReel : AI Video Generator,com.aireel.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: trending reels app
+755,Short Drama: Mini Series,com.shortdrama.miniseries.tv.watchshortdrama.series,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: vertical drama mini series
+756,ReelJoy - Short Drama,com.alphamobile.drama.short.reeljoy,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: reel drama episodes
+757,Short Drama: Series & Episodes,com.shortdrama.movies.episodes,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: reel drama episodes
+758,FIREFLY LIVE - Live Streaming,com.happy.live.android,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live video streaming social
+759,"Woo Live-Live stream, go live",tv.woolive.live,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live stream broadcast app
+760,Magnum– OTT Web Series,com.magnum.entertainment,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: indian ott movies web series
+761,Bulbul ott : Web Series & More,com.probulbul.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: indian ott movies web series
+762,StreamingFlix IPTV,com.orangemedia.streamingflix,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: regional ott streaming india
+763,Free Movies & TV Series in HD,com.movies.videostv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: free movies tv streaming
+764,IPTV Pro Stream Player,com.iptvprostreamplayer.v1,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live tv streaming ott
+765,Live Sports TV Streaming,com.tehzeeb.livesports.tv.hd,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live tv streaming ott
+766,Live TV Channels - Stream Live,com.trotsdev.jobsauce,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live tv streaming ott
+767,Live TV,com.mt.livetv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live tv streaming ott
+768,"mjunoon: Live TV, News",com.convex.mjunoon.TV,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (JP) | Query: live tv streaming ott
+769,WallHabit Block Shorts & Reels,com.wallhabit.app,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: trending reels app
+770,MixReels,com.Mix.Reels,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: trending reels app
+771,Reel Drama - Tonton & Hasilkan,in.co.fleettrack.e3,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: reel drama episodes
+772,Drama & Short Movies - Shorten,com.shorten,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: mini drama streaming
+773,Playlet: Watch Short Dramas&TV,com.shortvideo.playlet,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: mini drama streaming
+774,BIGO LIVE Lite – Live Stream,sg.bigo.live.lite,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: live stream broadcast app
+775,Kiko - Friends & Video Chat,com.live.kiko,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: social video community
+776,"Vidio TV: Sport, Movie, Series",com.vidio.android.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: regional ott streaming india
+777,iflix: Asian & Local Dramas,iflix.play,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: regional ott streaming india
+778,Raj Digital TV,com.rajdigital.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: regional ott streaming india
+779,Wibuku - Nonton Anime,wibuku.app.wibuku,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+780,AnibiPlay - Nonton anime indo,com.hxcorp.anibiplay,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+781,Anime X Nonton,com.streamx.nontonanimex,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+782,AnimeLovers V3 - Nonton Anime,com.aniverseid.animelovers,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+783,bilibili,com.bstar.intl.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+784,Animuse - Nonton Anime,com.animuse.id,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+785,LAFTEL - Watch anime legally,net.laftel.global,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+786,AnimeKu – Streaming Anime,com.wahidabd.animeku,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+787,PiuPiu - Anime and Donghua,dev.piupiu.intl,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+788,Animok - Anime & Donghua,dev.animok.awet,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+789,AnimePlay - Nonton Anime,com.animesplaysnontonanimes.animeplaynonton,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+790,MOCHI.TV - 1 Minute Anime,com.mochitv.mochi,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+791,MikuNime - Nonton Anime,com.mikunime.app.id,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: anime streaming ott
+792,DramaID: Asian Drama Streaming,com.aftercode.dramaid,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: asian drama streaming
+793,Dramora,com.dramora.dev,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: asian drama streaming
+794,LOKTV: DramaSpace,com.neyvo.stream,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: asian drama streaming
+795,"Viu: Dramas, TV Shows & Movies",com.vuclip.viu.tv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: asian drama streaming
+796,Kompas TV - Live Streaming,tv.kompas.kompastv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: live tv streaming ott
+797,SPOTV NOW: Sports Streaming,com.spotvnow.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: live tv streaming ott
+798,"Vision+: Live, Sports & Series",com.zte.iptvclient.android.idmnc,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: live tv streaming ott
+799,beIN SPORTS CONNECT (TV),com.beinsports.connect.tv.apac,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: sports live streaming app
+800,beIN SPORTS CONNECT,com.beinsports.connect.apac,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (ID) | Query: sports live streaming app
+801,NoScroll: Block Reels & Shorts,com.newswarajya.noswipe.reelshortblocker,SHORT_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: vertical short videos
+802,Status Video - Save & Repost,com.noxoro.statussaver,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+803,Nature Video Status,com.nature.videostatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+804,Video Status Maker,app.ns.statusmaker,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+805,Radha Krishna Status - Reels,com.radhakrishna.status.radharani.darshan.bhakti.aarti.bhajan,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+806,Mahadev Video Status,com.parval.mahadevstatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+807,Mahadev Bholenath Status Video,com.mahadev.bholenath.whatsappstatus,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+808,Real SwaG - Video Status Maker,com.dipu.swag.india,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+809,Independence Day Video Status,com.independencedayvideostatus.bhumikabhalala,SHORT_VIDEO;SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: status video reels india
+810,UFlick - Drama Shorts & Reel,com.juMeng.shortHub,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: vertical drama mini series
+811,Sua Novela - Drama Grátis,shorts.drama.video,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: vertical drama mini series
+812,DramaFree: Drama & Rewards,com.pomi.lite,SHORT_VIDEO;VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: mini drama streaming
+813,Peach Live Lite-Live Streaming,online.live.video.chat.mt.lite,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: live video streaming social
+814,Kako Live -Live Stream & Party,live.kako.global,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: live stream broadcast app
+815,Kwai Lite - Simples & Rápido,kwai.lite.video,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: social video community
+816,Chatspin Random Video Chat Duo,com.Chatspin,SOCIAL_VIDEO,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: video chat live stream
+817,dIGIPLEX - Movies & Web Series,tv.digiplex.app.ott,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: indian ott movies web series
+818,Mooviplay OTT,app.mooviplayott.app,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: indian ott movies web series
+819,Indian TV,com.omoliyo.indiantv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: regional ott streaming india
+820,Super Animes,com.kami.flix.animes,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: anime streaming ott
+821,Play Animes TV,com.play_animes_tv.appclient,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: anime streaming ott
+822,OtakuTV - Animes e Donghuas,com.anime.otaku,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: anime streaming ott
+823,Giganima,com.twisty.giganima,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: anime streaming ott
+824,Homura Play,com.goyabu.appclient,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: anime streaming ott
+825,HiTV:K-Dramas Base Camp,com.hitv.venom,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: asian drama streaming
+826,Amasian TV: Live TV & Movies,tv.amasian.androidtv,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: asian drama streaming
+827,Amasian TV,tv.amasian.android,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: asian drama streaming
+828,Deli TV: Canais e TV Grátis,com.jack.deli,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: live tv streaming ott
+829,OTT Player,appnovatica.stbp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: live tv streaming ott
+830,Sofascore: Live Sports Scores,com.sofascore.results,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: sports live streaming app
+831,Manchester United Official App,com.mu.muclubapp,VIDEO_STREAMING,MEDIUM,VERIFIED_PLAY_STORE,Live-verified via Google Play (BR) | Query: sports live streaming app

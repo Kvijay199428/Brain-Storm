@@ -22,17 +22,19 @@ assets are listed on the [GitHub Releases page](https://github.com/Kvijay199428/
 
 ## App discovery in setup
 
-Setup lists installed apps, not a curated list. The apps Android classifies as social or video
-(`ApplicationInfo.CATEGORY_SOCIAL` / `CATEGORY_VIDEO`) are shown first and pre-selected; every
-other installed app is listed under **Other installed apps** for manual selection. A search field
-filters the full list by name or package, so an app Android did not classify is still one query
-away. The list is re-read when the step is opened and when an app is installed or removed.
+Setup lists the apps installed on the phone and asks how to choose which ones to limit:
 
-The category is declared by the app itself (or set by its installer), so coverage is not
-universal: Netflix, Instagram and JioHotstar, for example, declare no category in the builds
-tested and appear under Other. Android has no API that says "this app can display video", so
-nothing is guessed — an app without a category is simply not pre-selected. Discovery uses the
-existing `<queries>` block for launcher activities; `QUERY_ALL_PACKAGES` is not requested.
+- **Recommended** matches those apps against a catalog of 831 reviewed video and social apps
+  shipped in `app/src/main/assets/recommended_apps.json`. Matching is case-insensitive on package
+  name, then on a normalized app name when that name is unambiguous. Matched apps are pre-selected
+  and badged; every tick can still be changed.
+- **Manual** starts with nothing selected and the user marks the apps themselves.
+
+The mode can be changed from the Apps step. The catalog is generated from
+`tools/data/recommended_apps.csv` by `python tools/build_recommended_apps.py`; the source CSV is
+committed so the list can be reviewed and regenerated. Android's own app category is no longer
+used to pre-tick apps. Discovery uses the existing `<queries>` block for launcher activities;
+`QUERY_ALL_PACKAGES` is not requested.
 
 ## Content detection (opt-in, experimental)
 
@@ -93,7 +95,7 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.0.0`, `channel=stable`; beta line: `3.1.0`, `beta`) |
+| Version name + channel | `version.properties` (`versionName=3.0.0`, `channel=stable`; beta line: `3.1.1`, `beta`) |
 | `versionCode` | the git commit count — strictly increases with every push |
 | Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.0.0-stable.25` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
