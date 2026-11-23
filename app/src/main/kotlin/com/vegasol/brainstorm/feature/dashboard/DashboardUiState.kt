@@ -56,6 +56,7 @@ data class DashboardUiState(
     val activeLockouts: List<Lockout> = emptyList(),
     val budgetLockout: Boolean = false,
     val enforcementOk: Boolean = true,
+    val enforcementDetail: String = "",
 
     val dayKey: String = ""
 ) {

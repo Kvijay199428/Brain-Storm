@@ -167,6 +167,13 @@ PiP session. Device Owner package suspension remains the only full enforcement p
 toggle can send `pause()` to a locked app's media session through Notification access, but apps may
 ignore it or resume — that is not guaranteed enforcement.
 
+All detection (foreground, PiP windows, media playback) now reports to a single
+`EnforcementCoordinator`. One continuous visibility of a locked package is one attempt; duplicate
+events update that attempt instead of reopening the blocker. Pause is retried at most three times
+and the result is stored per capability (visual block, PiP detection, playback pause, process
+termination) in Room v5, so the dashboard can say exactly which part is partial. Standard installs
+always report `PARTIAL` because Android gives a third-party app no process-control API.
+
 ## Code map
 
 | Area | Where |

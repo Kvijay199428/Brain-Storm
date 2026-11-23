@@ -11,15 +11,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Opt-in, best-effort detection of a restricted app's window, including PiP-sized windows.
- *
- * The lockout table is the source of truth; this service only notices that a restricted package is
- * still visible and asks the existing blocker to show its screen. It never reads window text and it
- * cannot terminate third-party playback — the UI says so explicitly.
+ * Reports window/PiP visibility events to the enforcement coordinator. It never enforces anything
+ * itself and never reads window text; only package, type, visibility and bounds are inspected.
  */
 class LockoutAccessibilityService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val media by lazy { MediaSessionMonitor(this) }
 
     override fun onCreate() {
         super.onCreate()
@@ -34,25 +30,35 @@ class LockoutAccessibilityService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         scope.launch {
             val now = System.currentTimeMillis()
-            val locks = Graph.db.lockouts().allActive().filter { it.expiresAt > now }
-            if (locks.isEmpty()) return@launch
+            val restricted = Graph.db.lockouts().allActive()
+                .filter { it.expiresAt > now }
+                .mapTo(HashSet()) { it.packageName }
+            if (restricted.isEmpty()) return@launch
             val windows = windows ?: return@launch
-            val wide = resources.displayMetrics.widthPixels * 0.7f
-            val high = resources.displayMetrics.heightPixels * 0.7f
+            val metrics = resources.displayMetrics
+            val seen = HashSet<String>()
             for (window in windows) {
                 val pkg = window.root?.packageName?.toString() ?: continue
-                val lock = locks.firstOrNull { it.packageName == pkg } ?: continue
+                if (pkg !in restricted) continue
+                seen += pkg
                 val bounds = Rect()
                 window.getBoundsInScreen(bounds)
-                val pipSized = bounds.width() < wide && bounds.height() < high
-                if (window.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY || pipSized) {
-                    if (Graph.prefs.pauseLockedPlayback) media.pause(setOf(lock.packageName))
-                    if (Graph.prefs.forceStopLocked) ForceStopper.forceStop(this@LockoutAccessibilityService, lock.packageName)
-                    Blocker.show(this@LockoutAccessibilityService, lock)
-                }
+                val pip = PipWindowDetector.isRestrictedPip(
+                    PipWindowDetector.Window(
+                        packageName = pkg,
+                        visible = true,
+                        overlay = window.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY,
+                        width = bounds.width(),
+                        height = bounds.height()
+                    ),
+                    restricted, metrics.widthPixels, metrics.heightPixels
+                )
+                EnforcementCoordinator.onPackageVisible(pkg, pip = pip)
+            }
+            restricted.forEach { pkg ->
+                if (pkg !in seen) EnforcementCoordinator.onPackageHidden(pkg)
             }
         }
     }

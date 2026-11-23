@@ -101,6 +101,12 @@ fun MascotHeroCard(
                     subline, fontSize = 12.sp, color = Care.TextSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+                if (state.enforcementDetail.isNotBlank()) {
+                    Text(
+                        state.enforcementDetail, fontSize = 11.sp, color = Care.Warning,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
             MascotSlot(
                 pool = pool, slot = "hero", mood = state.mascotState,

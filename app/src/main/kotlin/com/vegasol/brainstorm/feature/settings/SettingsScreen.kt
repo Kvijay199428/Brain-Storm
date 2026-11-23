@@ -52,7 +52,6 @@ fun SettingsScreen() {
     val pipDetection = remember(resume, c) { Perms.lockoutAccessibility(c) }
     val notificationAccess = remember(resume, c) { Perms.notificationAccess(c) }
     var pausePlayback by remember { mutableStateOf(Graph.prefs.pauseLockedPlayback) }
-    var forceStop by remember { mutableStateOf(Graph.prefs.forceStopLocked) }
     val batteryOk = remember(resume, c) { Perms.batteryUnrestricted(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
@@ -218,23 +217,6 @@ fun SettingsScreen() {
                     onCheckedChange = {
                         pausePlayback = it
                         Graph.prefs.pauseLockedPlayback = it
-                    }
-                )
-            }
-            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Force stop locked app", fontSize = 13.sp)
-                    Text(
-                        "EXPERIMENTAL: hidden Android API. Blocked on most modern phones and not " +
-                            "allowed in Play builds. Failure is silent.",
-                        fontSize = 10.sp, color = Care.Warning
-                    )
-                }
-                Switch(
-                    checked = forceStop,
-                    onCheckedChange = {
-                        forceStop = it
-                        Graph.prefs.forceStopLocked = it
                     }
                 )
             }

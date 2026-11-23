@@ -51,12 +51,16 @@ class ConsumerEnforcement(private val c: Context) : EnforcementController {
 
 /** Overlay shim (grants background-activity-start exemption) + full-screen BlockingActivity with the mascot. */
 object Blocker {
-    private var last = 0L
+    private val shown = HashSet<Long>()
     private var overlay: View? = null
+
+    /** The coordinator resets this when a new visibility attempt begins. */
+    fun reset(lockoutId: Long) { shown.remove(lockoutId) }
+
     fun show(c: Context, l: Lockout) {
-        val t = SystemClock.elapsedRealtime()
-        if (t - last < 2500) return
-        last = t
+        // Deduplication is by attempt, not by wall-clock cooldown; otherwise a PiP window that
+        // stays visible reopens BlockingActivity forever.
+        if (!shown.add(l.id)) return
         Handler(Looper.getMainLooper()).post {
             val wm = c.getSystemService(WindowManager::class.java)
             if (Settings.canDrawOverlays(c)) {

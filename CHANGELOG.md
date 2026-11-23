@@ -8,6 +8,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `EnforcementCoordinator` centralises all lockout enforcement. Foreground, PiP and media detectors
+  report events; only the coordinator shows the blocker and requests playback control.
+- Per-attempt deduplication (`EnforcementAttempt`): a new attempt starts only on a not-visible →
+  visible transition, so duplicate events can no longer reopen the blocker in a loop.
+- `PipWindowDetector` combines package identity, visibility, window type and relative bounds.
+- Media-session playback callbacks with bounded pause retries (1 s, 2 s) and state verification.
+- Capability-level `EnforcementReport` (visual block, PiP, playback pause, process termination)
+  stored in new Room v5 columns; the dashboard shows which capability is partial.
+
+### Removed
+
+- Hidden-API `ForceStopper` and the force-stop toggle/preference. Standard Android cannot reliably
+  terminate another app's process; this is now reported honestly instead of attempted.
+
 ## [3.2.2] - 2026-11-23
 
 Beta of the opt-in playback controls.

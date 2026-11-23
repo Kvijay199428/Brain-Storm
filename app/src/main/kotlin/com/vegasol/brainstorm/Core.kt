@@ -71,9 +71,6 @@ class Prefs(c: Context) {
     /** Opt-in beta: try to pause a locked app's media session via granted Notification access. */
     var pauseLockedPlayback: Boolean get() = p.getBoolean("pausePlayback", false); set(v) = p.edit().putBoolean("pausePlayback", v).apply()
 
-    /** Experimental: attempt a hidden-API force stop. Blocked on most modern Android releases. */
-    var forceStopLocked: Boolean get() = p.getBoolean("forceStop", false); set(v) = p.edit().putBoolean("forceStop", v).apply()
-
     // ── Brainy Mascot preferences (UI & presentation only) ──
     var mascotQuality: String get() = p.getString("mQual", "normal") ?: "normal"; set(v) = p.edit().putString("mQual", v).apply()
     var mascotExpressiveness: Float get() = p.getFloat("mEx", 0.8f); set(v) = p.edit().putFloat("mEx", v.coerceIn(0f, 1f)).apply()
@@ -163,7 +160,12 @@ data class Lockout(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val packageName: String, val triggerType: String, val triggerValue: Long, val limitValue: Long,
     val activatedAt: Long, val expiresAt: Long, val status: String = "ACTIVE", val enforcementNote: String = "",
-    @ColumnInfo(defaultValue = "PENDING") val enforcementState: String = "PENDING"
+    @ColumnInfo(defaultValue = "PENDING") val enforcementState: String = "PENDING",
+    @ColumnInfo(defaultValue = "NOT_REQUESTED") val visualBlock: String = "NOT_REQUESTED",
+    @ColumnInfo(defaultValue = "NOT_AVAILABLE") val pipDetection: String = "NOT_AVAILABLE",
+    @ColumnInfo(defaultValue = "NOT_AVAILABLE") val playbackPause: String = "NOT_AVAILABLE",
+    @ColumnInfo(defaultValue = "NOT_AVAILABLE") val processTermination: String = "NOT_AVAILABLE",
+    @ColumnInfo(defaultValue = "") val attemptId: String = ""
 )
 
 @Entity(tableName = "content_events", indices = [Index(value = ["packageName", "usageDate", "contentKey"], unique = true)])
@@ -204,6 +206,9 @@ suspend fun AppDao.save(a: MonitoredApp) = upsert(a.copy(id = get(a.packageName)
     suspend fun setEnforcement(id: Long, state: String, note: String)
     @Query("UPDATE lockout_records SET enforcementState=:state WHERE id=:id")
     suspend fun setState(id: Long, state: String)
+    @Query("UPDATE lockout_records SET visualBlock=:visual, pipDetection=:pip, playbackPause=:pause, " +
+        "processTermination=:process, attemptId=:attempt WHERE id=:id")
+    suspend fun setReport(id: Long, visual: String, pip: String, pause: String, process: String, attempt: String)
 }
 
 @Dao interface ContentDao {
@@ -230,7 +235,7 @@ data class HourlyUsage(
 
 @Database(
     entities = [MonitoredApp::class, DailyUsage::class, Lockout::class, ContentEvent::class, HourlyUsage::class],
-    version = 4, exportSchema = true
+    version = 5, exportSchema = true
 )
 abstract class BrainStormDb : RoomDatabase() {
     abstract fun apps(): AppDao
@@ -281,10 +286,21 @@ abstract class BrainStormDb : RoomDatabase() {
             }
         }
 
+        /** v5 records per-capability enforcement results for each lockout. */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `visualBlock` TEXT NOT NULL DEFAULT 'NOT_REQUESTED'")
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `pipDetection` TEXT NOT NULL DEFAULT 'NOT_AVAILABLE'")
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `playbackPause` TEXT NOT NULL DEFAULT 'NOT_AVAILABLE'")
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `processTermination` TEXT NOT NULL DEFAULT 'NOT_AVAILABLE'")
+                db.execSQL("ALTER TABLE `lockout_records` ADD COLUMN `attemptId` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         @Volatile private var i: BrainStormDb? = null
         fun get(c: Context): BrainStormDb = i ?: synchronized(this) {
             i ?: Room.databaseBuilder(c, BrainStormDb::class.java, "brainstorm.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 .also { i = it }
         }

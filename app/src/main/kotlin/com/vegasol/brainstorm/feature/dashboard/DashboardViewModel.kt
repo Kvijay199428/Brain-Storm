@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.vegasol.brainstorm.ContentCounting
 import com.vegasol.brainstorm.DailyUsage
 import com.vegasol.brainstorm.EnforcementProvider
+import com.vegasol.brainstorm.EnforcementReport
 import com.vegasol.brainstorm.EnforcementState
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.Lockout
@@ -175,6 +176,11 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             it.enforcementState == EnforcementState.PARTIAL.name || it.enforcementNote.startsWith(NOT_ENFORCED)
         }
 
+        val enforcementDetail = c.locks
+            .firstOrNull { it.enforcementState == EnforcementState.PARTIAL.name }
+            ?.let { EnforcementReport.from(it).summary() }
+            ?: ""
+
         val protection = when {
             !usageOk -> ProtectionStatus.PERMISSION_REQUIRED
             !hbFresh -> ProtectionStatus.MONITORING_PAUSED
@@ -248,6 +254,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             activeLockouts = c.locks,
             budgetLockout = budgetLock != null,
             enforcementOk = !notEnforced,
+            enforcementDetail = enforcementDetail,
             dayKey = c.dayKey
         )
     }

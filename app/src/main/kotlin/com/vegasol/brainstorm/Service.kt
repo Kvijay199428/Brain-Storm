@@ -31,7 +31,7 @@ class MonitorService : Service() {
         return START_STICKY
     }
 
-    override fun onDestroy() { scope.cancel(); super.onDestroy() }
+    override fun onDestroy() { media.stop(); scope.cancel(); super.onDestroy() }
 
     /**
      * Protection must outlive a swipe from the recents list. Best effort by design: Android 12+
@@ -71,6 +71,7 @@ class MonitorService : Service() {
 
     private suspend fun loop() {
         Graph.init(this)
+        media.start()
         val pm = getSystemService(PowerManager::class.java)
         var fg: String? = null
         var since = System.currentTimeMillis() - 5000
@@ -83,31 +84,19 @@ class MonitorService : Service() {
             }
             runCatching {
                 fg = Graph.engine.pollForeground(since, now, fg); since = now
-                if (tick % 8 == 0) { Graph.engine.reconcile(now); Graph.lockouts.evaluateAll(now) }
-                // Independent of the foreground app: an active lockout in PiP or background still
-                // gets its OS-level enforcement re-checked.
-                if (tick % 30 == 0) Graph.lockouts.enforceActive(now)
-                // Best effort only: notice a locked app still playing in the background. This does
-                // NOT pause the session; the blocker screen is the honest response.
-                if (tick % 15 == 0) {
-                    val playing = media.activePackages()
-                    if (playing.isNotEmpty()) {
-                        val locked = Graph.db.lockouts().allActive().filter { it.expiresAt > now }
-                        val targets = MediaSessionMonitor.targets(playing, locked.mapTo(HashSet()) { it.packageName })
-                        if (targets.isNotEmpty()) {
-                            if (Graph.prefs.pauseLockedPlayback) media.pause(targets)
-                            if (Graph.prefs.forceStopLocked) {
-                                targets.forEach { ForceStopper.forceStop(this@MonitorService, it) }
-                            }
-                            locked.filter { it.packageName in targets }.forEach { Blocker.show(this@MonitorService, it) }
-                        }
-                    }
+                if (tick % 8 == 0) {
+                    Graph.engine.reconcile(now)
+                    Graph.lockouts.evaluateAll(now)
+                    EnforcementCoordinator.reconcile()
                 }
+                if (tick % 30 == 0) Graph.lockouts.enforceActive(now)
+                // Notification access may be granted while the service is running.
+                if (tick % 15 == 0) media.start()
                 if (tick % 5 == 0) Graph.prefs.heartbeat = now
                 val p = fg
                 if (p != null && p != packageName) {
                     val l = Graph.db.lockouts().active(p)
-                    if (l != null && l.expiresAt > now) Blocker.show(this@MonitorService, l)
+                    if (l != null && l.expiresAt > now) EnforcementCoordinator.onPackageVisible(p)
                 }
             }
             tick++

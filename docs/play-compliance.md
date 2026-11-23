@@ -132,11 +132,12 @@ An additional **opt-in beta toggle** ("Attempt to pause playback") uses the alre
 Notification access to call `pause()` on media sessions belonging to locked packages. This is best
 effort: an app may ignore the command or resume playback, and it is never reported as full
 enforcement. Google Play may view using notification access to control playback as out of scope;
-remove this toggle from a Play build if review objects. A further **experimental** toggle attempts
-Android's hidden `ActivityManager.forceStopPackage()` via reflection. Hidden-API enforcement blocks
-this on modern Android versions and it is **not permitted in a Google Play build**; it must be
-removed from any Play artefact. If either declaration is rejected, both services and the toggles can
-be removed without affecting usage accounting, lockout creation or the Device Owner path.
+remove this toggle from a Play build if review objects. The former hidden-API `forceStopPackage()`
+toggle has been removed entirely: hidden-API enforcement blocks it on modern Android and it is not
+permitted in a Play build. All enforcement events now go through one coordinator with per-attempt
+deduplication and capability-level reporting, so a partial result is disclosed rather than hidden.
+If either declaration is rejected, both services and the pause toggle can be removed without
+affecting usage accounting, lockout creation or the Device Owner path.
 
 ## 5. Content rating (IARC questionnaire)
 
