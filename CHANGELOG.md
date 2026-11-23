@@ -8,6 +8,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.2] - 2026-11-23
+
+Beta of the opt-in playback controls.
+
+### Added
+
+- Opt-in beta "Attempt to pause playback": when Notification access is granted, a locked app's
+  media session receives a pause command from the detector. Best effort only — apps may ignore or
+  resume, and this is never reported as full enforcement.
+- EXPERIMENTAL "Force stop locked app" toggle attempts the hidden `forceStopPackage` API. It is
+  blocked on most modern Android versions, is not allowed in Play builds, and never claims success
+  unless the call actually returns.
+
 ## [3.2.1] - 2026-11-23
 
 Beta of the layered PiP-safe enforcement work.

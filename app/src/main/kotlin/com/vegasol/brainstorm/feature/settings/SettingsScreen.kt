@@ -51,6 +51,8 @@ fun SettingsScreen() {
     val accessibility = remember(resume, c) { Perms.accessibility(c) }
     val pipDetection = remember(resume, c) { Perms.lockoutAccessibility(c) }
     val notificationAccess = remember(resume, c) { Perms.notificationAccess(c) }
+    var pausePlayback by remember { mutableStateOf(Graph.prefs.pauseLockedPlayback) }
+    var forceStop by remember { mutableStateOf(Graph.prefs.forceStopLocked) }
     val batteryOk = remember(resume, c) { Perms.batteryUnrestricted(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
@@ -202,6 +204,40 @@ fun SettingsScreen() {
                 if (notificationAccess) "on" else "off",
                 good = if (notificationAccess) true else null
             )
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Attempt to pause playback", fontSize = 13.sp)
+                    Text(
+                        "Beta: sends a pause command to a locked app's media session. " +
+                            "Apps may ignore it and resume.",
+                        fontSize = 10.sp, color = Care.TextSecondary
+                    )
+                }
+                Switch(
+                    checked = pausePlayback,
+                    onCheckedChange = {
+                        pausePlayback = it
+                        Graph.prefs.pauseLockedPlayback = it
+                    }
+                )
+            }
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Force stop locked app", fontSize = 13.sp)
+                    Text(
+                        "EXPERIMENTAL: hidden Android API. Blocked on most modern phones and not " +
+                            "allowed in Play builds. Failure is silent.",
+                        fontSize = 10.sp, color = Care.Warning
+                    )
+                }
+                Switch(
+                    checked = forceStop,
+                    onCheckedChange = {
+                        forceStop = it
+                        Graph.prefs.forceStopLocked = it
+                    }
+                )
+            }
             HorizontalDivider(Modifier.padding(vertical = Space.s))
             Text(
                 "Both are off by default and opt in through Android settings. They can show the " +

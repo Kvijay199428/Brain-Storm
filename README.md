@@ -95,9 +95,9 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.2.1`, `channel=beta`; stable line: `3.2.0`, `stable`) |
+| Version name + channel | `version.properties` (`versionName=3.2.2`, `channel=beta`; stable line: `3.2.0`, `stable`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.1-beta.29` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.2-beta.30` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
@@ -163,7 +163,9 @@ book the same second twice) and reconciles them with Android's per-package visib
 the larger value. Enforcement has an explicit confirmed state — `PENDING`, `ENFORCED`, `PARTIAL`,
 `EXPIRED`, `RELEASED` — and active lockouts are rechecked independently of the foreground app.
 On a standard install the overlay can only report `PARTIAL`: it cannot stop a third-party audio or
-PiP session. Device Owner package suspension remains the only full enforcement path.
+PiP session. Device Owner package suspension remains the only full enforcement path. An opt-in beta
+toggle can send `pause()` to a locked app's media session through Notification access, but apps may
+ignore it or resume — that is not guaranteed enforcement.
 
 ## Code map
 

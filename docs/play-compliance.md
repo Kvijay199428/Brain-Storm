@@ -124,11 +124,19 @@ A separate Notification-listener service (`PlaybackNotificationListener`) may be
 `MediaSessionManager` report which packages have active playback. No notification content is read
 or stored.
 
-**Honest limitation:** neither service can stop third-party audio or video on a standard install.
-They are detection and disclosure mechanisms; Device Owner package suspension is the only full
-enforcement path. The UI reports `PARTIAL` enforcement in standard mode. If Play review rejects
-either declaration, both services can be removed without affecting usage accounting, lockout
-creation or the Device Owner path.
+**Honest limitation:** neither service can guarantee stopping third-party audio or video on a
+standard install. They are detection and disclosure mechanisms; Device Owner package suspension is
+the only full enforcement path. The UI reports `PARTIAL` enforcement in standard mode.
+
+An additional **opt-in beta toggle** ("Attempt to pause playback") uses the already-granted
+Notification access to call `pause()` on media sessions belonging to locked packages. This is best
+effort: an app may ignore the command or resume playback, and it is never reported as full
+enforcement. Google Play may view using notification access to control playback as out of scope;
+remove this toggle from a Play build if review objects. A further **experimental** toggle attempts
+Android's hidden `ActivityManager.forceStopPackage()` via reflection. Hidden-API enforcement blocks
+this on modern Android versions and it is **not permitted in a Google Play build**; it must be
+removed from any Play artefact. If either declaration is rejected, both services and the toggles can
+be removed without affecting usage accounting, lockout creation or the Device Owner path.
 
 ## 5. Content rating (IARC questionnaire)
 

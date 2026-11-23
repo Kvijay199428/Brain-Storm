@@ -92,9 +92,15 @@ class MonitorService : Service() {
                 if (tick % 15 == 0) {
                     val playing = media.activePackages()
                     if (playing.isNotEmpty()) {
-                        Graph.db.lockouts().allActive()
-                            .filter { it.expiresAt > now && it.packageName in playing }
-                            .forEach { Blocker.show(this@MonitorService, it) }
+                        val locked = Graph.db.lockouts().allActive().filter { it.expiresAt > now }
+                        val targets = MediaSessionMonitor.targets(playing, locked.mapTo(HashSet()) { it.packageName })
+                        if (targets.isNotEmpty()) {
+                            if (Graph.prefs.pauseLockedPlayback) media.pause(targets)
+                            if (Graph.prefs.forceStopLocked) {
+                                targets.forEach { ForceStopper.forceStop(this@MonitorService, it) }
+                            }
+                            locked.filter { it.packageName in targets }.forEach { Blocker.show(this@MonitorService, it) }
+                        }
                     }
                 }
                 if (tick % 5 == 0) Graph.prefs.heartbeat = now

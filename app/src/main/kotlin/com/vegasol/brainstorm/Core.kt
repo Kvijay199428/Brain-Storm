@@ -68,6 +68,12 @@ class Prefs(c: Context) {
     /** Set once the one-time wizard finishes: no policy field is editable afterwards. */
     var setupLocked: Boolean get() = p.getBoolean("setupL", false); set(v) = p.edit().putBoolean("setupL", v).apply()
 
+    /** Opt-in beta: try to pause a locked app's media session via granted Notification access. */
+    var pauseLockedPlayback: Boolean get() = p.getBoolean("pausePlayback", false); set(v) = p.edit().putBoolean("pausePlayback", v).apply()
+
+    /** Experimental: attempt a hidden-API force stop. Blocked on most modern Android releases. */
+    var forceStopLocked: Boolean get() = p.getBoolean("forceStop", false); set(v) = p.edit().putBoolean("forceStop", v).apply()
+
     // ── Brainy Mascot preferences (UI & presentation only) ──
     var mascotQuality: String get() = p.getString("mQual", "normal") ?: "normal"; set(v) = p.edit().putString("mQual", v).apply()
     var mascotExpressiveness: Float get() = p.getFloat("mEx", 0.8f); set(v) = p.edit().putFloat("mEx", v.coerceIn(0f, 1f)).apply()

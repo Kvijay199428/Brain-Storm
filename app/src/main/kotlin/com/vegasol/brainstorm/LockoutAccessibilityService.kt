@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
  */
 class LockoutAccessibilityService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val media by lazy { MediaSessionMonitor(this) }
 
     override fun onCreate() {
         super.onCreate()
@@ -48,6 +49,8 @@ class LockoutAccessibilityService : AccessibilityService() {
                 window.getBoundsInScreen(bounds)
                 val pipSized = bounds.width() < wide && bounds.height() < high
                 if (window.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY || pipSized) {
+                    if (Graph.prefs.pauseLockedPlayback) media.pause(setOf(lock.packageName))
+                    if (Graph.prefs.forceStopLocked) ForceStopper.forceStop(this@LockoutAccessibilityService, lock.packageName)
                     Blocker.show(this@LockoutAccessibilityService, lock)
                 }
             }
