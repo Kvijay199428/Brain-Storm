@@ -8,6 +8,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-11-23
+
+Next stable line. Version numbers increase across channels, so this release follows the 3.1.1 beta
+instead of reusing a lower stable number.
+
+### Added
+
+- Setup asks whether to use **Recommended** or **Manual** app selection. Recommended matches
+  installed apps by package or app name against a catalog of 831 reviewed video/social apps shipped
+  in the APK, pre-selects the matches and lets the user change any tick; Manual starts empty.
+- The catalog is generated from a committed CSV by `tools/build_recommended_apps.py`, with pure,
+  unit-tested case-insensitive matching.
+
+### Changed
+
+- Android's own app category no longer pre-ticks apps in setup; only the shipped catalog does.
+
 ## [3.1.1] - 2026-11-23
 
 Beta of the next line: the same usage reports and pinned headers as 3.0.0, with the **Brainy

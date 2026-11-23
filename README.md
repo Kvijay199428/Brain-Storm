@@ -95,9 +95,9 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.0.0`, `channel=stable`; beta line: `3.1.1`, `beta`) |
+| Version name + channel | `version.properties` (`versionName=3.2.0`, `channel=stable`; beta line: `3.1.1`, `beta`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.0.0-stable.25` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.0-stable.28` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
@@ -111,15 +111,15 @@ pre-release and keeps the mascot controls for testing.
 ```json
 {
   "schema": 2,
-  "versionCode": 25,
-  "versionName": "3.0.0",
+  "versionCode": 28,
+  "versionName": "3.2.0",
   "channel": "stable",
-  "tag": "v3.0.0-stable.25",
+  "tag": "v3.2.0-stable.28",
   "package": "com.vegasol.brainstorm",
-  "apk": { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 },
+  "apk": { "file": "Brain-Storm-3.2.0_stable.apk", "sha256": "…", "size": 19629365 },
   "apks": {
-    "consumer": { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 },
-    "managed":  { "file": "Brain-Storm-3.0.0_stable.apk", "sha256": "…", "size": 19629365 }
+    "consumer": { "file": "Brain-Storm-3.2.0_stable.apk", "sha256": "…", "size": 19629365 },
+    "managed":  { "file": "Brain-Storm-3.2.0_stable.apk", "sha256": "…", "size": 19629365 }
   }
 }
 ```
