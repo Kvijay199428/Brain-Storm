@@ -6,12 +6,11 @@ import org.junit.Test
 class PipCapabilityTest {
 
     @Test
-    fun `classification separates support from permission`() {
-        assertEquals(PipCapability.SUPPORTED_ALLOWED, PipCapabilityRules.classify(true, true))
-        assertEquals(PipCapability.SUPPORTED_DISABLED, PipCapabilityRules.classify(true, false))
-        assertEquals(PipCapability.NOT_SUPPORTED, PipCapabilityRules.classify(false, true))
-        assertEquals(PipCapability.UNKNOWN, PipCapabilityRules.classify(null, true))
-        assertEquals(PipCapability.UNKNOWN, PipCapabilityRules.classify(true, null))
+    fun `classification separates explicit allow, deny and default`() {
+        assertEquals(PipCapability.SUPPORTED_ALLOWED, PipCapabilityRules.classify(PipOpMode.ALLOWED))
+        assertEquals(PipCapability.SUPPORTED_DISABLED, PipCapabilityRules.classify(PipOpMode.DENIED))
+        assertEquals(PipCapability.DEFAULT_ALLOWED, PipCapabilityRules.classify(PipOpMode.DEFAULT))
+        assertEquals(PipCapability.UNKNOWN, PipCapabilityRules.classify(PipOpMode.UNKNOWN))
     }
 
     @Test
@@ -25,6 +24,7 @@ class PipCapabilityTest {
     @Test
     fun `labels explain the state`() {
         assertEquals("PiP supported · permission enabled", PipCapabilityRules.label(PipCapability.SUPPORTED_ALLOWED))
-        assertEquals("PiP support not confirmed", PipCapabilityRules.label(PipCapability.NOT_SUPPORTED))
+        assertEquals("PiP default-allowed · support unconfirmed", PipCapabilityRules.label(PipCapability.DEFAULT_ALLOWED))
+        assertEquals("PiP state unknown", PipCapabilityRules.label(PipCapability.UNKNOWN))
     }
 }

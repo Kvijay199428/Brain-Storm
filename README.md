@@ -95,9 +95,9 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.2.3`, `channel=beta`; stable line: `3.2.0`, `stable`) |
+| Version name + channel | `version.properties` (`versionName=3.2.4`, `channel=beta`; stable line: `3.2.0`, `stable`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.3-beta.32` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.4-beta.33` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
@@ -176,9 +176,12 @@ always report `PARTIAL` because Android gives a third-party app no process-contr
 
 **Picture-in-picture protection:** Settings lists each monitored app's real per-app PiP access state
 (from AppOps) and can open Android's app settings so the user can disable PiP manually; the Apps list
-badges apps with PiP enabled. An opt-in beta can ask the lockout accessibility service to locate and
-click Android's own PiP Close control during an active lockout — one attempt per appearance, verified
-where possible, and reported as partial when the control cannot be identified.
+badges apps with PiP enabled (including `default allow`, which does not confirm manifest support).
+An assisted, opt-in workflow can open each app's Android settings and try to switch PiP off, verifying
+the AppOps state and stopping when the switch cannot be identified. During a lockout, an opt-in
+controller can tap a bounds-verified System UI Close control or swipe the PiP window down; media
+sessions are asked to `stop()` when supported, otherwise `pause()`. PiP removal and playback state
+are verified separately and reported honestly.
 
 ## Code map
 

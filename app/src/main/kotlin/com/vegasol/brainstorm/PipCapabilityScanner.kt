@@ -28,8 +28,12 @@ object PipCapabilityScanner {
             ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, uid, pkg)
         }.getOrNull() ?: return PipCapability.UNKNOWN
 
-        val supports = mode != AppOpsManager.MODE_DEFAULT
-        val allowed = mode == AppOpsManager.MODE_ALLOWED
-        return PipCapabilityRules.classify(supports, allowed)
+        val opMode = when (mode) {
+            AppOpsManager.MODE_ALLOWED -> PipOpMode.ALLOWED
+            AppOpsManager.MODE_IGNORED, AppOpsManager.MODE_ERRORED -> PipOpMode.DENIED
+            AppOpsManager.MODE_DEFAULT -> PipOpMode.DEFAULT
+            else -> PipOpMode.UNKNOWN
+        }
+        return PipCapabilityRules.classify(opMode)
     }
 }

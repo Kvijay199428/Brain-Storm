@@ -94,6 +94,10 @@ object EnforcementCoordinator {
         onPackageVisible(pkg, media = true)
     }
 
+    private fun controlPlayback(monitor: MediaSessionMonitor, pkg: String) {
+        if (monitor.supportsStop(pkg)) monitor.stop(setOf(pkg)) else monitor.pause(setOf(pkg))
+    }
+
     private suspend fun requestPause(lock: Lockout, now: Long) {
         val attempt = attempts[lock.id] ?: return
         if (!Graph.prefs.pauseLockedPlayback || !Perms.notificationAccess(Graph.app)) {
@@ -103,7 +107,7 @@ object EnforcementCoordinator {
         attempt.pauseRequested = true
         attempt.lastPauseAt = now
         attempt.retries = 1
-        media().pause(setOf(lock.packageName))
+        controlPlayback(media(), lock.packageName)
         persist(lock, attempt, reportFor(lock, attempt).copy(playbackPause = CapabilityState.REQUESTED))
         scope.launch { delay(1_000L); verifyPause(lock.id); Unit }
     }
@@ -119,7 +123,7 @@ object EnforcementCoordinator {
         }
         if (attempt.retries < 3) {
             attempt.retries++
-            monitor.pause(setOf(lock.packageName))
+            controlPlayback(monitor, lock.packageName)
             persist(lock, attempt, reportFor(lock, attempt).copy(playbackPause = CapabilityState.REQUESTED))
             scope.launch { delay(2_000L); verifyPause(lockoutId); Unit }
         } else {
@@ -131,8 +135,8 @@ object EnforcementCoordinator {
     suspend fun onPipDismissal(pkg: String, result: PipDismissResult): Unit = mutex.withLock {
         val lock = activeLockout(pkg) ?: return@withLock
         val attempt = attempts[lock.id] ?: return@withLock
-        val state = if (result == PipDismissResult.DISMISSED) CapabilityState.CONFIRMED
-        else CapabilityState.FAILED
+        val state = if (result == PipDismissResult.DISMISSED || result == PipDismissResult.SWIPE_DISMISSED)
+            CapabilityState.CONFIRMED else CapabilityState.FAILED
         val report = reportFor(lock, attempt).copy(pipDetection = state)
         persist(lock, attempt, report)
         Graph.db.lockouts().note(lock.id, "${report.summary()} · PiP close: ${result.name}")

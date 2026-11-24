@@ -146,6 +146,14 @@ window text, and clicks only a verified close control (no arbitrary coordinates)
 interacts with another app's controls through Accessibility, this capability needs its own Play
 policy assessment and disclosure; the fallback is a message asking the user to close PiP manually.
 
+An additional **assisted PiP-disable workflow** is offered in setup and Settings. It is started only
+by the user after a confirmation explaining that Android settings will be changed. The accessibility
+service opens app-details pages, locates a clearly labelled Picture-in-picture row and a checked
+switch, clicks only that verified control, and re-reads the AppOps state to confirm the change. It
+aborts on ambiguous nodes, uses per-app timeouts and never changes any other setting. This is also a
+sensitive Accessibility use that needs its own Play policy assessment and disclosure; it is not
+advertised as universally supported across OEM Settings layouts.
+
 ## 5. Content rating (IARC questionnaire)
 
 | Question | Answer |

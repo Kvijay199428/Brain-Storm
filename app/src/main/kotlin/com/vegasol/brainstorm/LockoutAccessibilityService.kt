@@ -31,6 +31,7 @@ class LockoutAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         scope.launch {
+            PipSettingsAutomation.onWindowEvent(this@LockoutAccessibilityService)
             val now = System.currentTimeMillis()
             val restricted = Graph.db.lockouts().allActive()
                 .filter { it.expiresAt > now }

@@ -8,6 +8,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.4] - 2026-11-24
+
+Beta of improved PiP protection.
+
+### Added
+
+- Optional assisted PiP disable workflow in setup and Settings: opens each app's Android settings,
+  clicks only a clearly identified Picture-in-picture switch, verifies the AppOps state, and aborts
+  when the control cannot be identified.
+- Swipe-down PiP dismissal as a second strategy alongside the bounds-verified Close button.
+
+### Changed
+
+- PiP close detection now requires a clickable System UI control inside the detected PiP's bounds;
+  the reveal gesture is a real tap with a completion callback.
+- Media control tries `stop()` when the session advertises `ACTION_STOP`, then falls back to `pause()`,
+  with PiP removal and playback state verified independently.
+- PiP capability reporting distinguishes `default allow (support unconfirmed)` from explicit allow,
+  deny and unknown.
+
 ## [3.2.3] - 2026-11-24
 
 Beta of the centralized enforcement engine and PiP protection tools.

@@ -79,6 +79,27 @@ class MediaSessionMonitor(private val c: Context) {
         }
     }
 
+    fun playbackState(pkg: String): PlaybackState? = controllers().firstOrNull {
+        it.packageName == pkg
+    }?.playbackState
+
+    /** Only request stop when the session advertises the action; otherwise pause is safer. */
+    fun supportsStop(pkg: String): Boolean {
+        val actions = playbackState(pkg)?.actions ?: return false
+        return actions and PlaybackState.ACTION_STOP != 0L
+    }
+
+    fun stop(packages: Set<String>): Set<String> {
+        val tried = LinkedHashSet<String>()
+        controllers().forEach { ctrl ->
+            if (ctrl.packageName in packages) {
+                runCatching { ctrl.transportControls.stop() }
+                tried += ctrl.packageName
+            }
+        }
+        return tried
+    }
+
     /** Sends a pause command; verification happens later through [isPlaying]. */
     fun pause(packages: Set<String>): Set<String> {
         val tried = LinkedHashSet<String>()

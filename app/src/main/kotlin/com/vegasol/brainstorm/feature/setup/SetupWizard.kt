@@ -33,6 +33,8 @@ import com.vegasol.brainstorm.BudgetCheck
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitorService
 import com.vegasol.brainstorm.MonitoredApp
+import com.vegasol.brainstorm.PipAutomationState
+import com.vegasol.brainstorm.PipSettingsAutomation
 import com.vegasol.brainstorm.Perms
 import com.vegasol.brainstorm.budgetCheck
 import com.vegasol.brainstorm.mascot.MascotPool
@@ -55,7 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val LAST_STEP = 6
+private const val LAST_STEP = 7
 private const val DEFAULT_APP_LIMIT = 60
 private const val DEFAULT_BUDGET = 120
 
@@ -133,7 +135,7 @@ fun SetupWizard(onDone: () -> Unit) {
     val canNext = when (step) {
         2 -> Perms.usage(c)
         3 -> selected.isNotEmpty()
-        4 -> check != BudgetCheck.UNREACHABLE
+        6 -> check != BudgetCheck.UNREACHABLE
         else -> true
     }
 
@@ -205,7 +207,8 @@ fun SetupWizard(onDone: () -> Unit) {
                     onEdit = { editing = it }
                 )
                 4 -> StepBudget(budget, onBudget = { budget = it }, sumMinutes = sumMinutes, check = check, tooTight = tooTight)
-                5 -> StepLock(lockHours, resetHour, { lockHours = it }, { resetHour = it })
+                5 -> StepPipAssist(selected)
+                6 -> StepLock(lockHours, resetHour, { lockHours = it }, { resetHour = it })
                 else -> StepSummary(selected, apps, budget, sumMinutes, lockHours, resetHour, check, tooTight)
             }
         }
@@ -507,6 +510,62 @@ private fun StepApps(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StepPipAssist(selected: Map<String, Int>) {
+    val automation by PipSettingsAutomation.state.collectAsState()
+    var confirm by remember { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
+        Text("Picture-in-picture (optional)", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "Video apps can keep playing in a floating window after you leave them. With your " +
+                "permission, Brain Storm can walk through Android settings and try to switch PiP " +
+                "off for the apps you selected. It stops if it cannot identify the switch.",
+            fontSize = 12.sp, color = Care.TextSecondary
+        )
+        when (val a = automation) {
+            is PipAutomationState.Running -> Text(
+                "Disabling PiP ${a.index}/${a.total}: ${a.pkg} — ${a.step}",
+                fontSize = 12.sp, color = Care.Primary
+            )
+            is PipAutomationState.Finished -> Text(
+                "Done: ${a.disabled.size} changed, ${a.failed.size} need manual attention.",
+                fontSize = 12.sp, color = Care.TextSecondary
+            )
+            is PipAutomationState.Failed -> Text(a.reason, fontSize = 12.sp, color = Care.Warning)
+            PipAutomationState.Idle -> Unit
+        }
+        Button(
+            onClick = { confirm = true },
+            enabled = automation !is PipAutomationState.Running && selected.isNotEmpty(),
+            shape = RoundedCornerShape(Radius.button)
+        ) { Text("Disable PiP for selected apps", fontSize = 13.sp) }
+        Text(
+            "You can skip this step and do it later in Settings → Picture-in-picture protection.",
+            fontSize = 11.sp, color = Care.TextSecondary
+        )
+    }
+    if (confirm) {
+        AlertDialog(
+            onDismissRequest = { confirm = false },
+            title = { Text("Disable PiP automatically?") },
+            text = {
+                Text(
+                    "Brain Storm will open each selected app's Android settings and try to turn " +
+                        "Picture-in-picture off. It clicks only a clearly identified switch and " +
+                        "verifies the change; OEM layouts vary, so some apps may need manual changes."
+                )
+            },
+            confirmButton = {
+                TextButton({
+                    confirm = false
+                    PipSettingsAutomation.start(selected.keys.toList())
+                }) { Text("Start") }
+            },
+            dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } }
+        )
     }
 }
 

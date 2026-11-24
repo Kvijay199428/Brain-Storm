@@ -140,7 +140,9 @@ fun AppsScreen(onOpen: (String) -> Unit) {
                                 if (limitSec > 0) used * 100f / limitSec else 0f,
                                 Modifier.padding(top = 6.dp), 5.dp
                             )
-                            if (pipCaps[a.packageName] == PipCapability.SUPPORTED_ALLOWED) {
+                            if (pipCaps[a.packageName] == PipCapability.SUPPORTED_ALLOWED ||
+                                pipCaps[a.packageName] == PipCapability.DEFAULT_ALLOWED
+                            ) {
                                 Text(
                                     "PiP enabled",
                                     fontSize = 10.sp, color = Care.Warning,
