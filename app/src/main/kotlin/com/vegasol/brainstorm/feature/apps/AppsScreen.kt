@@ -12,11 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitoredApp
+import com.vegasol.brainstorm.PipCapability
+import com.vegasol.brainstorm.PipCapabilityScanner
 import com.vegasol.brainstorm.save
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
@@ -30,7 +33,9 @@ import com.vegasol.brainstorm.ui.fmtHm
 import com.vegasol.brainstorm.ui.fmtUsage
 import com.vegasol.brainstorm.ui.nowTicker
 import com.vegasol.brainstorm.ui.statusOf
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * The only mutation in the app after setup: adding an app (irreversibly) with its own limit.
@@ -45,6 +50,13 @@ fun AppsScreen(onOpen: (String) -> Unit) {
     val usage by remember(key) { Graph.db.usage().observeDay(key) }.collectAsState(emptyList())
     val locks by Graph.db.lockouts().observeActive().collectAsState(emptyList())
     val ranked = remember(apps, usage) { AppReportDerive.rankByTodayUsage(apps, usage) }
+    val c = LocalContext.current
+    var pipCaps by remember { mutableStateOf<Map<String, PipCapability>>(emptyMap()) }
+    LaunchedEffect(apps) {
+        pipCaps = withContext(Dispatchers.IO) {
+            PipCapabilityScanner.scanAll(c, apps.map { it.packageName })
+        }
+    }
 
     var adding by remember { mutableStateOf(false) }
 
@@ -128,6 +140,13 @@ fun AppsScreen(onOpen: (String) -> Unit) {
                                 if (limitSec > 0) used * 100f / limitSec else 0f,
                                 Modifier.padding(top = 6.dp), 5.dp
                             )
+                            if (pipCaps[a.packageName] == PipCapability.SUPPORTED_ALLOWED) {
+                                Text(
+                                    "PiP enabled",
+                                    fontSize = 10.sp, color = Care.Warning,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                             if (lock != null) {
                                 Text(
                                     "Unlocks in ${fmtClock(lock.expiresAt - now)}",

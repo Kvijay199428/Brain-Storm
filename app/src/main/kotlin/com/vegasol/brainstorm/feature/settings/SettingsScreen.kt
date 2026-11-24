@@ -37,6 +37,7 @@ import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
 import com.vegasol.brainstorm.ui.LockedNotice
+import com.vegasol.brainstorm.ui.PipProtectionCard
 import com.vegasol.brainstorm.ui.SectionHeader
 import com.vegasol.brainstorm.ui.SurfaceCard
 import com.vegasol.brainstorm.ui.fmtHm
@@ -243,6 +244,8 @@ fun SettingsScreen() {
                 ) { Text("Playback access", fontSize = 12.sp) }
             }
         }
+
+        PipProtectionCard()
 
         SurfaceCard(Modifier.fillMaxWidth(), color = Care.SurfaceVariant.copy(alpha = 0.5f)) {
             Text("Privacy", fontWeight = FontWeight.Bold, fontSize = 13.sp)

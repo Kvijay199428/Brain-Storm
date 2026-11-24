@@ -95,9 +95,9 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.2.2`, `channel=beta`; stable line: `3.2.0`, `stable`) |
+| Version name + channel | `version.properties` (`versionName=3.2.3`, `channel=beta`; stable line: `3.2.0`, `stable`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.2-beta.30` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.3-beta.32` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |
@@ -173,6 +173,12 @@ events update that attempt instead of reopening the blocker. Pause is retried at
 and the result is stored per capability (visual block, PiP detection, playback pause, process
 termination) in Room v5, so the dashboard can say exactly which part is partial. Standard installs
 always report `PARTIAL` because Android gives a third-party app no process-control API.
+
+**Picture-in-picture protection:** Settings lists each monitored app's real per-app PiP access state
+(from AppOps) and can open Android's app settings so the user can disable PiP manually; the Apps list
+badges apps with PiP enabled. An opt-in beta can ask the lockout accessibility service to locate and
+click Android's own PiP Close control during an active lockout — one attempt per appearance, verified
+where possible, and reported as partial when the control cannot be identified.
 
 ## Code map
 

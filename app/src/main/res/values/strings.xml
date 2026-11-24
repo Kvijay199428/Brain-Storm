@@ -4,5 +4,5 @@
     <string name="content_service_label">Brain Storm content detection</string>
     <string name="content_service_description">Optional, off unless you turn it on. Reads the on-screen labels of the apps that have a detector (currently YouTube Shorts) to count new clips. Labels are analysed on this device and are never stored or uploaded.</string>
     <string name="lockout_service_label">Brain Storm lockout detection</string>
-    <string name="lockout_service_description">Optional, off unless you turn it on. Watches for windows of apps that have reached a limit, including picture-in-picture, and shows Brain Storm\'s blocking screen. It does not read screen text and cannot stop third-party playback.</string>
+    <string name="lockout_service_description">Optional, off unless you turn it on. Watches for windows of apps that have reached a limit, including picture-in-picture, and shows Brain Storm\'s blocking screen. With a separate opt-in it may tap Android\'s own PiP close control. It does not read or store screen text.</string>
 </resources>

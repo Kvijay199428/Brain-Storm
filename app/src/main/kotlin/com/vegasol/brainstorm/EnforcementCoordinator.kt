@@ -127,6 +127,17 @@ object EnforcementCoordinator {
         }
     }
 
+    /** Records the outcome of an opt-in PiP close attempt on the current attempt's report. */
+    suspend fun onPipDismissal(pkg: String, result: PipDismissResult): Unit = mutex.withLock {
+        val lock = activeLockout(pkg) ?: return@withLock
+        val attempt = attempts[lock.id] ?: return@withLock
+        val state = if (result == PipDismissResult.DISMISSED) CapabilityState.CONFIRMED
+        else CapabilityState.FAILED
+        val report = reportFor(lock, attempt).copy(pipDetection = state)
+        persist(lock, attempt, report)
+        Graph.db.lockouts().note(lock.id, "${report.summary()} · PiP close: ${result.name}")
+    }
+
     /** Drop state for lockouts that expired or were removed. */
     suspend fun reconcile() = mutex.withLock {
         val activeIds = Graph.db.lockouts().allActive().mapTo(HashSet()) { it.id }

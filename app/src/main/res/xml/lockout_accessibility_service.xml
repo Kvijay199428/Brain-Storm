@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Opt-in, best-effort PiP / restricted-window detection. No package filter: the service checks the
-  lockout database itself so the monitored set can grow after setup. It never reads window text.
+  Opt-in, best-effort PiP / restricted-window detection. Window content is exposed only so the
+  optional PiP-close controller can identify Android's own Close control; it never reads or stores
+  window text. Gestures are only used, behind a separate user toggle, to reveal those controls.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagRetrieveInteractiveWindows"
-    android:canRetrieveWindowContent="false"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows|flagReportViewIds"
+    android:canRetrieveWindowContent="true"
+    android:canPerformGestures="true"
     android:description="@string/lockout_service_description"
-    android:notificationTimeout="300"
+    android:notificationTimeout="250"
     android:settingsActivity="com.vegasol.brainstorm.MainActivity" />

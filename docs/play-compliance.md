@@ -139,6 +139,13 @@ deduplication and capability-level reporting, so a partial result is disclosed r
 If either declaration is rejected, both services and the pause toggle can be removed without
 affecting usage accounting, lockout creation or the Device Owner path.
 
+The optional PiP close feature extends the same lockout accessibility service with
+`canRetrieveWindowContent` and `canPerformGestures`. It is off by default behind a separate toggle,
+inspects only System UI windows after a restricted PiP window is detected, never reads or stores
+window text, and clicks only a verified close control (no arbitrary coordinates). Because it
+interacts with another app's controls through Accessibility, this capability needs its own Play
+policy assessment and disclosure; the fallback is a message asking the user to close PiP manually.
+
 ## 5. Content rating (IARC questionnaire)
 
 | Question | Answer |

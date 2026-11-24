@@ -8,8 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.3] - 2026-11-24
+
+Beta of the centralized enforcement engine and PiP protection tools.
+
 ### Added
 
+- PiP compatibility scanner: reports each monitored app's per-app PiP access state in Settings and
+  as an "PiP enabled" badge in the Apps list, with a link to Android's app settings for manual
+  disabling.
+- Opt-in beta auto-dismissal: during an active lockout, a verified System UI PiP Close control can be
+  clicked through the lockout accessibility service, with one controlled attempt per PiP appearance
+  and verification of the result.
 - `EnforcementCoordinator` centralises all lockout enforcement. Foreground, PiP and media detectors
   report events; only the coordinator shows the blocker and requests playback control.
 - Per-attempt deduplication (`EnforcementAttempt`): a new attempt starts only on a not-visible →

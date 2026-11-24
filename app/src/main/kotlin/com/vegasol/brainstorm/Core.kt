@@ -71,6 +71,9 @@ class Prefs(c: Context) {
     /** Opt-in beta: try to pause a locked app's media session via granted Notification access. */
     var pauseLockedPlayback: Boolean get() = p.getBoolean("pausePlayback", false); set(v) = p.edit().putBoolean("pausePlayback", v).apply()
 
+    /** Opt-in: let the accessibility service try to click Android's PiP close control. */
+    var pipAutoDismiss: Boolean get() = p.getBoolean("pipDismiss", false); set(v) = p.edit().putBoolean("pipDismiss", v).apply()
+
     // ── Brainy Mascot preferences (UI & presentation only) ──
     var mascotQuality: String get() = p.getString("mQual", "normal") ?: "normal"; set(v) = p.edit().putString("mQual", v).apply()
     var mascotExpressiveness: Float get() = p.getFloat("mEx", 0.8f); set(v) = p.edit().putFloat("mEx", v.coerceIn(0f, 1f)).apply()

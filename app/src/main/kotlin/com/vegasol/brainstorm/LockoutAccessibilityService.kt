@@ -56,6 +56,10 @@ class LockoutAccessibilityService : AccessibilityService() {
                     restricted, metrics.widthPixels, metrics.heightPixels
                 )
                 EnforcementCoordinator.onPackageVisible(pkg, pip = pip)
+                if (pip) {
+                    val result = PipDismissalController.attempt(this@LockoutAccessibilityService, pkg, bounds)
+                    EnforcementCoordinator.onPipDismissal(pkg, result)
+                }
             }
             restricted.forEach { pkg ->
                 if (pkg !in seen) EnforcementCoordinator.onPackageHidden(pkg)
