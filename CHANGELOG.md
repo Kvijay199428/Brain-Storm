@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.5] - 2026-11-24
+
+Beta with a one-click PiP disable action.
+
+### Changed
+
+- The guided PiP-disable action is now a prominent one-click button near the top of Settings; the
+  duplicate button inside the PiP protection card was removed.
+
 ## [3.2.4] - 2026-11-24
 
 Beta of improved PiP protection.

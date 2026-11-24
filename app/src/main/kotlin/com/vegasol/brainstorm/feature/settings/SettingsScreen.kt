@@ -9,12 +9,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +36,8 @@ import com.vegasol.brainstorm.EnforcementProvider
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitorService
 import com.vegasol.brainstorm.Perms
+import com.vegasol.brainstorm.PipAutomationState
+import com.vegasol.brainstorm.PipSettingsAutomation
 import com.vegasol.brainstorm.theme.Care
 import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
@@ -53,6 +58,8 @@ fun SettingsScreen() {
     val pipDetection = remember(resume, c) { Perms.lockoutAccessibility(c) }
     val notificationAccess = remember(resume, c) { Perms.notificationAccess(c) }
     var pausePlayback by remember { mutableStateOf(Graph.prefs.pauseLockedPlayback) }
+    val pipAutomation by PipSettingsAutomation.state.collectAsState()
+    var pipConfirm by remember { mutableStateOf(false) }
     val batteryOk = remember(resume, c) { Perms.batteryUnrestricted(c) }
     val now by minuteTicker()
     val apps by Graph.db.apps().observeAll().collectAsStateWithLifecycle(emptyList())
@@ -83,6 +90,56 @@ fun SettingsScreen() {
                 "These values were chosen once in setup. Brain Storm offers no way to change them " +
                     "from inside the app — that is the point.",
                 fontSize = 11.sp, color = Care.TextSecondary
+            )
+        }
+
+        SurfaceCard(Modifier.fillMaxWidth()) {
+            SectionHeader("PiP protection · one click")
+            Spacer(Modifier.height(Space.s))
+            Text(
+                "Turn off Picture-in-picture for every monitored app. Brain Storm walks through " +
+                    "Android settings for you and verifies each change.",
+                fontSize = 11.sp, color = Care.TextSecondary
+            )
+            Spacer(Modifier.height(Space.s))
+            when (val a = pipAutomation) {
+                is PipAutomationState.Running -> Text(
+                    "Disabling PiP ${a.index}/${a.total}: ${a.pkg} — ${a.step}",
+                    fontSize = 11.sp, color = Care.Primary
+                )
+                is PipAutomationState.Finished -> Text(
+                    "PiP disabled for ${a.disabled.size} app(s); ${a.failed.size} need manual attention.",
+                    fontSize = 11.sp, color = Care.TextSecondary
+                )
+                is PipAutomationState.Failed -> Text(a.reason, fontSize = 11.sp, color = Care.Warning)
+                PipAutomationState.Idle -> Unit
+            }
+            Button(
+                onClick = { pipConfirm = true },
+                enabled = pipAutomation !is PipAutomationState.Running && apps.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(Radius.button)
+            ) { Text("Disable PiP for all selected apps", fontSize = 13.sp) }
+        }
+        if (pipConfirm) {
+            AlertDialog(
+                onDismissRequest = { pipConfirm = false },
+                title = { Text("Disable PiP for all selected apps?") },
+                text = {
+                    Text(
+                        "Brain Storm will open each monitored app's Android settings and try to " +
+                            "switch Picture-in-picture off. It clicks only a clearly identified " +
+                            "switch and verifies the change; OEM layouts vary, so some apps may " +
+                            "need manual changes."
+                    )
+                },
+                confirmButton = {
+                    TextButton({
+                        pipConfirm = false
+                        PipSettingsAutomation.start(apps.map { it.packageName })
+                    }) { Text("Start") }
+                },
+                dismissButton = { TextButton({ pipConfirm = false }) { Text("Cancel") } }
             )
         }
 

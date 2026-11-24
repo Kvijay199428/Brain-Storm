@@ -95,9 +95,9 @@ Every push to `main` publishes a release; nothing is released by hand.
 
 | Piece | Where |
 |---|---|
-| Version name + channel | `version.properties` (`versionName=3.2.4`, `channel=beta`; stable line: `3.2.0`, `stable`) |
+| Version name + channel | `version.properties` (`versionName=3.2.5`, `channel=beta`; stable line: `3.2.0`, `stable`) |
 | `versionCode` | the git commit count — strictly increases with every push |
-| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.4-beta.33` |
+| Tag | `v<versionName>-<channel>.<versionCode>`, e.g. `v3.2.5-beta.34` |
 | Assets | `Brain-Storm-<version>_<channel>.apk`, `version.json`, `SHA256SUMS` |
 | Release notes | the `CHANGELOG.md` section whose heading matches `versionName`; CI fails without one |
 | CI | `.github/workflows/release.yml` |

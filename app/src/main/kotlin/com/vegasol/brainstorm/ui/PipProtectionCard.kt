@@ -4,9 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,13 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vegasol.brainstorm.Graph
 import com.vegasol.brainstorm.MonitoredApp
-import com.vegasol.brainstorm.PipAutomationState
 import com.vegasol.brainstorm.PipCapability
 import com.vegasol.brainstorm.PipCapabilityRules
 import com.vegasol.brainstorm.PipCapabilityScanner
-import com.vegasol.brainstorm.PipSettingsAutomation
 import com.vegasol.brainstorm.theme.Care
-import com.vegasol.brainstorm.theme.Radius
 import com.vegasol.brainstorm.theme.Space
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,8 +32,6 @@ fun PipProtectionCard() {
     var apps by remember { mutableStateOf<List<MonitoredApp>>(emptyList()) }
     var caps by remember { mutableStateOf<Map<String, PipCapability>>(emptyMap()) }
     var autoDismiss by remember { mutableStateOf(Graph.prefs.pipAutoDismiss) }
-    val automation by PipSettingsAutomation.state.collectAsState()
-    var confirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(resume) {
         val monitored = Graph.db.apps().enabled()
@@ -76,45 +68,11 @@ fun PipProtectionCard() {
             )
         }
         Spacer(Modifier.height(Space.s))
-        when (val a = automation) {
-            is PipAutomationState.Running -> Text(
-                "Assisted disabled ${a.index}/${a.total}: ${a.pkg} — ${a.step}",
-                fontSize = 11.sp, color = Care.Primary
-            )
-            is PipAutomationState.Finished -> Text(
-                "PiP disabled for ${a.disabled.size} app(s); ${a.failed.size} could not be changed.",
-                fontSize = 11.sp, color = Care.TextSecondary
-            )
-            is PipAutomationState.Failed -> Text(a.reason, fontSize = 11.sp, color = Care.Warning)
-            PipAutomationState.Idle -> Unit
-        }
-        Button(
-            onClick = { confirm = true },
-            enabled = automation !is PipAutomationState.Running,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(Radius.button)
-        ) { Text("Disable PiP for monitored apps (assisted)", fontSize = 12.sp) }
-        if (confirm) {
-            AlertDialog(
-                onDismissRequest = { confirm = false },
-                title = { Text("Disable PiP automatically?") },
-                text = {
-                    Text(
-                        "Brain Storm will open each monitored app's Android settings and try to " +
-                            "switch Picture-in-picture off. It only clicks a clearly identified " +
-                            "switch and stops if it cannot verify the change. Android/OEM layouts " +
-                            "vary, so some apps may need manual changes."
-                    )
-                },
-                confirmButton = {
-                    TextButton({
-                        confirm = false
-                        PipSettingsAutomation.start(apps.map { it.packageName })
-                    }) { Text("Start") }
-                },
-                dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } }
-            )
-        }
+        Text(
+            "Use 'Disable PiP for all selected apps' near the top of Settings to change these " +
+                "automatically, or open an app's settings below to change it manually.",
+            fontSize = 11.sp, color = Care.TextSecondary
+        )
         Spacer(Modifier.height(Space.s))
         apps.forEach { app ->
             val capability = caps[app.packageName] ?: PipCapability.UNKNOWN
